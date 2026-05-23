@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-resilio-sync
 name: Resilio Sync
 tagline: Peer-to-peer file synchronization
-icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/resilio-sync-icon.png
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/resilio-sync.svg
 category: Files
 version: "3.0.2"
 port: 8888
@@ -29,7 +29,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/linuxserver/docker-resilio-sync
 support: https://github.com/linuxserver/docker-resilio-sync/issues
 gallery:
-  - https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/resilio-sync-icon.png
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/resilio-sync.svg
 releaseNotes: >-
   Initial release in this community app store.
 dependencies: []
