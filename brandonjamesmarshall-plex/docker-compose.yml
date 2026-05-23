@@ -1,0 +1,23 @@
+version: "3.7"
+
+# Plex uses network_mode: host (matches official Umbrel) so DLNA/UPnP and
+# direct LAN clients work without extra port-forward gymnastics.
+# umbrelOS auto-injects /dev/dri when permissions: [GPU] is set in
+# umbrel-app.yml and the host has a Intel/AMD/NVIDIA GPU device node.
+
+services:
+
+  server:
+    # Pinned to immutable digest. Renovate refreshes this after a 14-day delay.
+    image: lscr.io/linuxserver/plex:1.43.2@sha256:626eb0d52b4522db3be91110a89161be6ccffc0741e9abf0e93aaf4fea98ccb9
+    restart: on-failure
+    network_mode: host
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+      VERSION: "docker"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - ${APP_DATA_DIR}/data/transcode:/transcode
+      - /mnt/plex-media:/data

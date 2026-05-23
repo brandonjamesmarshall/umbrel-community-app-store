@@ -1,0 +1,36 @@
+manifestVersion: 1
+id: brandonjamesmarshall-tautulli
+name: Tautulli
+tagline: Plex stats, history, and notifications
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tautulli.svg
+category: Media
+# renovate: datasource=docker depName=linuxserver/tautulli
+version: "2.17.1"
+port: 8181
+description: >-
+  Tautulli is a Plex Media Server companion that tracks usage statistics,
+  watch history, and can send notifications on playback or library events.
+
+
+  POST-INSTALL:
+
+  1. Open Tautulli, complete the setup wizard.
+
+  2. When asked for Plex Media Server, enter
+     http://brandonjamesmarshall-plex_server_1:32400 (or the host LAN IP
+     if Plex is in host network mode) and the Plex token Tautulli will
+     fetch for you after sign-in.
+developer: Tautulli developers
+website: https://tautulli.com
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-tautulli
+support: https://github.com/Tautulli/Tautulli/issues
+gallery:
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tautulli.svg
+releaseNotes: >-
+  Initial release in this community app store. Pinned to upstream 2.17.1.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

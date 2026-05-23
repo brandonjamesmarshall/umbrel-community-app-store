@@ -1,0 +1,39 @@
+manifestVersion: 1
+id: brandonjamesmarshall-maintainerr
+name: Maintainerr
+tagline: Rule-based library cleanup for Plex
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
+category: Media
+# renovate: datasource=docker depName=jorenn92/maintainerr
+version: "3.12.0"
+port: 6246
+description: >-
+  Maintainerr lets you define rule-based collections in Plex (e.g. "movies
+  unwatched for 90 days") and can automatically delete or hand them back to
+  Radarr/Sonarr/Overseerr to remove from the library.
+
+
+  POST-INSTALL:
+
+  1. Open Maintainerr, complete first-run setup.
+
+  2. Configure connections to:
+       - Plex:    http://brandonjamesmarshall-plex_server_1:32400 + Plex token
+       - Sonarr:  http://brandonjamesmarshall-sonarr_server_1:8989 + API key
+       - Radarr:  http://brandonjamesmarshall-radarr_server_1:7878 + API key
+
+  3. Build rules under Rules -> New rule -> pick a section and conditions.
+developer: jorenn92
+website: https://github.com/jorenn92/Maintainerr
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/jorenn92/Maintainerr
+support: https://github.com/jorenn92/Maintainerr/issues
+gallery:
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
+releaseNotes: >-
+  Initial release in this community app store. Pinned to upstream 3.12.0.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

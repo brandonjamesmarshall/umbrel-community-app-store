@@ -1,0 +1,46 @@
+version: "3.7"
+
+# Transmission shares gluetun's network namespace via network_mode:
+# "service:gluetun". gluetun is the ONLY service with internet access, and
+# it routes through the iVPN WireGuard tunnel. If the tunnel drops,
+# Transmission has no network — kill-switch by construction.
+#
+# Secrets (WIREGUARD_PRIVATE_KEY, WIREGUARD_ADDRESSES, SERVER_CITIES) are
+# loaded from ${APP_DATA_DIR}/data/gluetun.env, gitignored. See
+# gluetun.env.example for the template.
+
+services:
+
+  app_proxy:
+    environment:
+      # When sharing a netns, the listening port is reached via the netns
+      # owner's container — gluetun, not transmission.
+      APP_HOST: brandonjamesmarshall-transmission_gluetun_1
+      APP_PORT: 9091
+
+  gluetun:
+    # renovate: datasource=docker depName=qmcgaw/gluetun
+    image: qmcgaw/gluetun:v3.41.1@sha256:1a5bf4b4820a879cdf8d93d7ef0d2d963af56670c9ebff8981860b6804ebc8ab
+    restart: on-failure
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    env_file:
+      - ${APP_DATA_DIR}/data/gluetun.env
+    volumes:
+      - ${APP_DATA_DIR}/data/gluetun:/gluetun
+
+  server:
+    image: lscr.io/linuxserver/transmission:4.1.1@sha256:7d1f96f26f433d5bfa518f6392021e17fc74a7eb0322190746981143644ce29e
+    restart: on-failure
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - /mnt/plex-media:/data

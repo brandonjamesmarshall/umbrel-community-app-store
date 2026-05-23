@@ -1,0 +1,44 @@
+manifestVersion: 1
+id: brandonjamesmarshall-sabnzbd
+name: SABnzbd
+tagline: Binary newsreader for Usenet
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/sabnzbd.svg
+category: Media
+# renovate: datasource=docker depName=linuxserver/sabnzbd
+version: "5.0.3"
+port: 8080
+description: >-
+  SABnzbd is a Usenet (NZB) download client. Packaged with the shared /data
+  mount so completed files land where Sonarr/Radarr can hardlink them into
+  the library.
+
+
+  POST-INSTALL:
+
+  1. Open SABnzbd, complete first-run wizard (paste your Usenet provider
+     credentials).
+
+  2. Config -> Folders ->
+       - Temporary Download Folder: /data/Download/incomplete
+       - Completed Download Folder: /data/Download
+
+  3. Config -> Categories ->
+       - tv     -> /data/Download/tv
+       - movies -> /data/Download/movies
+
+  4. Wire SABnzbd into Sonarr/Radarr in their respective Download Clients
+     settings (host: brandonjamesmarshall-sabnzbd_server_1, port 8080).
+developer: The SABnzbd Team
+website: https://sabnzbd.org
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-sabnzbd
+support: https://forums.sabnzbd.org
+gallery:
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/sabnzbd.svg
+releaseNotes: >-
+  Initial release in this community app store. Pinned to upstream 5.0.3.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

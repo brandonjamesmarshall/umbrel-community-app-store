@@ -1,0 +1,50 @@
+manifestVersion: 1
+id: brandonjamesmarshall-transmission
+name: Transmission (via iVPN)
+tagline: Torrent client tunneled through iVPN
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/transmission.svg
+category: Media
+# renovate: datasource=docker depName=linuxserver/transmission
+version: "4.1.1"
+port: 9091
+description: >-
+  Transmission torrent client, forced through an iVPN WireGuard tunnel via
+  gluetun with a built-in kill-switch. If the VPN drops, Transmission loses
+  all network access.
+
+
+  IMPORTANT - one-time setup before launching:
+
+  1. Generate WireGuard config in the iVPN client area (or website) and
+     get your WIREGUARD_PRIVATE_KEY + WIREGUARD_ADDRESSES.
+
+  2. On your Umbrel:
+       sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-transmission/data
+       sudo cp /tmp/gluetun.env.example ~/umbrel/app-data/brandonjamesmarshall-transmission/data/gluetun.env
+       sudo nano ~/umbrel/app-data/brandonjamesmarshall-transmission/data/gluetun.env
+
+  3. Paste your values. Restart the app.
+
+  4. Verify: in the Transmission UI, settings show download path /data/Download.
+     SSH the Umbrel and run:
+       docker exec brandonjamesmarshall-transmission_gluetun_1 wget -qO- https://ifconfig.me
+     The IP must be an iVPN IP, NOT your home IP.
+
+
+  Credentials NEVER live in this repo; they are loaded from the env_file on
+  your Umbrel. Pattern matches the Newt app.
+developer: Transmission Project + qmcgaw (gluetun)
+website: https://transmissionbt.com
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-transmission
+support: https://github.com/transmission/transmission/issues
+gallery:
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/transmission.svg
+releaseNotes: >-
+  Initial release in this community app store. Transmission 4.1.1 behind
+  gluetun v3.41.1 (iVPN provider).
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

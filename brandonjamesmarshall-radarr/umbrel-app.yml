@@ -1,0 +1,41 @@
+manifestVersion: 1
+id: brandonjamesmarshall-radarr
+name: Radarr
+tagline: Movie collection manager
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/radarr.svg
+category: Media
+# renovate: datasource=docker depName=linuxserver/radarr
+version: "6.1.1"
+port: 7878
+description: >-
+  Radarr automatically finds, downloads, and organises movies. Packaged for
+  this community store with a shared /data mount so imports hardlink instead
+  of copying.
+
+
+  POST-INSTALL:
+
+  1. Open Radarr, complete first-run setup.
+
+  2. Settings -> Media Management -> Root Folders -> add /data/Movies.
+
+  3. Settings -> Download Clients -> add Transmission
+     (host: brandonjamesmarshall-transmission_gluetun_1, port 9091, category movies)
+     and/or SABnzbd
+     (host: brandonjamesmarshall-sabnzbd_server_1, port 8080, category movies).
+
+  4. Settings -> Indexers -> add via Prowlarr's "Apps" page (recommended).
+developer: Team Radarr
+website: https://radarr.video
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-radarr
+support: https://github.com/Radarr/Radarr/issues
+gallery:
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/radarr.svg
+releaseNotes: >-
+  Initial release in this community app store. Pinned to upstream 6.1.1.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

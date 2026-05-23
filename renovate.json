@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":dependencyDashboard"],
+  "pinDigests": true,
+  "minimumReleaseAge": "14 days",
+  "schedule": ["before 06:00 on monday"],
+  "packageRules": [
+    {
+      "matchManagers": ["docker-compose", "custom.regex"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "minimumReleaseAge": "14 days"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Bump the version: field in each umbrel-app.yml in lockstep with its app's Docker image",
+      "fileMatch": ["(^|/)umbrel-app\\.yml$"],
+      "matchStrings": [
+        "# renovate: datasource=docker depName=(?<depName>\\S+)(?: registryUrl=(?<registryUrl>\\S+))?\\s+version:\\s*\"(?<currentValue>[^\"]+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
+  ],
+  "dockerfile": { "enabled": false }
+}

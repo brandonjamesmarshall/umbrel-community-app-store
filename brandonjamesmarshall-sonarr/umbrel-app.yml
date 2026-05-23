@@ -1,0 +1,43 @@
+manifestVersion: 1
+id: brandonjamesmarshall-sonarr
+name: Sonarr
+tagline: TV show collection manager
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/sonarr.svg
+category: Media
+# renovate: datasource=docker depName=linuxserver/sonarr
+version: "4.0.17"
+port: 8989
+description: >-
+  Sonarr automatically finds, downloads, and organises TV shows. Packaged for
+  this community store with a shared /data mount so imports hardlink instead
+  of copying.
+
+
+  POST-INSTALL:
+
+  1. Open Sonarr, complete first-run setup.
+
+  2. Settings -> Media Management -> Root Folders -> add /data/TV.
+
+  3. Settings -> Download Clients -> add Transmission
+     (host: brandonjamesmarshall-transmission_gluetun_1, port 9091, category tv)
+     and/or SABnzbd
+     (host: brandonjamesmarshall-sabnzbd_server_1, port 8080, category tv).
+     Get the API key from each app's UI.
+
+  4. Settings -> Indexers -> add via Prowlarr's "Apps" page (recommended)
+     or manually.
+developer: Team Sonarr
+website: https://sonarr.tv
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-sonarr
+support: https://github.com/Sonarr/Sonarr/issues
+gallery:
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/sonarr.svg
+releaseNotes: >-
+  Initial release in this community app store. Pinned to upstream 4.0.17.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

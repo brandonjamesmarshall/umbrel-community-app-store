@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+
+  app_proxy:
+    environment:
+      APP_HOST: brandonjamesmarshall-sonarr_server_1
+      APP_PORT: 8989
+
+  server:
+    image: lscr.io/linuxserver/sonarr:4.0.17@sha256:0b5c4803f92456fb9b65bae8375716ea120b4ea17b3cced7da32b63f0085782b
+    restart: on-failure
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - /mnt/plex-media:/data

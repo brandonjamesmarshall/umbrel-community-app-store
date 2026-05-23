@@ -1,0 +1,19 @@
+version: "3.7"
+
+services:
+
+  app_proxy:
+    environment:
+      APP_HOST: brandonjamesmarshall-sabnzbd_server_1
+      APP_PORT: 8080
+
+  server:
+    image: lscr.io/linuxserver/sabnzbd:5.0.3@sha256:6b392fce45ed587ba7213259fbce6f9f725b157b746b36ec53d3f08ee415602e
+    restart: on-failure
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - /mnt/plex-media:/data

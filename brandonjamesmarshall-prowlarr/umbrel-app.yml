@@ -1,0 +1,40 @@
+manifestVersion: 1
+id: brandonjamesmarshall-prowlarr
+name: Prowlarr
+tagline: Indexer manager for the *arr stack
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/prowlarr.svg
+category: Media
+# renovate: datasource=docker depName=linuxserver/prowlarr
+version: "2.3.5"
+port: 9696
+description: >-
+  Prowlarr is a unified indexer manager for Sonarr, Radarr, and other arr
+  apps. Configure your trackers and Usenet indexers once here, then sync
+  them to all arrs.
+
+
+  POST-INSTALL:
+
+  1. Open Prowlarr, complete first-run setup.
+
+  2. Indexers -> add your tracker/Usenet indexer accounts.
+
+  3. Settings -> Apps -> add Sonarr (URL http://brandonjamesmarshall-sonarr_server_1:8989)
+     and Radarr (URL http://brandonjamesmarshall-radarr_server_1:7878), paste
+     their API keys (Settings -> General -> API Key inside each app).
+
+  4. Indexers -> Sync App Indexers -> Prowlarr pushes everything.
+developer: Team Prowlarr
+website: https://prowlarr.com
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-prowlarr
+support: https://github.com/Prowlarr/Prowlarr/issues
+gallery:
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/prowlarr.svg
+releaseNotes: >-
+  Initial release in this community app store. Pinned to upstream 2.3.5.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

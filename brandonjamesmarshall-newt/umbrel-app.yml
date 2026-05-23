@@ -4,6 +4,7 @@ name: Newt
 tagline: Userspace WireGuard tunnel client for Pangolin
 icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/pangolin.svg
 category: Networking
+# renovate: datasource=docker depName=fosrl/newt
 version: "1.12.5"
 port: 41641
 description: >-

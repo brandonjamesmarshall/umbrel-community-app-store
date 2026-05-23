@@ -1,0 +1,51 @@
+manifestVersion: 1
+id: brandonjamesmarshall-plex
+name: Plex
+tagline: Stream your media library, anywhere
+icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/plex.svg
+category: Media
+# renovate: datasource=docker depName=linuxserver/plex
+version: "1.43.2"
+port: 32400
+description: >-
+  Plex Media Server, packaged for this Umbrel community store with:
+
+
+  - Hardware-accelerated transcoding via the Intel N100 iGPU on the Umbrel
+    Home 2024 (umbrelOS auto-injects /dev/dri when the GPU permission below
+    is granted). Requires Plex Pass.
+
+  - Media library mounted from your Synology NAS via NFS at /data, sharing
+    one mount point with Sonarr, Radarr, SABnzbd, and Transmission so
+    Sonarr/Radarr can hardlink imports instead of copying.
+
+
+  POST-INSTALL:
+
+  1. Sign in to plex.tv and claim this server.
+
+  2. In Settings -> Transcoder, enable "Use hardware acceleration when
+     available" and "Use hardware-accelerated video encoding".
+
+  3. Add libraries pointing at /data/Movies, /data/TV (and optionally
+     /data/Music, /data/Books, /data/Photos).
+
+
+  See the store README for the one-time NFS setup on your Umbrel host and
+  Synology.
+developer: Plex, Inc.
+website: https://www.plex.tv
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-plex
+support: https://forums.plex.tv
+gallery:
+  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/plex.svg
+releaseNotes: >-
+  Initial release in this community app store. Pinned to upstream 1.43.2.
+dependencies: []
+permissions:
+  - GPU
+path: ""
+defaultUsername: ""
+defaultPassword: ""
