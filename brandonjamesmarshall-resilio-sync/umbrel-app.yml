@@ -4,7 +4,7 @@ name: Resilio Sync
 tagline: Peer-to-peer file synchronization
 icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/resilio-sync.svg
 category: Files
-version: "3.0.2"
+version: "3.1.2"
 port: 8888
 description: >-
   Resilio Sync (formerly BitTorrent Sync) uses the BitTorrent protocol to sync

@@ -8,7 +8,8 @@ services:
       APP_PORT: 8888
 
   server:
-    image: lscr.io/linuxserver/resilio-sync:3.0.2
+    # Pinned to immutable digest — refresh in a reviewed commit, never auto-update.
+    image: lscr.io/linuxserver/resilio-sync:3.1.2@sha256:198fa18a784454e5faf317469220abff5bb1e17fdb7c6a966d59e1a416008ff1
     restart: on-failure
     environment:
       PUID: "1000"

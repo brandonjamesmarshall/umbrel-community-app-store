@@ -4,7 +4,7 @@ name: Newt
 tagline: Userspace WireGuard tunnel client for Pangolin
 icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/pangolin.svg
 category: Networking
-version: "1.0.0"
+version: "1.12.5"
 port: 41641
 description: >-
   Newt is a fully userspace WireGuard tunnel client and TCP/UDP proxy that
