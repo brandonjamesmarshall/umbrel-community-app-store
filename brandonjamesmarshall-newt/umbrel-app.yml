@@ -1,0 +1,52 @@
+manifestVersion: 1
+id: brandonjamesmarshall-newt
+name: Newt
+tagline: Userspace WireGuard tunnel client for Pangolin
+icon: https://raw.githubusercontent.com/fosrl/pangolin/main/public/logo/pangolin_orange.svg
+category: Networking
+version: "1.0.0"
+port: 41641
+description: >-
+  Newt is a fully userspace WireGuard tunnel client and TCP/UDP proxy that
+  connects this device to a Pangolin server so private resources can be
+  exposed securely without managing WireGuard or NAT yourself.
+
+
+  Newt has no web UI — it runs in the background as a tunnel client. You will
+  not see anything when clicking "Open" in umbrelOS; check the container logs
+  to confirm it has connected.
+
+
+  SETUP — secrets are not stored in this app store. After installing, SSH into
+  your Umbrel and create the env file with your Pangolin credentials:
+
+
+    sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-newt/data
+    sudo nano  ~/umbrel/app-data/brandonjamesmarshall-newt/data/newt.env
+
+
+  Put these values inside (replace with the values from your Pangolin site):
+
+
+    PANGOLIN_ENDPOINT=https://app.pangolin.net
+    NEWT_ID=your-newt-id
+    NEWT_SECRET=your-newt-secret
+    LOG_LEVEL=INFO
+
+
+  Then restart the app from umbrelOS. The credentials live only on your
+  Umbrel — they are never committed to the public app store repo.
+developer: Fossorial
+website: https://docs.pangolin.net
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/fosrl/newt
+support: https://github.com/fosrl/newt/issues
+gallery:
+  - https://raw.githubusercontent.com/fosrl/pangolin/main/public/logo/pangolin_orange.svg
+releaseNotes: >-
+  Initial release in this community app store.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

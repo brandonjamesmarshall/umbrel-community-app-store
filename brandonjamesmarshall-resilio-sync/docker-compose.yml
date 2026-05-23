@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+
+  app_proxy:
+    environment:
+      APP_HOST: brandonjamesmarshall-resilio-sync_server_1
+      APP_PORT: 8888
+
+  server:
+    image: lscr.io/linuxserver/resilio-sync:3.0.2
+    restart: on-failure
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - ${APP_DATA_DIR}/data/downloads:/downloads
+      - ${APP_DATA_DIR}/data/sync:/sync
+    ports:
+      - "55555:55555/tcp"
+      - "55555:55555/udp"

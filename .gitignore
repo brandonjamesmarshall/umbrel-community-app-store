@@ -1,1 +1,7 @@
 .DS_Store
+
+# Never commit secrets — Newt credentials and any other env files live only on
+# the Umbrel device, not in this public repo.
+.env
+*.env
+!*.env.example

@@ -1,0 +1,15 @@
+version: "3.7"
+
+# Newt is a background WireGuard tunnel client — no web UI, so no app_proxy.
+#
+# Secrets (PANGOLIN_ENDPOINT, NEWT_ID, NEWT_SECRET) are loaded from
+# ${APP_DATA_DIR}/data/newt.env, which lives only on this Umbrel and is
+# never committed to the app store repo. See umbrel-app.yml for setup steps.
+
+services:
+
+  newt:
+    image: fosrl/newt:latest
+    restart: unless-stopped
+    env_file:
+      - ${APP_DATA_DIR}/data/newt.env

@@ -1,0 +1,38 @@
+manifestVersion: 1
+id: brandonjamesmarshall-resilio-sync
+name: Resilio Sync
+tagline: Peer-to-peer file synchronization
+icon: https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/resilio-sync-icon.png
+category: Files
+version: "3.0.2"
+port: 8888
+description: >-
+  Resilio Sync (formerly BitTorrent Sync) uses the BitTorrent protocol to sync
+  files and folders between all of your devices, both over local network and
+  the internet.
+
+
+  This packaging uses the linuxserver/resilio-sync image. After install, open
+  the web UI to create an identity, then add folders to sync. Data is stored
+  under the app's data directory on your Umbrel.
+
+
+  Default ports:
+
+  - 8888  Web UI
+
+  - 55555 Sync listening port (TCP/UDP)
+developer: Resilio, Inc.
+website: https://www.resilio.com/individuals/
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-resilio-sync
+support: https://github.com/linuxserver/docker-resilio-sync/issues
+gallery:
+  - https://raw.githubusercontent.com/linuxserver/docker-templates/master/linuxserver.io/img/resilio-sync-icon.png
+releaseNotes: >-
+  Initial release in this community app store.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
