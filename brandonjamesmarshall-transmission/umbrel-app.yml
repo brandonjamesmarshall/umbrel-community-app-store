@@ -13,19 +13,22 @@ description: >-
   all network access.
 
 
-  IMPORTANT - one-time setup before launching:
+  IMPORTANT - one-time setup before launching (two files to drop):
 
   1. Generate WireGuard config in the iVPN client area (or website) and
      get your WIREGUARD_PRIVATE_KEY + WIREGUARD_ADDRESSES.
 
   2. On your Umbrel:
        sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-transmission/data
-       sudo cp /tmp/gluetun.env.example ~/umbrel/app-data/brandonjamesmarshall-transmission/data/gluetun.env
        sudo nano ~/umbrel/app-data/brandonjamesmarshall-transmission/data/gluetun.env
+       # paste values from gluetun.env.example
 
-  3. Paste your values. Restart the app.
+  3. Also drop the NAS mount env (same as the other media apps):
+       echo "NAS_HOST=<your-nas-ip>" | sudo tee ~/umbrel/app-data/brandonjamesmarshall-transmission/.env
 
-  4. Verify: in the Transmission UI, settings show download path /data/Download.
+  4. Restart the app.
+
+  5. Verify: in the Transmission UI, settings show download path /data/Download.
      SSH the Umbrel and run:
        docker exec brandonjamesmarshall-transmission_gluetun_1 wget -qO- https://ifconfig.me
      The IP must be an iVPN IP, NOT your home IP.

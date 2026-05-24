@@ -4,6 +4,11 @@ version: "3.7"
 # direct LAN clients work without extra port-forward gymnastics.
 # umbrelOS auto-injects /dev/dri when permissions: [GPU] is set in
 # umbrel-app.yml and the host has a Intel/AMD/NVIDIA GPU device node.
+#
+# Media library: mounted as an NFS volume managed by Docker itself. NAS_HOST
+# is set in ~/umbrel/app-data/brandonjamesmarshall-plex/.env (see
+# nas.env.example). Survives umbrelOS firmware updates because the compose
+# file + .env both live on the /data partition.
 
 services:
 
@@ -20,4 +25,12 @@ services:
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - ${APP_DATA_DIR}/data/transcode:/transcode
-      - /mnt/plex-media:/data
+      - media:/data
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=${NAS_HOST},nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"

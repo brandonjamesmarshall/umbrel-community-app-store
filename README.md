@@ -32,11 +32,18 @@ and a VPN-isolated torrent client.
 
 ## Media stack: one-time setup
 
-The media stack (Plex, Sonarr, Radarr, Prowlarr, SABnzbd, Transmission)
-all share a single NFS mount from a Synology NAS at `/data` inside each
-container. That single mount point is what makes
+The media stack (Plex, Sonarr, Radarr, SABnzbd, Transmission) all mount the
+same NFS share from a Synology NAS at `/data` inside each container, via a
+Docker-managed NFS volume declared in each `docker-compose.yml`. That shared
+mount point is what makes
 [TRaSH-style hardlinks and atomic moves](https://trash-guides.info/Hardlinks/Hardlinks-and-Instant-Moves/)
 work — Sonarr/Radarr import via `link(2)` instead of copying gigabytes.
+
+This approach has no host-level `/etc/fstab` line and no host-level NFS
+package — Docker itself handles the mount. So it survives umbrelOS
+firmware updates without re-running anything: the compose files + per-app
+`.env` files live under `~/umbrel/app-data/` (the `/data` partition,
+preserved across A/B firmware swaps).
 
 ### 1. Enable NFS on the Synology
 
@@ -49,32 +56,27 @@ work — Sonarr/Radarr import via `link(2)` instead of copying gigabytes.
     PUID=1000 will write as the NAS admin user).
   - Security: `sys`. Async: on. Allow non-privileged ports: on. Allow
     access to mounted subfolders: on.
-- Inside the share, make sure these subfolders exist:
-  - `Download/incomplete/`
-  - `Download/tv/`
-  - `Download/movies/`
 
-### 2. Mount the NFS share on the Umbrel host
+### 2. Drop a one-line `.env` into each media app's data dir
 
-SSH into your Umbrel and add a permanent NFS mount at `/mnt/plex-media`
-(the path every media app's `docker-compose.yml` binds to `/data`):
+SSH into the Umbrel and run this once (replace the IP):
 
 ```bash
-sudo mkdir -p /mnt/plex-media
-echo '192.168.X.Y:/volume3/Plex\040Media   /mnt/plex-media   nfs4   defaults,_netdev,rw,hard,noatime   0 0' | sudo tee -a /etc/fstab
-sudo mount -a
-ls /mnt/plex-media    # should show Books/ Download/ Movies/ Music/ Photos/ TV/
+for app in plex sonarr radarr sabnzbd transmission; do
+  sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-$app
+  echo "NAS_HOST=192.168.X.Y" | sudo tee ~/umbrel/app-data/brandonjamesmarshall-$app/.env
+done
 ```
 
-Notes:
+Each compose file's NFS volume references `${NAS_HOST}`, which Docker
+substitutes from `.env` at "compose up" time. The export path
+`/volume3/Plex Media` is hard-coded in the compose files because it's the
+same across every install. See [`nas.env.example`](./nas.env.example) for
+the full template.
 
-- Replace `192.168.X.Y` with your NAS's LAN IP.
-- The `\040` is the octal escape for the space in `Plex Media`. `fstab`
-  requires this — a literal space breaks parsing.
-- `_netdev` tells systemd to wait for the network before mounting (avoids
-  boot-time race).
-- If you ever rename the Synology share to a no-space name, drop the
-  `\040` escape.
+If you install an app *before* dropping the `.env`, the container will
+crash on first start ("NFS mount failed"). Just drop the `.env` and click
+Restart in umbrelOS.
 
 ### 3. Install the apps from umbrelOS
 

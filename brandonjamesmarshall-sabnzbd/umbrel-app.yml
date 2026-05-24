@@ -9,8 +9,12 @@ version: "5.0.3"
 port: 8080
 description: >-
   SABnzbd is a Usenet (NZB) download client. Packaged with the shared /data
-  mount so completed files land where Sonarr/Radarr can hardlink them into
-  the library.
+  NFS mount so completed files land where Sonarr/Radarr can hardlink them
+  into the library.
+
+
+  BEFORE LAUNCHING: drop a one-line .env with NAS_HOST=<your-nas-ip> at
+  ~/umbrel/app-data/brandonjamesmarshall-sabnzbd/.env. See the store README.
 
 
   POST-INSTALL:

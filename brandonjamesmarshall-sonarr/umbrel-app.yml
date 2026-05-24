@@ -9,8 +9,12 @@ version: "4.0.17"
 port: 8989
 description: >-
   Sonarr automatically finds, downloads, and organises TV shows. Packaged for
-  this community store with a shared /data mount so imports hardlink instead
-  of copying.
+  this community store with a shared /data NFS mount so imports hardlink
+  instead of copying.
+
+
+  BEFORE LAUNCHING: drop a one-line .env with NAS_HOST=<your-nas-ip> at
+  ~/umbrel/app-data/brandonjamesmarshall-sonarr/.env. See the store README.
 
 
   POST-INSTALL:

@@ -1,5 +1,7 @@
 version: "3.7"
 
+# Media library mounted as a Docker-managed NFS volume — see nas.env.example.
+
 services:
 
   app_proxy:
@@ -16,4 +18,12 @@ services:
       TZ: "Etc/UTC"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
-      - /mnt/plex-media:/data
+      - media:/data
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=${NAS_HOST},nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"
