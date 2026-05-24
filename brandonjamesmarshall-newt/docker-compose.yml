@@ -13,4 +13,9 @@ services:
     image: fosrl/newt:1.12.5@sha256:3c009663332145cae39b940b07857469038d5e9d71aacb1497e78795ba4e3b9b
     restart: unless-stopped
     env_file:
-      - ${APP_DATA_DIR}/data/newt.env
+      # Optional so the app installs cleanly before you've dropped creds.
+      # Until newt.env exists, the container will restart-loop (failing to
+      # auth) — expected and harmless. Drop the file and umbrelOS will
+      # show it as healthy.
+      - path: ${APP_DATA_DIR}/data/newt.env
+        required: false

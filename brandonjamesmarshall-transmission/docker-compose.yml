@@ -27,7 +27,12 @@ services:
     devices:
       - /dev/net/tun:/dev/net/tun
     env_file:
-      - ${APP_DATA_DIR}/data/gluetun.env
+      # Optional so the app installs cleanly before you've dropped creds.
+      # Until gluetun.env exists, gluetun will restart-loop (no VPN config)
+      # and Transmission stays offline by construction (kill-switch). Drop
+      # the file and umbrelOS will show the stack as healthy.
+      - path: ${APP_DATA_DIR}/data/gluetun.env
+        required: false
     volumes:
       - ${APP_DATA_DIR}/data/gluetun:/gluetun
 
