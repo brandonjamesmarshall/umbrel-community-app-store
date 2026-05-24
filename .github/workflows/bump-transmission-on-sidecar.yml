@@ -1,0 +1,67 @@
+name: Bump Transmission umbrel-app.yml when sidecar updates
+
+# When Renovate (or anyone) commits a change to Transmission's docker-compose.yml,
+# auto-bump the +vpnN suffix on the user-visible version field in umbrel-app.yml.
+# This is how umbrelOS surfaces "Update available" for sidecar-only changes
+# (e.g. gluetun gets a new release but Transmission upstream did not).
+#
+# Security note: this workflow does NOT consume any untrusted GitHub event input
+# (no issue/PR/commit-message strings in run: blocks). The only data it reads is
+# the umbrel-app.yml file already in the repo. Safe per
+# https://github.blog/security/vulnerability-research/how-to-catch-github-actions-workflow-injections-before-attackers-do/
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'brandonjamesmarshall-transmission/docker-compose.yml'
+
+jobs:
+  bump:
+    # Skip our own commits so we don't loop.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump +vpnN suffix
+        env:
+          FILE: brandonjamesmarshall-transmission/umbrel-app.yml
+        run: |
+          set -euo pipefail
+          CURRENT=$(grep -E '^version:' "$FILE" | sed -E 's/^version:[[:space:]]*"([^"]+)"$/\1/')
+          BASE="${CURRENT%%+*}"
+          if [[ "$CURRENT" =~ \+vpn([0-9]+)$ ]]; then
+            N=${BASH_REMATCH[1]}
+            NEW_N=$((N+1))
+          else
+            NEW_N=1
+          fi
+          NEW_VERSION="${BASE}+vpn${NEW_N}"
+          echo "Current: $CURRENT"
+          echo "New:     $NEW_VERSION"
+          sed -i "s|^version: \"${CURRENT}\"$|version: \"${NEW_VERSION}\"|" "$FILE"
+          if ! grep -qF "version: \"${NEW_VERSION}\"" "$FILE"; then
+            echo "ERROR: version line was not updated; aborting." >&2
+            exit 1
+          fi
+
+      - name: Commit and push
+        env:
+          FILE: brandonjamesmarshall-transmission/umbrel-app.yml
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$FILE"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Auto-bump Transmission +vpnN after sidecar update"
+          git push

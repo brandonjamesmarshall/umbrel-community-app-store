@@ -19,7 +19,7 @@
       "description": "Bump the version: field in each umbrel-app.yml in lockstep with its app's Docker image",
       "fileMatch": ["(^|/)umbrel-app\\.yml$"],
       "matchStrings": [
-        "# renovate: datasource=docker depName=(?<depName>\\S+)(?: registryUrl=(?<registryUrl>\\S+))?\\s+version:\\s*\"(?<currentValue>[^\"]+)\""
+        "# renovate: datasource=docker depName=(?<depName>\\S+)(?: registryUrl=(?<registryUrl>\\S+))?\\s+version:\\s*\"(?<currentValue>[^\"+]+)(?:\\+[^\"]*)?\""
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker"
