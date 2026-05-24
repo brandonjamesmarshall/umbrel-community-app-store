@@ -31,7 +31,7 @@ services:
       # Until gluetun.env exists, gluetun will restart-loop (no VPN config)
       # and Transmission stays offline by construction (kill-switch). Drop
       # the file and umbrelOS will show the stack as healthy.
-      - path: ${APP_DATA_DIR}/data/gluetun.env
+      - path: ${APP_DATA_DIR}/gluetun.env
         required: false
     volumes:
       - ${APP_DATA_DIR}/data/gluetun:/gluetun

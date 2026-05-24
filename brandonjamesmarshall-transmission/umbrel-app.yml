@@ -19,8 +19,7 @@ description: >-
      get your WIREGUARD_PRIVATE_KEY + WIREGUARD_ADDRESSES.
 
   2. On your Umbrel:
-       sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-transmission/data
-       sudo nano ~/umbrel/app-data/brandonjamesmarshall-transmission/data/gluetun.env
+       sudo nano ~/umbrel/app-data/brandonjamesmarshall-transmission/gluetun.env
        # paste values from gluetun.env.example
 
   3. Also drop the NAS mount env (same as the other media apps):

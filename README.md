@@ -107,8 +107,7 @@ Credentials are **never** in this repo. After installing the Transmission
 app, on the Umbrel:
 
 ```bash
-sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-transmission/data
-sudo nano ~/umbrel/app-data/brandonjamesmarshall-transmission/data/gluetun.env
+sudo nano ~/umbrel/app-data/brandonjamesmarshall-transmission/gluetun.env
 ```
 
 Paste the values from
