@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-maintainerr
 name: Maintainerr
 tagline: Rule-based library cleanup for Plex
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/maintainerr.svg
 category: Media
 # renovate: datasource=docker depName=jorenn92/maintainerr
 version: "3.12.0"
@@ -30,7 +30,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/jorenn92/Maintainerr
 support: https://github.com/jorenn92/Maintainerr/issues
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/maintainerr.svg
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/maintainerr.svg
 releaseNotes: >-
   Initial release in this community app store. Pinned to upstream 3.12.0.
 dependencies: []

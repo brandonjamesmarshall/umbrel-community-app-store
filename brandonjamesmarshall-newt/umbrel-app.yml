@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-newt
 name: Newt
 tagline: Userspace WireGuard tunnel client for Pangolin
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/pangolin.svg
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/newt.svg
 category: Networking
 # renovate: datasource=docker depName=fosrl/newt
 version: "1.12.5"
@@ -44,7 +44,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/fosrl/newt
 support: https://github.com/fosrl/newt/issues
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/pangolin.svg
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/newt.svg
 releaseNotes: >-
   Initial release in this community app store.
 dependencies: []

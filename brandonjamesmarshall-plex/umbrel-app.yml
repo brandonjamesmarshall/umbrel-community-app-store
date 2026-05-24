@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-plex
 name: Plex
 tagline: Stream your media library, anywhere
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/plex.svg
+icon: https://getumbrel.github.io/umbrel-apps-gallery/plex/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/plex
 version: "1.43.2"
@@ -42,7 +42,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/linuxserver/docker-plex
 support: https://forums.plex.tv
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/plex.svg
+  - https://getumbrel.github.io/umbrel-apps-gallery/plex/icon.svg
 releaseNotes: >-
   Initial release in this community app store. Pinned to upstream 1.43.2.
 dependencies: []

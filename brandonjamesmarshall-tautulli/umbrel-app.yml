@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-tautulli
 name: Tautulli
 tagline: Plex stats, history, and notifications
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tautulli.svg
+icon: https://getumbrel.github.io/umbrel-apps-gallery/tautulli/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/tautulli
 version: "2.17.1"
@@ -27,7 +27,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/linuxserver/docker-tautulli
 support: https://github.com/Tautulli/Tautulli/issues
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/tautulli.svg
+  - https://getumbrel.github.io/umbrel-apps-gallery/tautulli/icon.svg
 releaseNotes: >-
   Initial release in this community app store. Pinned to upstream 2.17.1.
 dependencies: []

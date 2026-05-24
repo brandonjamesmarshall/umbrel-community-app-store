@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-sabnzbd
 name: SABnzbd
 tagline: Binary newsreader for Usenet
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/sabnzbd.svg
+icon: https://getumbrel.github.io/umbrel-apps-gallery/sabnzbd/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/sabnzbd
 version: "5.0.3"
@@ -39,7 +39,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/linuxserver/docker-sabnzbd
 support: https://forums.sabnzbd.org
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/sabnzbd.svg
+  - https://getumbrel.github.io/umbrel-apps-gallery/sabnzbd/icon.svg
 releaseNotes: >-
   Initial release in this community app store. Pinned to upstream 5.0.3.
 dependencies: []

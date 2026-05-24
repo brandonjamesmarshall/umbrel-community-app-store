@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-prowlarr
 name: Prowlarr
 tagline: Indexer manager for the *arr stack
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/prowlarr.svg
+icon: https://getumbrel.github.io/umbrel-apps-gallery/prowlarr/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/prowlarr
 version: "2.3.5"
@@ -31,7 +31,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/linuxserver/docker-prowlarr
 support: https://github.com/Prowlarr/Prowlarr/issues
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/prowlarr.svg
+  - https://getumbrel.github.io/umbrel-apps-gallery/prowlarr/icon.svg
 releaseNotes: >-
   Initial release in this community app store. Pinned to upstream 2.3.5.
 dependencies: []

@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-transmission
 name: Transmission (via iVPN)
 tagline: Torrent client tunneled through iVPN
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/transmission.svg
+icon: https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/transmission
 version: "4.1.1"
@@ -43,7 +43,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/linuxserver/docker-transmission
 support: https://github.com/transmission/transmission/issues
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/transmission.svg
+  - https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 releaseNotes: >-
   Initial release in this community app store. Transmission 4.1.1 behind
   gluetun v3.41.1 (iVPN provider).

@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-radarr
 name: Radarr
 tagline: Movie collection manager
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/radarr.svg
+icon: https://getumbrel.github.io/umbrel-apps-gallery/radarr/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/radarr
 version: "6.1.1"
@@ -36,7 +36,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/linuxserver/docker-radarr
 support: https://github.com/Radarr/Radarr/issues
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/radarr.svg
+  - https://getumbrel.github.io/umbrel-apps-gallery/radarr/icon.svg
 releaseNotes: >-
   Initial release in this community app store. Pinned to upstream 6.1.1.
 dependencies: []

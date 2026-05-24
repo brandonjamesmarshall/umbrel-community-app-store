@@ -2,7 +2,7 @@ manifestVersion: 1
 id: brandonjamesmarshall-sonarr
 name: Sonarr
 tagline: TV show collection manager
-icon: https://cdn.jsdelivr.net/gh/selfhst/icons/svg/sonarr.svg
+icon: https://getumbrel.github.io/umbrel-apps-gallery/sonarr/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/sonarr
 version: "4.0.17"
@@ -38,7 +38,7 @@ submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
 repo: https://github.com/linuxserver/docker-sonarr
 support: https://github.com/Sonarr/Sonarr/issues
 gallery:
-  - https://cdn.jsdelivr.net/gh/selfhst/icons/svg/sonarr.svg
+  - https://getumbrel.github.io/umbrel-apps-gallery/sonarr/icon.svg
 releaseNotes: >-
   Initial release in this community app store. Pinned to upstream 4.0.17.
 dependencies: []
