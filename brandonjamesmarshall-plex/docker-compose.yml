@@ -32,5 +32,5 @@ volumes:
     driver: local
     driver_opts:
       type: nfs
-      o: "addr=${NAS_HOST},nfsvers=4.1,rw,hard,noatime"
+      o: "addr=${NAS_HOST:-127.0.0.1},nfsvers=4.1,rw,hard,noatime"
       device: ":/volume3/Plex Media"

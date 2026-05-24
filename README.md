@@ -57,26 +57,26 @@ preserved across A/B firmware swaps).
   - Security: `sys`. Async: on. Allow non-privileged ports: on. Allow
     access to mounted subfolders: on.
 
-### 2. Drop a one-line `.env` into each media app's data dir
+### 2. Drop the per-app `.env` files
 
-SSH into the Umbrel and run this once (replace the IP):
+Each media app reads its NAS host from `.env` at its project root. SSH
+into the Umbrel and run this once after installing the apps from the
+umbrelOS UI (replace the IP):
 
 ```bash
-for app in plex sonarr radarr sabnzbd transmission; do
-  sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-$app
+for app in plex sonarr radarr sabnzbd; do
   echo "NAS_HOST=192.168.X.Y" | sudo tee ~/umbrel/app-data/brandonjamesmarshall-$app/.env
 done
 ```
 
-Each compose file's NFS volume references `${NAS_HOST}`, which Docker
-substitutes from `.env` at "compose up" time. The export path
-`/volume3/Plex Media` is hard-coded in the compose files because it's the
-same across every install. See [`nas.env.example`](./nas.env.example) for
-the full template.
+Transmission's `.env` is bigger (NAS_HOST + gluetun iVPN creds in one
+file) — see the per-app
+[.env.example](./brandonjamesmarshall-transmission/.env.example).
 
-If you install an app *before* dropping the `.env`, the container will
-crash on first start ("NFS mount failed"). Just drop the `.env` and click
-Restart in umbrelOS.
+Apps install fine without the `.env` (the compose has `${NAS_HOST:-127.0.0.1}`
+defaults so volume creation doesn't fail), but the containers will
+restart-loop until you drop the file. Just restart the app from the UI
+after writing it.
 
 ### 3. Install the apps from umbrelOS
 
@@ -96,37 +96,31 @@ Order is mostly free, but a sensible flow:
 Each app's `umbrel-app.yml` description has the specific paths and host
 names to paste during setup.
 
-## Transmission + iVPN secrets
+## Per-app `.env` files
 
-Transmission runs inside [gluetun](https://github.com/qdm12/gluetun)'s
-network namespace, so it can only reach the internet through your iVPN
-WireGuard tunnel — if the tunnel drops, Transmission is offline (kill-switch
-by construction).
+Each media app + Newt + Transmission reads its per-install config from a
+single `.env` file at the app's project root:
+`~/umbrel/app-data/<app-id>/.env`. docker-compose auto-loads it; we never
+use the `env_file:` directive (which would block install if missing).
 
-Credentials are **never** in this repo. After installing the Transmission
-app, on the Umbrel:
+Apps install successfully **without** the `.env` — the container will
+just restart-loop until you drop the file. So the flow is always:
+install → drop `.env` → restart.
 
-```bash
-sudo nano ~/umbrel/app-data/brandonjamesmarshall-transmission/gluetun.env
-```
+Each app folder has a `.env.example` showing exactly what to put inside.
+The 4 plain media apps (Plex, Sonarr, Radarr, SABnzbd) only need
+`NAS_HOST`. Transmission's `.env` carries both `NAS_HOST` and the gluetun
+iVPN credentials in one file (see
+[brandonjamesmarshall-transmission/.env.example](./brandonjamesmarshall-transmission/.env.example)).
+Newt's holds Pangolin credentials (see
+[brandonjamesmarshall-newt/.env.example](./brandonjamesmarshall-newt/.env.example)).
 
-Paste the values from
-[gluetun.env.example](./brandonjamesmarshall-transmission/gluetun.env.example).
-Get `WIREGUARD_PRIVATE_KEY` and `WIREGUARD_ADDRESSES` from your iVPN
-account area (WireGuard tab → add key → download config → grab the values
-from the `.conf` file).
-
-Verify the kill-switch:
+Verify the Transmission kill-switch once configured:
 
 ```bash
 docker exec brandonjamesmarshall-transmission_gluetun_1 wget -qO- https://ifconfig.me
 # must return an iVPN IP, NOT your home IP
 ```
-
-## Newt secrets (existing)
-
-Same pattern as Transmission. See
-[brandonjamesmarshall-newt/newt.env.example](./brandonjamesmarshall-newt/newt.env.example).
 
 ## Image pinning policy
 

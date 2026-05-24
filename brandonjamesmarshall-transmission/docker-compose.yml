@@ -5,9 +5,14 @@ version: "3.7"
 # it routes through the iVPN WireGuard tunnel. If the tunnel drops,
 # Transmission has no network — kill-switch by construction.
 #
-# Secrets (WIREGUARD_PRIVATE_KEY, WIREGUARD_ADDRESSES, SERVER_CITIES) are
-# loaded from ${APP_DATA_DIR}/data/gluetun.env, gitignored. See
-# gluetun.env.example for the template.
+# All per-install config (NAS host for the media NFS mount, gluetun's VPN
+# credentials) goes in ONE file at
+# ~/umbrel/app-data/brandonjamesmarshall-transmission/.env on your Umbrel.
+# docker-compose auto-loads it for ${VAR} interpolation; the file stays on
+# your Umbrel and is never committed to this public repo.
+#
+# Until the .env is dropped, gluetun restart-loops (no VPN config) and the
+# NFS mount fails — install still succeeds, just nothing runs healthy yet.
 
 services:
 
@@ -26,13 +31,15 @@ services:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
-    env_file:
-      # Optional so the app installs cleanly before you've dropped creds.
-      # Until gluetun.env exists, gluetun will restart-loop (no VPN config)
-      # and Transmission stays offline by construction (kill-switch). Drop
-      # the file and umbrelOS will show the stack as healthy.
-      - path: ${APP_DATA_DIR}/gluetun.env
-        required: false
+    environment:
+      VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER:-ivpn}
+      VPN_TYPE: ${VPN_TYPE:-wireguard}
+      WIREGUARD_PRIVATE_KEY: ${WIREGUARD_PRIVATE_KEY:-}
+      WIREGUARD_ADDRESSES: ${WIREGUARD_ADDRESSES:-}
+      SERVER_CITIES: ${SERVER_CITIES:-}
+      SERVER_COUNTRIES: ${SERVER_COUNTRIES:-}
+      LOG_LEVEL: ${VPN_LOG_LEVEL:-info}
+      DOT_PROVIDERS: ${DOT_PROVIDERS:-cloudflare}
     volumes:
       - ${APP_DATA_DIR}/data/gluetun:/gluetun
 
@@ -52,9 +59,10 @@ services:
 
 volumes:
   # Media library mounted as a Docker-managed NFS volume — see nas.env.example.
+  # NAS_HOST is loaded from the same .env as the VPN creds above.
   media:
     driver: local
     driver_opts:
       type: nfs
-      o: "addr=${NAS_HOST},nfsvers=4.1,rw,hard,noatime"
+      o: "addr=${NAS_HOST:-127.0.0.1},nfsvers=4.1,rw,hard,noatime"
       device: ":/volume3/Plex Media"

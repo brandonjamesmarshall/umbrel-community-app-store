@@ -18,14 +18,15 @@ description: >-
   to confirm it has connected.
 
 
-  SETUP — secrets are not stored in this app store. After installing, SSH into
-  your Umbrel and create the env file with your Pangolin credentials:
+  SETUP — install first, then drop credentials. The app installs fine
+  without creds (the container will restart-loop until you provide them).
+  SSH into your Umbrel and create the env file:
 
 
-    sudo nano ~/umbrel/app-data/brandonjamesmarshall-newt/newt.env
+    sudo nano ~/umbrel/app-data/brandonjamesmarshall-newt/.env
 
 
-  Put these values inside (replace with the values from your Pangolin site):
+  Put these values inside (replace with values from your Pangolin site):
 
 
     PANGOLIN_ENDPOINT=https://app.pangolin.net
@@ -34,8 +35,9 @@ description: >-
     LOG_LEVEL=INFO
 
 
-  Then restart the app from umbrelOS. The credentials live only on your
-  Umbrel — they are never committed to the public app store repo.
+  Then restart the app from umbrelOS. See .env.example in this app's folder
+  for the template. The credentials live only on your Umbrel — they are
+  never committed to the public app store repo.
 developer: Fossorial
 website: https://docs.pangolin.net
 submitter: brandonjamesmarshall
