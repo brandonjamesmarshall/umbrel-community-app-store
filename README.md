@@ -32,18 +32,18 @@ and a VPN-isolated torrent client.
 
 ## Media stack: one-time setup
 
-The media stack (Plex, Sonarr, Radarr, SABnzbd, Transmission) all mount the
-same NFS share from a Synology NAS at `/data` inside each container, via a
-Docker-managed NFS volume declared in each `docker-compose.yml`. That shared
-mount point is what makes
+The 5 media apps (Plex, Sonarr, Radarr, SABnzbd, Transmission) all
+bind-mount the host path `/mnt/plex-media` at `/data` inside each
+container. That shared mount point is what makes
 [TRaSH-style hardlinks and atomic moves](https://trash-guides.info/Hardlinks/Hardlinks-and-Instant-Moves/)
 work — Sonarr/Radarr import via `link(2)` instead of copying gigabytes.
 
-This approach has no host-level `/etc/fstab` line and no host-level NFS
-package — Docker itself handles the mount. So it survives umbrelOS
-firmware updates without re-running anything: the compose files + per-app
-`.env` files live under `~/umbrel/app-data/` (the `/data` partition,
-preserved across A/B firmware swaps).
+The NFS mount itself lives at the OS level (`/etc/fstab`), not in
+docker-compose. The reason: umbrelOS invokes compose with its own working
+directory, so docker-compose's automatic `.env` interpolation doesn't see
+files we'd drop at `~/umbrel/app-data/<app-id>/.env`. The NFS driver
+options need substituted variables, so we can't use the Docker-managed
+NFS volume approach with per-install variables.
 
 ### 1. Enable NFS on the Synology
 
@@ -57,28 +57,48 @@ preserved across A/B firmware swaps).
   - Security: `sys`. Async: on. Allow non-privileged ports: on. Allow
     access to mounted subfolders: on.
 
-### 2. Drop the per-app `.env` files
+### 2. Mount the NFS share on the Umbrel host
 
-Each media app reads its NAS host from `.env` at its project root. SSH
-into the Umbrel and run this once after installing the apps from the
-umbrelOS UI (replace the IP):
+SSH into your Umbrel:
 
 ```bash
-for app in plex sonarr radarr sabnzbd; do
-  echo "NAS_HOST=192.168.X.Y" | sudo tee ~/umbrel/app-data/brandonjamesmarshall-$app/.env
-done
+sudo apt-get update -qq && sudo apt-get install -y nfs-common
+sudo mkdir -p /mnt/plex-media
+echo '192.168.X.Y:/volume3/Plex\040Media   /mnt/plex-media   nfs4   defaults,_netdev,rw,hard,noatime   0 0' | sudo tee -a /etc/fstab
+sudo mount -a
+ls /mnt/plex-media     # should list Books/, Download/, Movies/, etc.
 ```
 
-Transmission's `.env` is bigger (NAS_HOST + gluetun iVPN creds in one
-file) — see the per-app
-[.env.example](./brandonjamesmarshall-transmission/.env.example).
+Replace `192.168.X.Y` with your NAS LAN IP. `\040` is the octal escape
+for the space in `Plex Media`. fstab requires the escape.
 
-Apps install fine without the `.env` (the compose has `${NAS_HOST:-127.0.0.1}`
-defaults so volume creation doesn't fail), but the containers will
-restart-loop until you drop the file. Just restart the app from the UI
-after writing it.
+### 3. Survive umbrelOS firmware updates
 
-### 3. Install the apps from umbrelOS
+umbrelOS uses A/B partition swaps for major firmware updates, which wipes
+the root filesystem — including `/etc/fstab` and the `nfs-common`
+package. Drop this self-applying script in your home so a one-line
+re-run restores everything:
+
+```bash
+mkdir -p ~/scripts
+cat > ~/scripts/setup-nas-mount.sh <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+sudo apt-get update -qq
+sudo apt-get install -y nfs-common
+sudo mkdir -p /mnt/plex-media
+LINE='192.168.X.Y:/volume3/Plex\040Media   /mnt/plex-media   nfs4   defaults,_netdev,rw,hard,noatime   0 0'
+grep -qF "$LINE" /etc/fstab || echo "$LINE" | sudo tee -a /etc/fstab
+sudo systemctl daemon-reload
+sudo mount -a
+EOF
+chmod +x ~/scripts/setup-nas-mount.sh
+```
+
+(Replace `192.168.X.Y` with your NAS IP before saving.) After any major
+firmware update: `bash ~/scripts/setup-nas-mount.sh`.
+
+### 4. Install the apps from umbrelOS
 
 Order is mostly free, but a sensible flow:
 
@@ -96,24 +116,23 @@ Order is mostly free, but a sensible flow:
 Each app's `umbrel-app.yml` description has the specific paths and host
 names to paste during setup.
 
-## Per-app `.env` files
+## Per-app `.env` files (Newt + Transmission only)
 
-Each media app + Newt + Transmission reads its per-install config from a
-single `.env` file at the app's project root:
-`~/umbrel/app-data/<app-id>/.env`. docker-compose auto-loads it; we never
-use the `env_file:` directive (which would block install if missing).
+Two apps need an `.env` at `~/umbrel/app-data/<app-id>/.env`, loaded via
+the `env_file:` directive in their compose. **Pre-create the .env before
+clicking Install** — otherwise the install fails (Newt because env_file
+short-form requires the file to exist; Transmission because gluetun
+can't start without a private key, which blocks the dependent server
+container).
 
-Apps install successfully **without** the `.env` — the container will
-just restart-loop until you drop the file. So the flow is always:
-install → drop `.env` → restart.
+- **Newt**: `PANGOLIN_ENDPOINT`, `NEWT_ID`, `NEWT_SECRET`. See
+  [brandonjamesmarshall-newt/.env.example](./brandonjamesmarshall-newt/.env.example).
+- **Transmission**: iVPN WireGuard credentials. See
+  [brandonjamesmarshall-transmission/.env.example](./brandonjamesmarshall-transmission/.env.example).
 
-Each app folder has a `.env.example` showing exactly what to put inside.
-The 4 plain media apps (Plex, Sonarr, Radarr, SABnzbd) only need
-`NAS_HOST`. Transmission's `.env` carries both `NAS_HOST` and the gluetun
-iVPN credentials in one file (see
-[brandonjamesmarshall-transmission/.env.example](./brandonjamesmarshall-transmission/.env.example)).
-Newt's holds Pangolin credentials (see
-[brandonjamesmarshall-newt/.env.example](./brandonjamesmarshall-newt/.env.example)).
+The other 5 apps need no `.env` — they pick up the media library from
+the host bind mount `/mnt/plex-media` (see "Media stack: one-time setup"
+above).
 
 Verify the Transmission kill-switch once configured:
 

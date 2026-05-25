@@ -18,12 +18,13 @@ description: >-
   to confirm it has connected.
 
 
-  SETUP — install first, then drop credentials. The app installs fine
-  without creds (the container will restart-loop until you provide them).
-  SSH into your Umbrel and create the env file:
+  SETUP — pre-create the .env BEFORE clicking Install (the env_file
+  directive in docker-compose requires the file to exist). SSH into your
+  Umbrel and:
 
 
-    sudo nano ~/umbrel/app-data/brandonjamesmarshall-newt/.env
+    sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-newt
+    sudo nano  ~/umbrel/app-data/brandonjamesmarshall-newt/.env
 
 
   Put these values inside (replace with values from your Pangolin site):
@@ -35,9 +36,9 @@ description: >-
     LOG_LEVEL=INFO
 
 
-  Then restart the app from umbrelOS. See .env.example in this app's folder
-  for the template. The credentials live only on your Umbrel — they are
-  never committed to the public app store repo.
+  Then click Install in umbrelOS. See .env.example in this app's folder
+  for the template. Credentials live only on your Umbrel — never committed
+  to the public app store repo.
 developer: Fossorial
 website: https://docs.pangolin.net
 submitter: brandonjamesmarshall

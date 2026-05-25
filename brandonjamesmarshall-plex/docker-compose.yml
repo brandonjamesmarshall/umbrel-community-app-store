@@ -5,10 +5,10 @@ version: "3.7"
 # umbrelOS auto-injects /dev/dri when permissions: [GPU] is set in
 # umbrel-app.yml and the host has a Intel/AMD/NVIDIA GPU device node.
 #
-# Media library: mounted as an NFS volume managed by Docker itself. NAS_HOST
-# is set in ~/umbrel/app-data/brandonjamesmarshall-plex/.env (see
-# nas.env.example). Survives umbrelOS firmware updates because the compose
-# file + .env both live on the /data partition.
+# Media library: bind-mounted from /mnt/plex-media on the Umbrel host, where
+# you've previously mounted the Synology NFS share via /etc/fstab. See the
+# store README for the one-time host NFS setup + the firmware-update
+# persistence script.
 
 services:
 
@@ -25,12 +25,4 @@ services:
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - ${APP_DATA_DIR}/data/transcode:/transcode
-      - media:/data
-
-volumes:
-  media:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: "addr=${NAS_HOST:-127.0.0.1},nfsvers=4.1,rw,hard,noatime"
-      device: ":/volume3/Plex Media"
+      - /mnt/plex-media:/data

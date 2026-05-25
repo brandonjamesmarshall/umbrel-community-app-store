@@ -31,10 +31,8 @@ description: >-
      /data/Music, /data/Books, /data/Photos).
 
 
-  BEFORE LAUNCHING: this app NFS-mounts your Synology share. Drop a one-line
-  .env file with NAS_HOST=<your-nas-ip> at
-  ~/umbrel/app-data/brandonjamesmarshall-plex/.env on your Umbrel — see the
-  store README for the one-shot loop that handles all 5 media apps at once.
+  Requires the Synology NFS share mounted at /mnt/plex-media on your
+  Umbrel host (see store README for the one-time fstab setup).
 developer: Plex, Inc.
 website: https://www.plex.tv
 submitter: brandonjamesmarshall

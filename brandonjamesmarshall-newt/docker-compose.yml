@@ -2,13 +2,10 @@ version: "3.7"
 
 # Newt is a background WireGuard tunnel client — no web UI, so no app_proxy.
 #
-# Credentials live in ~/umbrel/app-data/brandonjamesmarshall-newt/.env,
-# which docker-compose auto-loads for ${VAR} interpolation. The .env stays
-# on your Umbrel only and is never committed to the public repo.
-#
-# Until the .env is dropped, all the vars resolve to empty strings and Newt
-# restart-loops failing to authenticate — install succeeds either way, so
-# umbrelOS doesn't choke on the first launch. Drop the .env, restart, done.
+# Credentials live in ${APP_DATA_DIR}/.env on your Umbrel, loaded via the
+# env_file directive below. Pre-create the .env before installing — see
+# .env.example for the required keys. The .env stays on your Umbrel only
+# and is never committed to the public repo.
 
 services:
 
@@ -16,8 +13,5 @@ services:
     # Pinned to immutable digest — refresh in a reviewed commit, never auto-update.
     image: fosrl/newt:1.12.5@sha256:3c009663332145cae39b940b07857469038d5e9d71aacb1497e78795ba4e3b9b
     restart: unless-stopped
-    environment:
-      PANGOLIN_ENDPOINT: ${PANGOLIN_ENDPOINT:-}
-      NEWT_ID: ${NEWT_ID:-}
-      NEWT_SECRET: ${NEWT_SECRET:-}
-      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    env_file:
+      - ${APP_DATA_DIR}/.env

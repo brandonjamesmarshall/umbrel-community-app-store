@@ -13,8 +13,8 @@ description: >-
   instead of copying.
 
 
-  BEFORE LAUNCHING: drop a one-line .env with NAS_HOST=<your-nas-ip> at
-  ~/umbrel/app-data/brandonjamesmarshall-sonarr/.env. See the store README.
+  Requires the Synology NFS share mounted at /mnt/plex-media on your
+  Umbrel host (see store README for the one-time fstab setup).
 
 
   POST-INSTALL:
