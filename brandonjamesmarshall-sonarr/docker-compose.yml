@@ -1,9 +1,11 @@
 version: "3.7"
 
-# Media library: Docker-managed NFS volume backed by the Synology share.
-# Mounted twice — whole share at /media, "Download" subpath at /Download —
-# both views of the same volume so hardlinks across them work (same st_dev).
-# Matches the migrated Sonarr DB's /media/TV root + /Download/tv client paths.
+# Media library: Docker-managed NFS volume backed by the Synology share,
+# mounted at /media. Sonarr's DB references /media/TV (works as-is) and
+# /Download/<category> (legacy paths from the NAS install — handled via
+# Settings -> Download Clients -> Remote Path Mappings in the UI, where
+# you map /Download -> /media/Download so imports of new downloads
+# translate cleanly).
 
 services:
 
@@ -23,14 +25,7 @@ services:
       TZ: "Etc/UTC"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
-      - type: volume
-        source: media
-        target: /media
-      - type: volume
-        source: media
-        target: /Download
-        volume:
-          subpath: Download
+      - media:/media
 
 volumes:
   media:
