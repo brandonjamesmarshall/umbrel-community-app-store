@@ -11,9 +11,11 @@ services:
 
   app_proxy:
     environment:
-      # Use service-name DNS instead of full container name to avoid
-      # underscore-vs-hyphen breakage between compose v1 and v2.
-      APP_HOST: server
+      # Full container name (underscore convention — umbrelOS forces compose v1
+      # naming via COMPOSE_COMPATIBILITY). Using the bare service name "server"
+      # collides with the same alias from other apps on the shared umbrel
+      # network, causing DNS round-robin to send requests to wrong containers.
+      APP_HOST: brandonjamesmarshall-sonarr_server_1
       APP_PORT: 8989
 
   server:

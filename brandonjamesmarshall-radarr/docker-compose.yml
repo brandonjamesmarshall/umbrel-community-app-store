@@ -11,9 +11,8 @@ services:
 
   app_proxy:
     environment:
-      # Use service-name DNS instead of full container name to avoid
-      # underscore-vs-hyphen breakage between compose v1 and v2.
-      APP_HOST: server
+      # Full container name (see Sonarr compose for why we can't use bare "server").
+      APP_HOST: brandonjamesmarshall-radarr_server_1
       APP_PORT: 7878
 
   server:
