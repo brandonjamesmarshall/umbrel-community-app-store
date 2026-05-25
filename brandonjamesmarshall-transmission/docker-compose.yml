@@ -5,13 +5,12 @@ version: "3.7"
 # it routes through the iVPN WireGuard tunnel. If the tunnel drops,
 # Transmission has no network — kill-switch by construction.
 #
-# Media library bind-mounted from /mnt/plex-media on the Umbrel host (NFS
-# share from Synology, set up at the OS level — see store README).
+# Media library: Docker-managed NFS volume backed by the Synology share,
+# mounted at /media so Transmission can write into /media/Download/transmission/
+# where Sonarr/Radarr can hardlink-import.
 #
-# iVPN credentials live in ${APP_DATA_DIR}/.env on your Umbrel, loaded via
-# the env_file directive below. Pre-create the .env before installing — see
-# .env.example for the required keys. Without it, install fails because
-# gluetun can't start without a private key.
+# iVPN credentials live in ${APP_DATA_DIR}/.env on your Umbrel — see
+# .env.example. Pre-create the .env BEFORE installing.
 
 services:
 
@@ -47,4 +46,12 @@ services:
       TZ: "Etc/UTC"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
-      - /mnt/plex-media:/data
+      - media:/media
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"

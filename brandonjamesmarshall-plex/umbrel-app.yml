@@ -31,8 +31,9 @@ description: >-
      /media/Music, /media/Books, /media/Photos).
 
 
-  Requires the Synology NFS share mounted at /mnt/plex-media on your
-  Umbrel host (see store README for the one-time fstab setup).
+  Media library is mounted at /media via a Docker-managed NFS volume
+  pointing at the Synology share — no host fstab needed, survives
+  umbrelOS reboots and firmware updates.
 developer: Plex, Inc.
 website: https://www.plex.tv
 submitter: brandonjamesmarshall

@@ -32,18 +32,25 @@ and a VPN-isolated torrent client.
 
 ## Media stack: one-time setup
 
-The 5 media apps (Plex, Sonarr, Radarr, SABnzbd, Transmission) all
-bind-mount the host path `/mnt/plex-media` at `/data` inside each
-container. That shared mount point is what makes
-[TRaSH-style hardlinks and atomic moves](https://trash-guides.info/Hardlinks/Hardlinks-and-Instant-Moves/)
-work — Sonarr/Radarr import via `link(2)` instead of copying gigabytes.
+The 5 media apps (Plex, Sonarr, Radarr, SABnzbd, Transmission) each
+declare a **Docker-managed NFS volume** in their `docker-compose.yml`
+pointing at the Synology share (`192.168.50.111:/volume3/Plex Media`).
 
-The NFS mount itself lives at the OS level (`/etc/fstab`), not in
-docker-compose. The reason: umbrelOS invokes compose with its own working
-directory, so docker-compose's automatic `.env` interpolation doesn't see
-files we'd drop at `~/umbrel/app-data/<app-id>/.env`. The NFS driver
-options need substituted variables, so we can't use the Docker-managed
-NFS volume approach with per-install variables.
+Why this approach over a host-level NFS mount:
+
+- Docker uses the **in-kernel NFS module** (part of the umbrelOS firmware
+  image), so the mount survives every reboot, freeze recovery, and A/B
+  firmware update — no `apt install nfs-common` to redo, no `/etc/fstab`
+  to maintain, no `~/scripts/` you have to remember.
+- One mount point per app means [TRaSH-style hardlinks and atomic
+  moves](https://trash-guides.info/Hardlinks/Hardlinks-and-Instant-Moves/)
+  work natively — Sonarr/Radarr import via `link(2)` instead of copying
+  gigabytes.
+
+The NAS IP (`192.168.50.111`) is hard-coded in the compose files. It's
+an RFC1918 LAN address with zero exposure outside the network — your NAS
+isn't internet-facing, and a private IP is useless to anyone not already
+on your LAN.
 
 ### 1. Enable NFS on the Synology
 
@@ -57,48 +64,7 @@ NFS volume approach with per-install variables.
   - Security: `sys`. Async: on. Allow non-privileged ports: on. Allow
     access to mounted subfolders: on.
 
-### 2. Mount the NFS share on the Umbrel host
-
-SSH into your Umbrel:
-
-```bash
-sudo apt-get update -qq && sudo apt-get install -y nfs-common
-sudo mkdir -p /mnt/plex-media
-echo '192.168.X.Y:/volume3/Plex\040Media   /mnt/plex-media   nfs4   defaults,_netdev,rw,hard,noatime   0 0' | sudo tee -a /etc/fstab
-sudo mount -a
-ls /mnt/plex-media     # should list Books/, Download/, Movies/, etc.
-```
-
-Replace `192.168.X.Y` with your NAS LAN IP. `\040` is the octal escape
-for the space in `Plex Media`. fstab requires the escape.
-
-### 3. Survive umbrelOS firmware updates
-
-umbrelOS uses A/B partition swaps for major firmware updates, which wipes
-the root filesystem — including `/etc/fstab` and the `nfs-common`
-package. Drop this self-applying script in your home so a one-line
-re-run restores everything:
-
-```bash
-mkdir -p ~/scripts
-cat > ~/scripts/setup-nas-mount.sh <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-sudo apt-get update -qq
-sudo apt-get install -y nfs-common
-sudo mkdir -p /mnt/plex-media
-LINE='192.168.X.Y:/volume3/Plex\040Media   /mnt/plex-media   nfs4   defaults,_netdev,rw,hard,noatime   0 0'
-grep -qF "$LINE" /etc/fstab || echo "$LINE" | sudo tee -a /etc/fstab
-sudo systemctl daemon-reload
-sudo mount -a
-EOF
-chmod +x ~/scripts/setup-nas-mount.sh
-```
-
-(Replace `192.168.X.Y` with your NAS IP before saving.) After any major
-firmware update: `bash ~/scripts/setup-nas-mount.sh`.
-
-### 4. Install the apps from umbrelOS
+### 2. Install the apps from umbrelOS
 
 Order is mostly free, but a sensible flow:
 
@@ -130,9 +96,9 @@ container).
 - **Transmission**: iVPN WireGuard credentials. See
   [brandonjamesmarshall-transmission/.env.example](./brandonjamesmarshall-transmission/.env.example).
 
-The other 5 apps need no `.env` — they pick up the media library from
-the host bind mount `/mnt/plex-media` (see "Media stack: one-time setup"
-above).
+The other 5 apps (Plex/Sonarr/Radarr/SABnzbd/Resilio Sync) need no
+`.env` — they get the media library from the Docker-managed NFS volume
+declared in their compose (see "Media stack: one-time setup" above).
 
 Verify the Transmission kill-switch once configured:
 

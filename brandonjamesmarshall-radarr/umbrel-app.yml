@@ -13,8 +13,8 @@ description: >-
   instead of copying.
 
 
-  Requires the Synology NFS share mounted at /mnt/plex-media on your
-  Umbrel host (see store README for the one-time fstab setup).
+  Media library and downloads are mounted via a Docker-managed NFS
+  volume pointing at the Synology share — no host fstab needed.
 
 
   POST-INSTALL (only if starting fresh; skip if migrating from a NAS):

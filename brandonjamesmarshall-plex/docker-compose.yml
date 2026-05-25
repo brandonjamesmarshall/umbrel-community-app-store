@@ -5,10 +5,11 @@ version: "3.7"
 # umbrelOS auto-injects /dev/dri when permissions: [GPU] is set in
 # umbrel-app.yml and the host has a Intel/AMD/NVIDIA GPU device node.
 #
-# Media library: bind-mounted from /mnt/plex-media on the Umbrel host, where
-# you've previously mounted the Synology NFS share via /etc/fstab. See the
-# store README for the one-time host NFS setup + the firmware-update
-# persistence script.
+# Media library: Docker-managed NFS volume backed by the Synology share.
+# Mount lives in container at /media (matches the migrated Plex DB's
+# library paths). Survives umbrelOS reboots/firmware-updates because
+# the in-kernel NFS module is part of the firmware — no apt packages
+# or host fstab entries to maintain.
 
 services:
 
@@ -24,9 +25,13 @@ services:
       VERSION: "docker"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
-      # Transcode at /tmp matches the previous NAS-side install so a
-      # migrated Library/Preferences.xml just works.
       - ${APP_DATA_DIR}/data/transcode:/tmp
-      # Media library at /media (NOT /data) matches the NAS-side install
-      # so the migrated Plex database's library paths resolve correctly.
-      - /mnt/plex-media:/media
+      - media:/media
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"

@@ -35,6 +35,11 @@ description: >-
      The IP must be an iVPN IP, NOT your home IP.
 
 
+  5. In the Transmission UI -> Settings, set Default Download Directory:
+       /media/Download/transmission
+     (matches where Sonarr/Radarr will look for completed torrents.)
+
+
   Credentials NEVER live in this repo; the env_file directive in
   docker-compose.yml loads them from the .env on your Umbrel.
 developer: Transmission Project + qmcgaw (gluetun)

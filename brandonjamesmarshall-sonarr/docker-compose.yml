@@ -1,7 +1,9 @@
 version: "3.7"
 
-# Media library bind-mounted from /mnt/plex-media on the Umbrel host (NFS
-# share from Synology, set up at the OS level — see store README).
+# Media library: Docker-managed NFS volume backed by the Synology share.
+# Mounted twice — whole share at /media, "Download" subpath at /Download —
+# both views of the same volume so hardlinks across them work (same st_dev).
+# Matches the migrated Sonarr DB's /media/TV root + /Download/tv client paths.
 
 services:
 
@@ -19,9 +21,19 @@ services:
       TZ: "Etc/UTC"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
-      # Matches the NAS-side install's container paths so a migrated
-      # sonarr.db keeps working: /media for the TV root, /Download for
-      # download client paths. Both are bind mounts of the same NFS
-      # share, so hardlinks across them work.
-      - /mnt/plex-media:/media
-      - /mnt/plex-media/Download:/Download
+      - type: volume
+        source: media
+        target: /media
+      - type: volume
+        source: media
+        target: /Download
+        volume:
+          subpath: Download
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"

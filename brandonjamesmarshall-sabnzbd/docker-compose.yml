@@ -1,7 +1,8 @@
 version: "3.7"
 
-# Media library bind-mounted from /mnt/plex-media on the Umbrel host (NFS
-# share from Synology, set up at the OS level — see store README).
+# Media library: Docker-managed NFS volume backed by the Synology share.
+# Mounted at /media so SAB can write completed downloads under
+# /media/Download/sabnzbd/ where Sonarr/Radarr can hardlink-import.
 
 services:
 
@@ -19,4 +20,12 @@ services:
       TZ: "Etc/UTC"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
-      - /mnt/plex-media:/data
+      - media:/media
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"

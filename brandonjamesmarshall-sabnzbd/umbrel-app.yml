@@ -8,13 +8,9 @@ category: Media
 version: "5.0.3"
 port: 8080
 description: >-
-  SABnzbd is a Usenet (NZB) download client. Packaged with the shared /data
-  NFS mount so completed files land where Sonarr/Radarr can hardlink them
-  into the library.
-
-
-  Requires the Synology NFS share mounted at /mnt/plex-media on your
-  Umbrel host (see store README for the one-time fstab setup).
+  SABnzbd is a Usenet (NZB) download client. Mounts the Synology share
+  at /media via a Docker-managed NFS volume — no host fstab needed,
+  survives umbrelOS reboots and firmware updates.
 
 
   POST-INSTALL:
@@ -23,12 +19,12 @@ description: >-
      credentials).
 
   2. Config -> Folders ->
-       - Temporary Download Folder: /data/Download/incomplete
-       - Completed Download Folder: /data/Download
+       - Temporary Download Folder: /media/Download/sabnzbd/incomplete
+       - Completed Download Folder: /media/Download/sabnzbd
 
   3. Config -> Categories ->
-       - tv     -> /data/Download/tv
-       - movies -> /data/Download/movies
+       - tv     -> /media/Download/sabnzbd/tv
+       - movies -> /media/Download/sabnzbd/movies
 
   4. Wire SABnzbd into Sonarr/Radarr in their respective Download Clients
      settings (host: brandonjamesmarshall-sabnzbd_server_1, port 8080).
