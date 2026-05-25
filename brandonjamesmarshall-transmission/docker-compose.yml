@@ -17,8 +17,9 @@ services:
   app_proxy:
     environment:
       # When sharing a netns, the listening port is reached via the netns
-      # owner's container — gluetun, not transmission.
-      APP_HOST: brandonjamesmarshall-transmission_gluetun_1
+      # owner's service — gluetun, not transmission. Service-name DNS
+      # avoids underscore-vs-hyphen breakage across compose versions.
+      APP_HOST: gluetun
       APP_PORT: 9091
 
   gluetun:

@@ -9,7 +9,9 @@ services:
 
   app_proxy:
     environment:
-      APP_HOST: brandonjamesmarshall-radarr_server_1
+      # Use service-name DNS instead of full container name to avoid
+      # underscore-vs-hyphen breakage between compose v1 and v2.
+      APP_HOST: server
       APP_PORT: 7878
 
   server:
