@@ -24,5 +24,9 @@ services:
       VERSION: "docker"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
-      - ${APP_DATA_DIR}/data/transcode:/transcode
-      - /mnt/plex-media:/data
+      # Transcode at /tmp matches the previous NAS-side install so a
+      # migrated Library/Preferences.xml just works.
+      - ${APP_DATA_DIR}/data/transcode:/tmp
+      # Media library at /media (NOT /data) matches the NAS-side install
+      # so the migrated Plex database's library paths resolve correctly.
+      - /mnt/plex-media:/media

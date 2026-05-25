@@ -20,15 +20,15 @@ description: >-
     Sonarr/Radarr can hardlink imports instead of copying.
 
 
-  POST-INSTALL:
+  POST-INSTALL (only if starting fresh; skip step 3 if migrating from a NAS):
 
   1. Sign in to plex.tv and claim this server.
 
   2. In Settings -> Transcoder, enable "Use hardware acceleration when
      available" and "Use hardware-accelerated video encoding".
 
-  3. Add libraries pointing at /data/Movies, /data/TV (and optionally
-     /data/Music, /data/Books, /data/Photos).
+  3. Add libraries pointing at /media/Movies, /media/TV (and optionally
+     /media/Music, /media/Books, /media/Photos).
 
 
   Requires the Synology NFS share mounted at /mnt/plex-media on your

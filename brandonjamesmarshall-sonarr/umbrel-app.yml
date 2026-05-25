@@ -17,16 +17,17 @@ description: >-
   Umbrel host (see store README for the one-time fstab setup).
 
 
-  POST-INSTALL:
+  POST-INSTALL (only if starting fresh; skip if migrating from a NAS):
 
   1. Open Sonarr, complete first-run setup.
 
-  2. Settings -> Media Management -> Root Folders -> add /data/TV.
+  2. Settings -> Media Management -> Root Folders -> add /media/TV.
 
   3. Settings -> Download Clients -> add Transmission
-     (host: brandonjamesmarshall-transmission_gluetun_1, port 9091, category tv)
+     (host: brandonjamesmarshall-transmission_gluetun_1, port 9091,
+      Directory: /Download/tv, category: tv)
      and/or SABnzbd
-     (host: brandonjamesmarshall-sabnzbd_server_1, port 8080, category tv).
+     (host: brandonjamesmarshall-sabnzbd_server_1, port 8080, category: tv).
      Get the API key from each app's UI.
 
   4. Settings -> Indexers -> add via Prowlarr's "Apps" page (recommended)

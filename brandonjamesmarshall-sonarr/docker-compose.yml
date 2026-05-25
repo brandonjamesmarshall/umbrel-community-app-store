@@ -19,4 +19,9 @@ services:
       TZ: "Etc/UTC"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
-      - /mnt/plex-media:/data
+      # Matches the NAS-side install's container paths so a migrated
+      # sonarr.db keeps working: /media for the TV root, /Download for
+      # download client paths. Both are bind mounts of the same NFS
+      # share, so hardlinks across them work.
+      - /mnt/plex-media:/media
+      - /mnt/plex-media/Download:/Download
