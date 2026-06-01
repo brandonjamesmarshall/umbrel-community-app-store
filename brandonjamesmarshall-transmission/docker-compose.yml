@@ -55,13 +55,13 @@ services:
       PUID: "1000"
       PGID: "1000"
       TZ: "Etc/UTC"
-    env_file:
-      # Loads USER and PASS (Transmission RPC credentials) from the same
-      # .env that gluetun reads. Set USER and PASS in your .env — linuxserver's
-      # init re-applies these to settings.json on EVERY container start, so
-      # this is the only way to set custom credentials that persist.
-      # Defaults shown in umbrelOS's app card are just hints.
-      - ${APP_DATA_DIR}/.env
+      # Default RPC credentials surfaced in umbrelOS's app card via
+      # defaultUsername/defaultPassword in umbrel-app.yml. linuxserver's init
+      # writes these to settings.json on every container start; to use a
+      # different password, edit the lines below and click Restart in
+      # umbrelOS (or remove these lines and manage settings.json yourself).
+      USER: umbrel
+      PASS: umbrelmedia
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - media:/media
