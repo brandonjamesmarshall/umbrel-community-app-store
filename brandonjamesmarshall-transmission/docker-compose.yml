@@ -55,12 +55,13 @@ services:
       PUID: "1000"
       PGID: "1000"
       TZ: "Etc/UTC"
-      # RPC credentials — ${APP_PASSWORD} is a per-install random password
-      # umbrelOS generates and persists for this app. The same value is shown
-      # to the user in the app card via defaultPassword in umbrel-app.yml.
-      # linuxserver's init writes these into settings.json on every restart.
+      # RPC credentials match defaultUsername/defaultPassword in umbrel-app.yml
+      # so the "Copy" button on the umbrelOS app card gives a working value.
+      # umbrelOS's $APP_PASSWORD substitution doesn't apply to the display
+      # field for community-store apps, so we use a static shared default.
+      # Edit these lines if you want a custom password.
       USER: admin
-      PASS: ${APP_PASSWORD}
+      PASS: umbrelmedia
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - media:/media

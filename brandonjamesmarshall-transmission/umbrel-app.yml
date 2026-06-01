@@ -62,4 +62,4 @@ releaseNotes: >-
 dependencies: []
 path: ""
 defaultUsername: "admin"
-defaultPassword: "$APP_PASSWORD"
+defaultPassword: "umbrelmedia"
