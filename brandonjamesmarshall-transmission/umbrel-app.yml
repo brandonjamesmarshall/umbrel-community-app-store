@@ -62,4 +62,5 @@ releaseNotes: >-
 dependencies: []
 path: ""
 defaultUsername: "admin"
-defaultPassword: "umbrelmedia"
+defaultPassword: ""
+deterministicPassword: true

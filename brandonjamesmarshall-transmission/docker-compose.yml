@@ -55,13 +55,13 @@ services:
       PUID: "1000"
       PGID: "1000"
       TZ: "Etc/UTC"
-      # RPC credentials match defaultUsername/defaultPassword in umbrel-app.yml
-      # so the "Copy" button on the umbrelOS app card gives a working value.
-      # umbrelOS's $APP_PASSWORD substitution doesn't apply to the display
-      # field for community-store apps, so we use a static shared default.
-      # Edit these lines if you want a custom password.
+      # RPC credentials — ${APP_PASSWORD} is a per-install deterministic
+      # password umbreld derives from the device's umbrel-seed via HMAC-SHA256
+      # with identifier "app-<this-app-id>-seed-APP_PASSWORD". umbrel-app.yml
+      # has deterministicPassword: true so the UI displays the SAME value the
+      # container gets here, and the "Copy" button on the app card works.
       USER: admin
-      PASS: umbrelmedia
+      PASS: ${APP_PASSWORD}
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - media:/media
