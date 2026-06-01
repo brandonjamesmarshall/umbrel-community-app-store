@@ -8,7 +8,7 @@ category: Media
 # Suffix "+vpnN" is auto-bumped by .github/workflows/bump-transmission-on-sidecar.yml
 # whenever the gluetun sidecar (or anything else in docker-compose.yml) updates,
 # so umbrelOS shows "Update available" even when only the VPN sidecar changed.
-version: "4.1.1+vpn10"
+version: "4.1.1+vpn11"
 port: 9091
 description: >-
   Transmission torrent client, forced through an iVPN WireGuard tunnel via
