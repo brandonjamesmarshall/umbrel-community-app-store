@@ -55,13 +55,12 @@ services:
       PUID: "1000"
       PGID: "1000"
       TZ: "Etc/UTC"
-      # Default RPC credentials surfaced in umbrelOS's app card via
-      # defaultUsername/defaultPassword in umbrel-app.yml. linuxserver's init
-      # writes these to settings.json on every container start; to use a
-      # different password, edit the lines below and click Restart in
-      # umbrelOS (or remove these lines and manage settings.json yourself).
+      # RPC credentials — ${APP_PASSWORD} is a per-install random password
+      # umbrelOS generates and persists for this app. The same value is shown
+      # to the user in the app card via defaultPassword in umbrel-app.yml.
+      # linuxserver's init writes these into settings.json on every restart.
       USER: umbrel
-      PASS: umbrelmedia
+      PASS: ${APP_PASSWORD}
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - media:/media
