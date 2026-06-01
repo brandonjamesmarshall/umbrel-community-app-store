@@ -7,6 +7,9 @@ services:
       # Full container name (see Sonarr compose for why we can't use bare "server").
       APP_HOST: brandonjamesmarshall-prowlarr_server_1
       APP_PORT: 9696
+      # Whitelist API + indexer-feed paths so arrs and external indexer
+      # clients can authenticate via API key, bypassing umbrelOS session login.
+      PROXY_AUTH_WHITELIST: /api,/signalr,/feed,/Content,/MediaCover,/initialize.json,/ping,/download,/dl,/t,/api/v1/indexer
 
   server:
     image: lscr.io/linuxserver/prowlarr:2.3.5@sha256:c9fe528f34b1fd3715438b6f6d6991d64e2965f2c055db36398bc66a0e7eab01

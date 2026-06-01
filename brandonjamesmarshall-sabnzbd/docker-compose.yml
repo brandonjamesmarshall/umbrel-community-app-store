@@ -11,6 +11,9 @@ services:
       # Full container name (see Sonarr compose for why we can't use bare "server").
       APP_HOST: brandonjamesmarshall-sabnzbd_server_1
       APP_PORT: 8080
+      # Whitelist API path so Sonarr/Radarr (and mobile clients) can talk to
+      # SAB's API key auth without umbrelOS session redirect.
+      PROXY_AUTH_WHITELIST: /api,/sabnzbd/api
 
   server:
     image: lscr.io/linuxserver/sabnzbd:5.0.3@sha256:6b392fce45ed587ba7213259fbce6f9f725b157b746b36ec53d3f08ee415602e

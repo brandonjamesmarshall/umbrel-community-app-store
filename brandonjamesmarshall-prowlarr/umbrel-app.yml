@@ -5,7 +5,7 @@ tagline: Indexer manager for the *arr stack
 icon: https://getumbrel.github.io/umbrel-apps-gallery/prowlarr/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/prowlarr
-version: "2.3.5"
+version: "2.3.5+wl1"
 port: 9696
 description: >-
   Prowlarr is a unified indexer manager for Sonarr, Radarr, and other arr

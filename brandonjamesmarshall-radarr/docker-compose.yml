@@ -14,6 +14,9 @@ services:
       # Full container name (see Sonarr compose for why we can't use bare "server").
       APP_HOST: brandonjamesmarshall-radarr_server_1
       APP_PORT: 7878
+      # Whitelist API + push paths so mobile apps and Prowlarr can authenticate
+      # via Radarr's API key directly, bypassing umbrelOS's session login.
+      PROXY_AUTH_WHITELIST: /api,/signalr,/feed,/Content,/MediaCover,/initialize.json,/ping
 
   server:
     image: lscr.io/linuxserver/radarr:6.1.1@sha256:079e48870584baf2a3e7e43e7ba6d3c834555931851a59c82c51cc792d285caf

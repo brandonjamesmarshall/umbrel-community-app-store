@@ -21,6 +21,10 @@ services:
       # cross-app alias collision on the shared umbrel network.
       APP_HOST: brandonjamesmarshall-transmission_gluetun_1
       APP_PORT: 9091
+      # Whitelist Transmission's RPC endpoint so Sonarr/Radarr and mobile
+      # clients can use the username/password auth Transmission already
+      # enforces, without umbrelOS's session login getting in the way.
+      PROXY_AUTH_WHITELIST: /transmission/rpc,/transmission/upload,/transmission/web
 
   gluetun:
     # renovate: datasource=docker depName=qmcgaw/gluetun

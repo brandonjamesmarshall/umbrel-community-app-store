@@ -5,7 +5,7 @@ tagline: Movie collection manager
 icon: https://getumbrel.github.io/umbrel-apps-gallery/radarr/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/radarr
-version: "6.1.1+nfs4"
+version: "6.1.1+nfs5"
 port: 7878
 description: >-
   Radarr automatically finds, downloads, and organises movies. Packaged for

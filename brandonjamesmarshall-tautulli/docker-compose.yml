@@ -7,6 +7,9 @@ services:
       # Full container name (see Sonarr compose for why we can't use bare "server").
       APP_HOST: brandonjamesmarshall-tautulli_server_1
       APP_PORT: 8181
+      # Whitelist Tautulli's API path so external API clients can hit it
+      # with the Tautulli API key directly, bypassing umbrelOS session auth.
+      PROXY_AUTH_WHITELIST: /api/v2,/api,/newsletter
 
   server:
     image: lscr.io/linuxserver/tautulli:2.17.1@sha256:97a8127cfd3be10f653cea347cef64098243e315c2d81385813b7d8fc6fc384b

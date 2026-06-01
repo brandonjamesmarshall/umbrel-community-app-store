@@ -17,6 +17,10 @@ services:
       # network, causing DNS round-robin to send requests to wrong containers.
       APP_HOST: brandonjamesmarshall-sonarr_server_1
       APP_PORT: 8989
+      # Whitelist API + push paths so mobile apps (Helmarr et al.) and other
+      # arrs can hit Sonarr's API key auth directly, without bouncing off
+      # umbrelOS's session login redirect at :2000.
+      PROXY_AUTH_WHITELIST: /api,/signalr,/feed,/Content,/MediaCover,/initialize.json,/ping
 
   server:
     image: lscr.io/linuxserver/sonarr:4.0.17@sha256:0b5c4803f92456fb9b65bae8375716ea120b4ea17b3cced7da32b63f0085782b
