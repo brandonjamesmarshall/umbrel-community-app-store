@@ -59,7 +59,7 @@ services:
       # umbrelOS generates and persists for this app. The same value is shown
       # to the user in the app card via defaultPassword in umbrel-app.yml.
       # linuxserver's init writes these into settings.json on every restart.
-      USER: umbrel
+      USER: admin
       PASS: ${APP_PASSWORD}
     volumes:
       - ${APP_DATA_DIR}/data/config:/config

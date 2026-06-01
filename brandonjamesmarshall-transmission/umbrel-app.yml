@@ -61,5 +61,5 @@ releaseNotes: >-
   gluetun v3.41.1 (iVPN provider).
 dependencies: []
 path: ""
-defaultUsername: "umbrel"
+defaultUsername: "admin"
 defaultPassword: "$APP_PASSWORD"
