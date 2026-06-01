@@ -35,6 +35,12 @@ description: >-
      The IP must be an iVPN IP, NOT your home IP.
 
 
+  RPC AUTH: web UI defaults to user "umbrel" / password "umbrelmedia"
+  on first install. Change in Edit -> Preferences in the web UI or by
+  editing settings.json in the app data dir, then restart. Use these
+  credentials in Sonarr/Radarr's Download Client config too.
+
+
   5. In the Transmission UI -> Settings, set Default Download Directory:
        /media/Download/transmission
      (matches where Sonarr/Radarr will look for completed torrents.)
@@ -55,5 +61,5 @@ releaseNotes: >-
   gluetun v3.41.1 (iVPN provider).
 dependencies: []
 path: ""
-defaultUsername: ""
-defaultPassword: ""
+defaultUsername: "umbrel"
+defaultPassword: "umbrelmedia"
