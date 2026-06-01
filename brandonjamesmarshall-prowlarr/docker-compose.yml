@@ -18,5 +18,9 @@ services:
       PUID: "1000"
       PGID: "1000"
       TZ: "Etc/UTC"
+    # Direct port for mobile/API clients — bypasses umbrelOS auth gateway.
+    # Keep Prowlarr's Settings -> General -> Authentication enabled.
+    ports:
+      - "19696:9696"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config

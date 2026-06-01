@@ -34,6 +34,12 @@ services:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
+    # Direct port for mobile/API clients — bypasses umbrelOS auth gateway.
+    # Transmission shares this netns, so 9091 here = Transmission's RPC port.
+    # Set Transmission's RPC username/password (Edit -> Preferences -> Remote)
+    # since umbrelOS's session auth no longer gates this entry point.
+    ports:
+      - "19091:9091"
     env_file:
       - ${APP_DATA_DIR}/.env
     volumes:

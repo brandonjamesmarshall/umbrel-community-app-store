@@ -18,5 +18,9 @@ services:
       PUID: "1000"
       PGID: "1000"
       TZ: "Etc/UTC"
+    # Direct port for mobile/API clients — bypasses umbrelOS auth gateway.
+    # Tautulli has its own login + API key — keep both required.
+    ports:
+      - "18181:8181"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config

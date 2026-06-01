@@ -29,6 +29,11 @@ services:
       PUID: "1000"
       PGID: "1000"
       TZ: "Etc/UTC"
+    # Direct port for mobile/API clients (e.g. Helmarr). Bypasses umbrelOS's
+    # outer auth gateway on :8989, so app-level auth (Sonarr's API key + login)
+    # is the only protection — keep Settings -> General -> Authentication on.
+    ports:
+      - "18989:8989"
     volumes:
       - ${APP_DATA_DIR}/data/config:/config
       - media:/media
