@@ -3,7 +3,7 @@
   "extends": ["config:recommended", ":dependencyDashboard"],
   "pinDigests": true,
   "minimumReleaseAge": "14 days",
-  "schedule": ["before 06:00 on monday"],
+  "schedule": ["before 06:00"],
   "packageRules": [
     {
       "matchManagers": ["docker-compose", "custom.regex"],
