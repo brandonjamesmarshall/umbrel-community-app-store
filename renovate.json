@@ -4,6 +4,8 @@
   "pinDigests": true,
   "minimumReleaseAge": "14 days",
   "schedule": ["before 06:00"],
+  "prHourlyLimit": 0,
+  "prConcurrentLimit": 0,
   "packageRules": [
     {
       "matchManagers": ["docker-compose", "custom.regex"],
