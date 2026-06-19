@@ -11,7 +11,7 @@
       "matchManagers": ["docker-compose", "custom.regex"],
       "automerge": true,
       "automergeType": "pr",
-      "platformAutomerge": true,
+      "platformAutomerge": false,
       "minimumReleaseAge": "14 days"
     }
   ],
