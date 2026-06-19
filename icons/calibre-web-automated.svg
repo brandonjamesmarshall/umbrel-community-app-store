@@ -1,0 +1,11 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="256" height="256" fill="#20140e"/>
+  <!-- e-reader body -->
+  <rect x="74" y="48" width="108" height="160" rx="16" fill="#d97706"/>
+  <!-- screen -->
+  <rect x="88" y="64" width="80" height="110" rx="6" fill="#fde68a"/>
+  <!-- home dot -->
+  <circle cx="128" cy="191" r="8" fill="#7c2d12"/>
+  <!-- up arrow on screen: "send to Kindle" -->
+  <path d="M128 92l24 26h-15v30h-18v-30h-15z" fill="#b45309"/>
+</svg>

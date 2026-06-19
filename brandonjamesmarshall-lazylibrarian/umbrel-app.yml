@@ -1,0 +1,71 @@
+manifestVersion: 1
+id: brandonjamesmarshall-lazylibrarian
+name: LazyLibrarian
+tagline: Book & audiobook collection manager
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/lazylibrarian.svg
+category: Media
+# LinuxServer tags LazyLibrarian by upstream commit hash (no semver), so the
+# image is pinned to latest@sha256 and Renovate keeps the digest fresh. The
+# version below is the LSIO build date; bump it by hand on repackage so
+# umbrelOS surfaces "Update available".
+version: "2026.06.13+nfs1"
+port: 5299
+description: >-
+  LazyLibrarian is the "arr" for books — it follows authors, searches your
+  Prowlarr indexers, hands downloads to SABnzbd/Transmission, then post-
+  processes finished books into the Calibre-Web-Automated ingest folder so
+  they land in your library (and on your Kindle) automatically.
+
+
+  Library and downloads come from the shared Synology NFS share mounted at
+  /media (same volume as Sonarr/Radarr/SAB). Format conversion and the Kindle
+  hand-off are handled downstream by Calibre-Web-Automated, so this stays
+  lean — no Calibre bundled in by default.
+
+
+  POST-INSTALL:
+
+  1. Open LazyLibrarian -> Config.
+
+  2. Config -> Downloaders:
+       - SABnzbd: host brandonjamesmarshall-sabnzbd_server_1, port 8080,
+         category "books", API key from SAB.
+       - and/or Transmission: host brandonjamesmarshall-transmission_gluetun_1,
+         port 9091, your RPC user/pass, directory /media/Download/transmission,
+         label "books".
+
+  3. Config -> Processing:
+       - Download directory:   /media/Download
+       - eBook destination:    /media/Books/Ingest   (the CWA ingest folder)
+       - Audiobook dest:       /media/Books/Audiobooks   (optional)
+
+  4. Indexers: in Prowlarr -> Settings -> Apps -> add LazyLibrarian
+       (Prowlarr server: http://brandonjamesmarshall-prowlarr_server_1:9696,
+        LazyLibrarian server:
+          http://brandonjamesmarshall-lazylibrarian_server_1:5299,
+        API key from LazyLibrarian Config -> Interface).
+     Prowlarr then syncs its indexers to LazyLibrarian as Newznab/Torznab.
+
+  5. Search an author, mark a book "Wanted", and LazyLibrarian fills it.
+     Calibre-Web-Automated picks it up from /media/Books/Ingest.
+
+
+  OPTIONAL — for LazyLibrarian-side eBook conversion or audiobook (m4b)
+  processing, add this env in docker-compose.yml and reinstall:
+    DOCKER_MODS: "linuxserver/mods:universal-calibre|linuxserver/mods:lazylibrarian-ffmpeg"
+developer: DobyTang (LazyLibrarian fork)
+website: https://lazylibrarian.gitlab.io
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/linuxserver/docker-lazylibrarian
+support: https://gitlab.com/LazyLibrarian/LazyLibrarian/-/issues
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/lazylibrarian.svg
+releaseNotes: >-
+  Initial release in this community app store. LinuxServer LazyLibrarian
+  (DobyTang fork), NFS library at /media, post-processing into the
+  Calibre-Web-Automated ingest folder.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

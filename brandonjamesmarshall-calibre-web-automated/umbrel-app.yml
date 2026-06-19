@@ -1,0 +1,65 @@
+manifestVersion: 1
+id: brandonjamesmarshall-calibre-web-automated
+name: Calibre-Web Automated
+tagline: eBook library, web reader & Send-to-Kindle
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/calibre-web-automated.svg
+category: Media
+# renovate: datasource=docker depName=crocodilestick/calibre-web-automated
+version: "4.0.6+nfs1"
+port: 8083
+description: >-
+  Calibre-Web Automated (CWA) is the "Plex for books" — a polished web reader
+  and library manager over a Calibre library. It auto-imports anything dropped
+  in its ingest folder, converts formats, serves OPDS/Kobo to e-reader apps,
+  and sends books straight to your Kindle by e-mail.
+
+
+  Runs against the Synology share over NFS: the Calibre library and the ingest
+  folder are Docker-managed NFS sub-mounts, and NETWORK_SHARE_MODE=true switches
+  CWA's file watcher to ~5-second polling so it reliably detects books
+  LazyLibrarian drops in over the network (inotify does not fire across NFS
+  clients).
+
+
+  BEFORE INSTALLING — create these two folders on the NAS share (Plex Media):
+
+       Books/CalibreLibrary        Books/Ingest
+
+  CWA seeds an empty Calibre library into CalibreLibrary on first run if one
+  isn't already there.
+
+
+  POST-INSTALL:
+
+  1. Open CWA, log in as admin / admin123, then IMMEDIATELY change the
+     password (Admin -> Users). The direct port 18083 bypasses umbrelOS auth,
+     so CWA's own login is the only gate there.
+
+  2. Send to Kindle: Admin -> Edit Basic Configuration -> Email Server.
+       - Enter your SMTP host/port/user/pass (e.g. Gmail + an app password).
+       - Set the "From" address to an e-mail in your Amazon "Approved Personal
+         Document E-mail List".
+     Then each user sets their @kindle.com address in their profile. Use the
+     "Send to Kindle" button (or enable Auto-Send) on any book.
+
+  3. Books from LazyLibrarian arrive in /cwa-book-ingest (= NAS Books/Ingest),
+     are auto-imported into the library, then removed from ingest.
+
+  4. Read in the browser, or point KOReader / Moon+ Reader at the OPDS feed
+     (/opds), or enable Kobo sync (/kobo).
+developer: crocodilestick
+website: https://github.com/crocodilestick/Calibre-Web-Automated
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/crocodilestick/Calibre-Web-Automated
+support: https://github.com/crocodilestick/Calibre-Web-Automated/issues
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/calibre-web-automated.svg
+releaseNotes: >-
+  Initial release in this community app store. CWA 4.0.6 with
+  NETWORK_SHARE_MODE polling for the NFS-backed Calibre library and the
+  LazyLibrarian ingest hand-off.
+dependencies: []
+path: ""
+defaultUsername: "admin"
+defaultPassword: "admin123"

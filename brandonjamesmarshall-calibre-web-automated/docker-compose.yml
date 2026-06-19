@@ -1,0 +1,57 @@
+version: "3.7"
+
+# Calibre-Web-Automated. Config + app.db live on the local SSD; the Calibre
+# library (metadata.db + book files) and the ingest folder are Docker-managed
+# NFS sub-mounts of the Synology share.
+#
+# NETWORK_SHARE_MODE=true makes CWA poll (~every 5s) instead of using inotify,
+# which doesn't deliver events across NFS clients — so books LazyLibrarian
+# writes into the ingest folder are reliably picked up. It also suppresses
+# chown/permission ops that fail on NFS squashed mounts.
+#
+# PRE-CREATE on the NAS share before installing:
+#   <share>/Books/CalibreLibrary    and    <share>/Books/Ingest
+
+services:
+
+  app_proxy:
+    environment:
+      # Full container name (see Sonarr compose for why we can't use bare "server").
+      APP_HOST: brandonjamesmarshall-calibre-web-automated_server_1
+      APP_PORT: 8083
+      # Whitelist OPDS + Kobo sync so e-reader apps (KOReader, Moon+ Reader)
+      # and Kobo devices can authenticate directly, bypassing umbrelOS login.
+      PROXY_AUTH_WHITELIST: /opds,/kobo
+
+  server:
+    image: crocodilestick/calibre-web-automated:v4.0.6@sha256:c31a738b6d5ec6982c050063dd3f063b6943eb1051fc81144789f840d9093a8d
+    restart: on-failure
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+      # NFS-backed library/ingest: poll instead of inotify, and skip the
+      # chown/permission ops that fail on NFS squashed mounts.
+      NETWORK_SHARE_MODE: "true"
+    # Direct port for mobile/e-reader clients — bypasses umbrelOS auth gateway.
+    # CWA's own login (change the admin123 default!) is the only gate here.
+    ports:
+      - "18083:8083"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - calibre_library:/calibre-library
+      - ingest:/cwa-book-ingest
+
+volumes:
+  calibre_library:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media/Books/CalibreLibrary"
+  ingest:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media/Books/Ingest"

@@ -19,6 +19,8 @@ and a VPN-isolated torrent client.
 | [Transmission (via iVPN)](./brandonjamesmarshall-transmission) | Torrent client tunneled through iVPN with kill-switch. |
 | [Tautulli](./brandonjamesmarshall-tautulli) | Plex stats and history. |
 | [Maintainerr](./brandonjamesmarshall-maintainerr) | Rule-based library cleanup. |
+| [LazyLibrarian](./brandonjamesmarshall-lazylibrarian) | Book & audiobook collection manager (the "arr" for books). |
+| [Calibre-Web Automated](./brandonjamesmarshall-calibre-web-automated) | eBook library, web reader, and Send-to-Kindle. |
 
 ## How to add this store to umbrelOS
 
@@ -32,9 +34,12 @@ and a VPN-isolated torrent client.
 
 ## Media stack: one-time setup
 
-The 5 media apps (Plex, Sonarr, Radarr, SABnzbd, Transmission) each
-declare a **Docker-managed NFS volume** in their `docker-compose.yml`
-pointing at the Synology share (`192.168.50.111:/volume3/Plex Media`).
+The media apps (Plex, Sonarr, Radarr, SABnzbd, Transmission, LazyLibrarian,
+Calibre-Web Automated) each declare a **Docker-managed NFS volume** in their
+`docker-compose.yml` pointing at the Synology share
+(`192.168.50.111:/volume3/Plex Media`). Most mount the whole share at `/media`;
+Calibre-Web Automated instead mounts two sub-folders of it
+(`Books/CalibreLibrary` and `Books/Ingest`) at the paths it expects.
 
 Why this approach over a host-level NFS mount:
 
@@ -78,9 +83,45 @@ Order is mostly free, but a sensible flow:
    → Settings → Apps and connect them so Prowlarr can sync indexers.
 6. **Tautulli** → point at Plex.
 7. **Maintainerr** → point at Plex + Sonarr + Radarr.
+8. **Books (LazyLibrarian + Calibre-Web Automated)** → see below.
 
 Each app's `umbrel-app.yml` description has the specific paths and host
 names to paste during setup.
+
+### Books stack (LazyLibrarian + Calibre-Web Automated)
+
+The book flow mirrors the *arr stack: **LazyLibrarian** searches your Prowlarr
+indexers and hands downloads to SABnzbd/Transmission, then drops finished
+books into a shared **ingest** folder. **Calibre-Web Automated (CWA)**
+auto-imports from ingest into a Calibre library, serves a web reader/OPDS,
+and sends books to your **Kindle** by e-mail.
+
+**Before installing CWA**, create two folders on the NAS share (alongside
+`TV`, `Movies`, `Download`):
+
+```
+Books/CalibreLibrary    ← CWA's Calibre library (metadata.db lives here)
+Books/Ingest            ← LazyLibrarian writes here; CWA imports & empties it
+```
+
+CWA mounts those two sub-folders directly (`/calibre-library`,
+`/cwa-book-ingest`) and runs with `NETWORK_SHARE_MODE=true`, which switches
+its file watcher from inotify to ~5s polling — required because inotify
+events don't cross NFS clients, so CWA would otherwise never see the books
+LazyLibrarian writes. CWA seeds an empty library on first run if
+`CalibreLibrary` is empty.
+
+Then: install **LazyLibrarian** (wire to Prowlarr + your download clients,
+set eBook destination `/media/Books/Ingest`), install **CWA**, log in
+(`admin` / `admin123` — change it immediately), and configure the SMTP/Send-
+to-Kindle e-mail server under Admin → Edit Basic Configuration.
+
+> **Heads-up on updates:** LinuxServer tags LazyLibrarian by git commit hash
+> (no semver), so it's pinned to `latest@sha256` and Renovate refreshes only
+> the digest — umbrelOS won't show a version bump for it (the same "invisible
+> digest update" behaviour noted below). CWA uses proper semver, so it
+> surfaces updates normally. If you want visible LazyLibrarian updates, the
+> Transmission `+vpnN` auto-bump workflow can be generalised to it.
 
 ## Per-app `.env` files (Newt + Transmission only)
 

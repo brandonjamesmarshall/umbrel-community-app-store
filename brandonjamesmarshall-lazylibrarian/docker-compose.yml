@@ -1,0 +1,40 @@
+version: "3.7"
+
+# Books manager (the "arr" for books). Config + DB live on the local SSD;
+# the media library and download area come from the Synology NFS share at
+# /media (same volume as Sonarr/Radarr/SAB). LazyLibrarian post-processes
+# finished books into /media/Books/Ingest, where Calibre-Web-Automated
+# picks them up, converts, and files them into the Calibre library.
+
+services:
+
+  app_proxy:
+    environment:
+      # Full container name (see Sonarr compose for why we can't use bare "server").
+      APP_HOST: brandonjamesmarshall-lazylibrarian_server_1
+      APP_PORT: 5299
+      # Whitelist API + OPDS so Prowlarr's sync and mobile/e-reader clients can
+      # authenticate via API key, bypassing umbrelOS session login.
+      PROXY_AUTH_WHITELIST: /api,/opds
+
+  server:
+    image: lscr.io/linuxserver/lazylibrarian:latest@sha256:2a48ef81c0a51d93476e40a48a6cd1681556db31981cd98a28bcf9ab0e75f375
+    restart: on-failure
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+    # Direct port for mobile/API clients — bypasses umbrelOS auth gateway.
+    ports:
+      - "15299:5299"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - media:/media
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"
