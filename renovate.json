@@ -3,6 +3,7 @@
   "extends": ["config:recommended", ":dependencyDashboard"],
   "pinDigests": true,
   "minimumReleaseAge": "14 days",
+  "internalChecksAsSuccess": true,
   "schedule": ["before 06:00"],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
