@@ -1,0 +1,82 @@
+manifestVersion: 1
+id: brandonjamesmarshall-bookshelf
+name: Bookshelf
+tagline: eBook & audiobook manager (Readarr revival)
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/bookshelf.svg
+category: Media
+# pennydreadful/bookshelf ships rolling "hardcover"/"softcover" tags (no
+# semver), so the image is pinned to hardcover@sha256 and Renovate keeps the
+# digest fresh. The version below is the LSIO build date; bump it by hand on
+# repackage so umbrelOS surfaces "Update available".
+version: "2026.01.31+nfs1"
+port: 8787
+description: >-
+  Bookshelf is a community revival of Readarr — the "arr" for books, with the
+  same clean Sonarr/Radarr-style UI. It follows authors, searches your Prowlarr
+  indexers, hands downloads to SABnzbd/Transmission, then imports finished
+  books into the Calibre-Web-Automated ingest folder so they land in your
+  library (and on your Kindle) automatically. This is the `hardcover` build,
+  which uses Hardcover.app for metadata.
+
+
+  Packaged as a nicer-UI, drop-in alternative to LazyLibrarian: it writes to
+  the same /media/Books/Ingest folder and wires up exactly like Sonarr/Radarr,
+  so it slots straight into your existing Prowlarr + download-client stack.
+  Library and downloads come from the shared Synology NFS share at /media;
+  format conversion and the Kindle hand-off stay downstream in CWA.
+
+
+  POST-INSTALL:
+
+  1. Open Bookshelf, complete first-run setup. Settings -> General ->
+     Authentication: set "Forms (Login Page)" with a username/password — the
+     direct port 18787 bypasses umbrelOS auth, so app-level login is the only
+     gate there.
+
+  2. Settings -> Media Management -> Root Folders -> add /media/Books/Ingest
+     (the CWA ingest folder). Bookshelf imports finished books here; CWA
+     auto-imports and empties it. Because CWA removes files after import,
+     Bookshelf acts as a grabber/hand-off (same role LazyLibrarian played) and
+     won't keep a permanent on-disk library here.
+
+  3. Settings -> Download Clients:
+       - SABnzbd: host brandonjamesmarshall-sabnzbd_server_1, port 8080,
+         category "books", API key from SAB.
+       - and/or Transmission: host brandonjamesmarshall-transmission_gluetun_1,
+         port 9091, your RPC user/pass, category/label "books".
+     Add a Remote Path Mapping if your client reports a different path (e.g.
+     map /Download -> /media/Download) so imports translate cleanly.
+
+  4. Indexers via Prowlarr: Prowlarr -> Settings -> Apps -> add "Readarr"
+     (Bookshelf speaks the Readarr API):
+       Prowlarr server:  http://brandonjamesmarshall-prowlarr_server_1:9696
+       Bookshelf server: http://brandonjamesmarshall-bookshelf_server_1:8787
+       API key from Bookshelf -> Settings -> General.
+     Prowlarr then syncs its indexers as Newznab/Torznab. MyAnonaMouse can be
+     added directly under Settings -> Indexers without Prowlarr.
+
+  5. Add an author or search a title, mark it "Wanted", and Bookshelf fills it
+     via SAB/Transmission and imports into /media/Books/Ingest. Calibre-Web-
+     Automated files it into the library and (optionally) sends it to Kindle.
+
+
+  NOTE: This runs happily alongside LazyLibrarian so you can trial it before
+  removing LL — just manage a given book in one or the other to avoid double
+  grabs.
+developer: Penny Dreadful (Readarr revival)
+website: https://github.com/pennydreadful/bookshelf
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/pennydreadful/bookshelf
+support: https://github.com/pennydreadful/bookshelf/discussions
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/bookshelf.svg
+releaseNotes: >-
+  Initial release in this community app store. Bookshelf (Readarr revival,
+  Hardcover.app metadata), NFS library at /media, imports into the
+  Calibre-Web-Automated ingest folder — a nicer-UI alternative to
+  LazyLibrarian that slots into the existing Prowlarr + download-client stack.
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

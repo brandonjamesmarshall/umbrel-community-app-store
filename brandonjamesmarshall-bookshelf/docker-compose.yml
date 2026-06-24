@@ -1,0 +1,48 @@
+version: "3.7"
+
+# Bookshelf — the "arr" for books (a community revival of Readarr), built on
+# the LinuxServer baseimage like Sonarr/Radarr/LazyLibrarian. Config + DB live
+# on the local SSD; the media library and download area come from the Synology
+# NFS share at /media (same volume as the rest of the *arr stack). Bookshelf
+# imports finished books into /media/Books/Ingest, where Calibre-Web-Automated
+# picks them up, converts, and files them into the Calibre library.
+#
+# Rolling tag: pennydreadful publishes "hardcover" (Hardcover.app metadata) and
+# "softcover" (Goodreads) tags with no semver, so the image is pinned to
+# hardcover@sha256 and Renovate refreshes the digest in place (same "invisible
+# digest update" behaviour as LazyLibrarian).
+
+services:
+
+  app_proxy:
+    environment:
+      # Full container name (see Sonarr compose for why we can't use bare "server").
+      APP_HOST: brandonjamesmarshall-bookshelf_server_1
+      APP_PORT: 8787
+      # Whitelist API + push paths so Prowlarr's sync, mobile clients, and RSS
+      # feeds authenticate via API key, bypassing umbrelOS session login.
+      PROXY_AUTH_WHITELIST: /api,/signalr,/feed,/Content,/MediaCover,/initialize.json,/ping
+
+  server:
+    image: ghcr.io/pennydreadful/bookshelf:hardcover@sha256:388eecc94362580eae31ee0a454be6af516f8a311f8432a521c202fb475f4359
+    restart: on-failure
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+    # Direct port for mobile/API clients — bypasses umbrelOS auth gateway, so
+    # app-level auth (Bookshelf's API key + login) is the only protection here.
+    # Keep Settings -> General -> Authentication enabled.
+    ports:
+      - "18787:8787"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - media:/media
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"

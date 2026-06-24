@@ -20,6 +20,7 @@ and a VPN-isolated torrent client.
 | [Tautulli](./brandonjamesmarshall-tautulli) | Plex stats and history. |
 | [Maintainerr](./brandonjamesmarshall-maintainerr) | Rule-based library cleanup. |
 | [LazyLibrarian](./brandonjamesmarshall-lazylibrarian) | Book & audiobook collection manager (the "arr" for books). |
+| [Bookshelf](./brandonjamesmarshall-bookshelf) | Book & audiobook manager — a Readarr revival; nicer-UI alternative to LazyLibrarian. |
 | [Calibre-Web Automated](./brandonjamesmarshall-calibre-web-automated) | eBook library, web reader, and Send-to-Kindle. |
 
 ## How to add this store to umbrelOS
@@ -35,7 +36,7 @@ and a VPN-isolated torrent client.
 ## Media stack: one-time setup
 
 The media apps (Plex, Sonarr, Radarr, SABnzbd, Transmission, LazyLibrarian,
-Calibre-Web Automated) each declare a **Docker-managed NFS volume** in their
+Bookshelf, Calibre-Web Automated) each declare a **Docker-managed NFS volume** in their
 `docker-compose.yml` pointing at the Synology share
 (`192.168.50.111:/volume3/Plex Media`). Most mount the whole share at `/media`;
 Calibre-Web Automated instead mounts two sub-folders of it
@@ -122,6 +123,17 @@ to-Kindle e-mail server under Admin → Edit Basic Configuration.
 > digest update" behaviour noted below). CWA uses proper semver, so it
 > surfaces updates normally. If you want visible LazyLibrarian updates, the
 > Transmission `+vpnN` auto-bump workflow can be generalised to it.
+
+**Alternative front-end — Bookshelf:** if LazyLibrarian feels clunky,
+[**Bookshelf**](./brandonjamesmarshall-bookshelf) (a community revival of
+Readarr, with the Sonarr/Radarr UI) is packaged here as a drop-in replacement
+for the *grabber* half of this flow. Point its root folder at the same
+`/media/Books/Ingest` and wire it to Prowlarr + your download clients exactly
+like Sonarr — CWA picks up its output identically. It runs the rolling
+`hardcover` tag (Hardcover.app metadata) pinned by digest, so it has the same
+"invisible digest update" behaviour as LazyLibrarian above. The two can run
+side by side; just manage a given book in one or the other to avoid double
+grabs.
 
 ## Per-app `.env` files (Newt + Transmission only)
 
