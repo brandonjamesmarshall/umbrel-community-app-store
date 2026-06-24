@@ -33,11 +33,20 @@ description: >-
      direct port 18787 bypasses umbrelOS auth, so app-level login is the only
      gate there.
 
-  2. Settings -> Media Management -> Root Folders -> add /media/Books/Ingest
-     (the CWA ingest folder). Bookshelf imports finished books here; CWA
-     auto-imports and empties it. Because CWA removes files after import,
-     Bookshelf acts as a grabber/hand-off (same role LazyLibrarian played) and
-     won't keep a permanent on-disk library here.
+  2. Settings -> Media Management:
+       - Root Folders -> add /media/Books/Ingest (the CWA ingest folder).
+         Bookshelf imports finished books here; CWA auto-imports and empties
+         it, so Bookshelf is a grabber/hand-off (the role LazyLibrarian played)
+         rather than a permanent on-disk library.
+       - IMPORTANT: turn ON "Unmonitor Deleted Books" (File Management
+         section). CWA deletes each book from the ingest folder right after
+         importing it; with this enabled, Bookshelf unmonitors the title when
+         it sees the file vanish instead of flagging it "missing" and re-
+         grabbing it on the next RSS sync. Without it you get repeat downloads
+         of the same books. (Alternatively, point the root folder at a
+         permanent library path and use Bookshelf's Calibre content-server
+         integration — but the unmonitor-on-delete flow above is simpler and
+         matches the LazyLibrarian hand-off.)
 
   3. Settings -> Download Clients:
        - SABnzbd: host brandonjamesmarshall-sabnzbd_server_1, port 8080,

@@ -129,9 +129,11 @@ to-Kindle e-mail server under Admin → Edit Basic Configuration.
 Readarr, with the Sonarr/Radarr UI) is packaged here as a drop-in replacement
 for the *grabber* half of this flow. Point its root folder at the same
 `/media/Books/Ingest` and wire it to Prowlarr + your download clients exactly
-like Sonarr — CWA picks up its output identically. It runs the rolling
-`hardcover` tag (Hardcover.app metadata) pinned by digest, so it has the same
-"invisible digest update" behaviour as LazyLibrarian above. The two can run
+like Sonarr — CWA picks up its output identically. Turn on **Unmonitor
+Deleted Books** in its Media Management settings so the post-import deletion
+CWA performs doesn't make Bookshelf re-grab the same titles. It runs the
+rolling `hardcover` tag (Hardcover.app metadata) pinned by digest, so it has
+the same "invisible digest update" behaviour as LazyLibrarian above. The two can run
 side by side; just manage a given book in one or the other to avoid double
 grabs.
 
