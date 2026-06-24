@@ -71,8 +71,8 @@ services:
   # source IP it sees), and re-runs every 30 min so seeding survives iVPN IP
   # rotations — without it, announces fail with "Unrecognized host/passkey"
   # whenever the IP changes. MAM_ID is the dedicated dynamic-seedbox session id
-  # from .env; if it's blank/absent the loop just no-ops, so non-MAM users are
-  # unaffected.
+  # from .env; if it's blank/absent the container exits 0 right away, so
+  # non-MAM users are unaffected.
   mam-seedbox:
     image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     restart: on-failure
@@ -85,11 +85,17 @@ services:
       - sh
       - -c
       - |
+        if [ -z "$$MAM_ID" ]; then
+          echo "[mam-seedbox] MAM_ID not set; set it in .env and restart. Exiting."
+          exit 0
+        fi
         while true; do
-          if [ -n "$$MAM_ID" ]; then
-            curl -fsS -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php" || echo "[mam-seedbox] update failed; retrying in 30m"
+          if curl -fsS -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php"; then
+            sleep 1800
+          else
+            echo "[mam-seedbox] update failed (VPN still coming up?); retrying in 60s"
+            sleep 60
           fi
-          sleep 1800
         done
 
 volumes:
