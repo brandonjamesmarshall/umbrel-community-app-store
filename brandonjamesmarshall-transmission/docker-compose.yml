@@ -90,10 +90,14 @@ services:
           exit 0
         fi
         while true; do
-          if curl -fsS -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php"; then
+          # dynamicSeedbox.php returns HTTP 200 even on failure (bad mam_id,
+          # wrong session type, etc.), so confirm "Success":true in the body
+          # rather than trusting curl's exit code alone.
+          resp=$$(curl -fsS -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php" 2>/dev/null)
+          if echo "$$resp" | grep -qiE '"success"[[:space:]]*:[[:space:]]*true'; then
             sleep 1800
           else
-            echo "[mam-seedbox] update failed (VPN still coming up?); retrying in 60s"
+            echo "[mam-seedbox] update not confirmed (resp: $$resp); retrying in 60s"
             sleep 60
           fi
         done
