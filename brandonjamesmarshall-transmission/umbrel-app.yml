@@ -48,6 +48,13 @@ description: >-
 
   Credentials NEVER live in this repo; the env_file directive in
   docker-compose.yml loads them from the .env on your Umbrel.
+
+
+  OPTIONAL — MyAnonaMouse seeding: if you use MAM, add
+  MAM_ID=<dynamic-seedbox session id> to the .env. The bundled mam-seedbox
+  sidecar then re-authorizes your iVPN exit IP on MAM every 30 min (via the
+  Dynamic Seedbox API) so seeding survives IP rotations. Leave MAM_ID blank
+  if you do not use MAM.
 developer: Transmission Project + qmcgaw (gluetun)
 website: https://transmissionbt.com
 submitter: brandonjamesmarshall
@@ -57,8 +64,9 @@ support: https://github.com/transmission/transmission/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 releaseNotes: >-
-  Transmission 4.1.2 behind gluetun v3.41.1 (iVPN provider). Bumped from
-  4.1.1 to meet MyAnonaMouse's minimum allowed-client version.
+  Transmission 4.1.2 behind gluetun v3.41.1 (iVPN provider). Adds an optional
+  mam-seedbox sidecar that keeps the iVPN exit IP authorized on MyAnonaMouse
+  via the Dynamic Seedbox API (set MAM_ID in .env); harmless no-op if unset.
 dependencies: []
 path: ""
 defaultUsername: "admin"

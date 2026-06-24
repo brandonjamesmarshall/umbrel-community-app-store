@@ -66,6 +66,32 @@ services:
       - ${APP_DATA_DIR}/data/config:/config
       - media:/media
 
+  # Keeps the iVPN exit IP authorized on MyAnonaMouse. Shares gluetun's netns
+  # so the dynamicSeedbox call leaves via the iVPN tunnel (MAM authorizes the
+  # source IP it sees), and re-runs every 30 min so seeding survives iVPN IP
+  # rotations — without it, announces fail with "Unrecognized host/passkey"
+  # whenever the IP changes. MAM_ID is the dedicated dynamic-seedbox session id
+  # from .env; if it's blank/absent the loop just no-ops, so non-MAM users are
+  # unaffected.
+  mam-seedbox:
+    image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
+    restart: on-failure
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    env_file:
+      - ${APP_DATA_DIR}/.env
+    entrypoint:
+      - sh
+      - -c
+      - |
+        while true; do
+          if [ -n "$$MAM_ID" ]; then
+            curl -fsS -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php" || echo "[mam-seedbox] update failed; retrying in 30m"
+          fi
+          sleep 1800
+        done
+
 volumes:
   media:
     driver: local
