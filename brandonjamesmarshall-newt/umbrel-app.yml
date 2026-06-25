@@ -48,7 +48,8 @@ support: https://github.com/fosrl/newt/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/newt.svg
 releaseNotes: >-
-  Initial release in this community app store.
+  Auto-updated to the latest fosrl/newt release. See what changed:
+  https://github.com/fosrl/newt/releases
 dependencies: []
 path: ""
 defaultUsername: ""

@@ -62,9 +62,8 @@ support: https://gitlab.com/LazyLibrarian/LazyLibrarian/-/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/lazylibrarian.svg
 releaseNotes: >-
-  Initial release in this community app store. LinuxServer LazyLibrarian
-  (DobyTang fork), NFS library at /media, post-processing into the
-  Calibre-Web-Automated ingest folder.
+  Auto-updated to the latest LinuxServer LazyLibrarian release. See what changed:
+  https://github.com/linuxserver/docker-lazylibrarian/releases
 dependencies: []
 path: ""
 defaultUsername: ""

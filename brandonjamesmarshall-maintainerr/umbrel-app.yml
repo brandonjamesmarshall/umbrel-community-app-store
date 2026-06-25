@@ -32,7 +32,8 @@ support: https://github.com/jorenn92/Maintainerr/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/maintainerr.svg
 releaseNotes: >-
-  Initial release in this community app store. Pinned to upstream 3.12.0.
+  Auto-updated to the latest Maintainerr release. See what changed:
+  https://github.com/jorenn92/Maintainerr/releases
 dependencies: []
 path: ""
 defaultUsername: ""

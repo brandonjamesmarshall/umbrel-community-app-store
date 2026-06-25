@@ -56,9 +56,8 @@ support: https://github.com/crocodilestick/Calibre-Web-Automated/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/calibre-web-automated.svg
 releaseNotes: >-
-  Initial release in this community app store. CWA 4.0.6 with
-  NETWORK_SHARE_MODE polling for the NFS-backed Calibre library and the
-  LazyLibrarian ingest hand-off.
+  Auto-updated to the latest Calibre-Web-Automated release. See what changed:
+  https://github.com/crocodilestick/Calibre-Web-Automated/releases
 dependencies: []
 path: ""
 defaultUsername: "admin"

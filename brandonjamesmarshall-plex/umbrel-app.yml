@@ -43,7 +43,8 @@ support: https://forums.plex.tv
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/plex/icon.svg
 releaseNotes: >-
-  Initial release in this community app store. Pinned to upstream 1.43.2.
+  Auto-updated to the latest LinuxServer Plex release. See what changed:
+  https://github.com/linuxserver/docker-plex/releases
 dependencies: []
 permissions:
   - GPU
