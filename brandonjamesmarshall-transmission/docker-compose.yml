@@ -101,24 +101,26 @@ services:
         last_ip=""
         last_ok=0
         while true; do
-          # Cheap public-IP check via the tunnel (every 5 min). MAM only accepts
-          # ONE dynamic-seedbox update per HOUR, so we only call it when the IP
-          # actually changed (or a 6h heartbeat) AND it's been >=1h since the
-          # last success — otherwise we'd hammer the endpoint and just collect
-          # rate-limit errors during a rotation. No -f and no 2>/dev/null on the
-          # MAM call: confirm "Success":true in the body AND let curl's own
-          # transport errors (DNS/timeout/TLS) surface in the logs.
+          # The cheap public-IP probe (every 5 min) is used ONLY to detect a
+          # change. We (re)register on first run, a detected change, or a 6h
+          # heartbeat — but MAM accepts one update/HOUR, so never call more
+          # often than that. Crucially, startup + heartbeat are NOT gated on the
+          # probe: dynamicSeedbox.php authorizes whatever source IP MAM sees, so
+          # MAM keeps getting refreshed even if icanhazip is unreachable. No -f
+          # / no 2>/dev/null on the MAM call, so curl transport errors surface.
           ip=$$(curl -fsS --max-time 20 https://icanhazip.com 2>/dev/null | tr -d '[:space:]')
           now=$$(date +%s)
           since=$$((now - last_ok))
-          if [ -n "$$ip" ] && { [ "$$last_ok" -eq 0 ] || [ "$$ip" != "$$last_ip" ] || [ "$$since" -ge 21600 ]; }; then
+          changed=0
+          [ -n "$$ip" ] && [ "$$ip" != "$$last_ip" ] && changed=1
+          if [ "$$last_ok" -eq 0 ] || [ "$$changed" -eq 1 ] || [ "$$since" -ge 21600 ]; then
             if [ "$$last_ok" -eq 0 ] || [ "$$since" -ge 3600 ]; then
               resp=$$(curl -sS --max-time 20 -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php")
               if echo "$$resp" | grep -qiE '"success"[[:space:]]*:[[:space:]]*true'; then
-                last_ip="$$ip"; last_ok="$$now"
-                echo "[mam-seedbox] authorized $$ip"
+                last_ip="$${ip:-$$last_ip}"; last_ok="$$now"
+                echo "[mam-seedbox] ok -- $$resp"
               else
-                echo "[mam-seedbox] update FAILED for $$ip -- $$resp"
+                echo "[mam-seedbox] update FAILED -- $$resp"
               fi
             fi
           fi
