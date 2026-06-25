@@ -64,8 +64,9 @@ support: https://github.com/transmission/transmission/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 releaseNotes: >-
-  Auto-updated to the latest LinuxServer Transmission release. See what changed:
-  https://github.com/linuxserver/docker-transmission/releases
+  mam-seedbox sidecar now re-registers your iVPN IP within ~2 min of a change
+  (was 30 min) and logs failures clearly. NOTE: your MAM session must be an
+  IP-locked dynamic-seedbox session, NOT ASN-locked — iVPN rotates across ASNs.
 dependencies: []
 path: ""
 defaultUsername: "admin"
