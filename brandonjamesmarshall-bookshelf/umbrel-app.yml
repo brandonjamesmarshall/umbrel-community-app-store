@@ -81,10 +81,8 @@ support: https://github.com/pennydreadful/bookshelf/discussions
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/bookshelf.svg
 releaseNotes: >-
-  Initial release in this community app store. Bookshelf (Readarr revival,
-  Hardcover.app metadata), NFS library at /media, imports into the
-  Calibre-Web-Automated ingest folder — a nicer-UI alternative to
-  LazyLibrarian that slots into the existing Prowlarr + download-client stack.
+  Auto-updated to the latest Bookshelf release. See what changed:
+  https://github.com/pennydreadful/bookshelf/releases
 dependencies: []
 path: ""
 defaultUsername: ""
