@@ -64,9 +64,8 @@ support: https://github.com/transmission/transmission/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 releaseNotes: >-
-  Transmission 4.1.2 behind gluetun v3.41.1 (iVPN provider). Adds an optional
-  mam-seedbox sidecar that keeps the iVPN exit IP authorized on MyAnonaMouse
-  via the Dynamic Seedbox API (set MAM_ID in .env); harmless no-op if unset.
+  Auto-updated to the latest LinuxServer Transmission release. See what changed:
+  https://github.com/linuxserver/docker-transmission/releases
 dependencies: []
 path: ""
 defaultUsername: "admin"

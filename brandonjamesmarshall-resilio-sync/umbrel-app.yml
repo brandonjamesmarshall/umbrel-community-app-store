@@ -32,7 +32,8 @@ support: https://github.com/linuxserver/docker-resilio-sync/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/resilio-sync.svg
 releaseNotes: >-
-  Initial release in this community app store.
+  Auto-updated to the latest LinuxServer Resilio Sync release. See what changed:
+  https://github.com/linuxserver/docker-resilio-sync/releases
 dependencies: []
 path: ""
 defaultUsername: ""

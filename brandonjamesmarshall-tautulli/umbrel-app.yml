@@ -29,7 +29,8 @@ support: https://github.com/Tautulli/Tautulli/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/tautulli/icon.svg
 releaseNotes: >-
-  Initial release in this community app store. Pinned to upstream 2.17.1.
+  Auto-updated to the latest LinuxServer Tautulli release. See what changed:
+  https://github.com/linuxserver/docker-tautulli/releases
 dependencies: []
 path: ""
 defaultUsername: ""

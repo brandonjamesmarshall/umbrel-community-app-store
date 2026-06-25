@@ -37,7 +37,8 @@ support: https://forums.sabnzbd.org
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/sabnzbd/icon.svg
 releaseNotes: >-
-  Initial release in this community app store. Pinned to upstream 5.0.3.
+  Auto-updated to the latest LinuxServer SABnzbd release. See what changed:
+  https://github.com/linuxserver/docker-sabnzbd/releases
 dependencies: []
 path: ""
 defaultUsername: ""

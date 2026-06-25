@@ -39,7 +39,8 @@ support: https://github.com/Radarr/Radarr/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/radarr/icon.svg
 releaseNotes: >-
-  Initial release in this community app store. Pinned to upstream 6.1.1.
+  Auto-updated to the latest LinuxServer Radarr release. See what changed:
+  https://github.com/linuxserver/docker-radarr/releases
 dependencies: []
 path: ""
 defaultUsername: ""

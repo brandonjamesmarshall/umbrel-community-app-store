@@ -33,7 +33,8 @@ support: https://github.com/Prowlarr/Prowlarr/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/prowlarr/icon.svg
 releaseNotes: >-
-  Initial release in this community app store. Pinned to upstream 2.3.5.
+  Auto-updated to the latest LinuxServer Prowlarr release. See what changed:
+  https://github.com/linuxserver/docker-prowlarr/releases
 dependencies: []
 path: ""
 defaultUsername: ""

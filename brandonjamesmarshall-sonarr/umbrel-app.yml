@@ -41,7 +41,8 @@ support: https://github.com/Sonarr/Sonarr/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/sonarr/icon.svg
 releaseNotes: >-
-  Initial release in this community app store. Pinned to upstream 4.0.17.
+  Auto-updated to the latest LinuxServer Sonarr release. See what changed:
+  https://github.com/linuxserver/docker-sonarr/releases
 dependencies: []
 path: ""
 defaultUsername: ""
