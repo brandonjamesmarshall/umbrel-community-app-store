@@ -41,7 +41,10 @@ services:
     ports:
       - "19091:9091"
     env_file:
-      - ${APP_DATA_DIR}/.env
+      # required:false so a missing/misplaced .env doesn't wedge an update
+      # at 99%; the container starts and the error shows in logs instead.
+      - path: ${APP_DATA_DIR}/.env
+        required: false
     volumes:
       - ${APP_DATA_DIR}/data/gluetun:/gluetun
 
@@ -80,7 +83,10 @@ services:
     depends_on:
       - gluetun
     env_file:
-      - ${APP_DATA_DIR}/.env
+      # required:false so a missing/misplaced .env doesn't wedge an update
+      # at 99%; the container starts and the error shows in logs instead.
+      - path: ${APP_DATA_DIR}/.env
+        required: false
     entrypoint:
       - sh
       - -c

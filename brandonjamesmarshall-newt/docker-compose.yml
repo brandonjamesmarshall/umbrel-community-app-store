@@ -14,4 +14,8 @@ services:
     image: fosrl/newt:1.13.0@sha256:63d956c8fdee889255e441ec405193b47b1fd2d975b505492ec848a8007f4fc3
     restart: unless-stopped
     env_file:
-      - ${APP_DATA_DIR}/.env
+      # Long-form with required:false so a missing/misplaced .env doesn't
+      # wedge an update at 99% — the container still starts (newt just won't
+      # connect until the .env is present). Needs Compose >= v2.24.
+      - path: ${APP_DATA_DIR}/.env
+        required: false
