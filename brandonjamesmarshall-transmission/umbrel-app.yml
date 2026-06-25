@@ -64,8 +64,8 @@ support: https://github.com/transmission/transmission/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 releaseNotes: >-
-  mam-seedbox sidecar now re-registers your iVPN IP within ~5 min of a change
-  (was 30 min) and logs failures clearly. NOTE: your MAM session must be an
+  mam-seedbox sidecar now reacts to iVPN IP changes (within MAM's 1-update-per-
+  hour limit) and logs failures clearly. NOTE: your MAM session must be an
   IP-locked dynamic-seedbox session, NOT ASN-locked — iVPN rotates across ASNs.
 dependencies: []
 path: ""

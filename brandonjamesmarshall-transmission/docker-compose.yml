@@ -71,8 +71,9 @@ services:
 
   # Keeps the iVPN exit IP authorized on MyAnonaMouse. Shares gluetun's netns
   # so the dynamicSeedbox call leaves via the iVPN tunnel (MAM authorizes the
-  # source IP it sees). Checks the live IP every 5 min and re-registers the
-  # instant it changes — iVPN rotates across servers AND ASNs, so the MAM
+  # source IP it sees). Checks the live IP every 5 min and re-registers when
+  # it changes (within MAM's 1-update-per-hour limit) — iVPN rotates across
+  # servers AND ASNs, so the MAM
   # session MUST be a dynamic-seedbox session (IP-locked + "Allow dynamic
   # seedbox IP"), NOT ASN-locked, or rotations into another ASN get rejected.
   # Without this, announces fail with "Unrecognized host/passkey" on rotation.
@@ -97,24 +98,30 @@ services:
           echo "[mam-seedbox] MAM_ID not set; set it in .env and restart. Exiting."
           exit 0
         fi
-        last=""
-        n=0
+        last_ip=""
+        last_ok=0
         while true; do
-          # Cheap public-IP check via the tunnel; only call MAM when the IP
-          # actually changed (rotation) or on an ~hourly heartbeat (n>=12).
-          # No -f: dynamicSeedbox.php returns HTTP 200 even on failure, so we
-          # read the body and confirm "Success":true (and log it if not).
+          # Cheap public-IP check via the tunnel (every 5 min). MAM only accepts
+          # ONE dynamic-seedbox update per HOUR, so we only call it when the IP
+          # actually changed (or a 6h heartbeat) AND it's been >=1h since the
+          # last success — otherwise we'd hammer the endpoint and just collect
+          # rate-limit errors during a rotation. No -f and no 2>/dev/null on the
+          # MAM call: confirm "Success":true in the body AND let curl's own
+          # transport errors (DNS/timeout/TLS) surface in the logs.
           ip=$$(curl -fsS --max-time 20 https://icanhazip.com 2>/dev/null | tr -d '[:space:]')
-          if [ -n "$$ip" ] && { [ "$$ip" != "$$last" ] || [ "$$n" -ge 12 ]; }; then
-            resp=$$(curl -sS --max-time 20 -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php" 2>/dev/null)
-            if echo "$$resp" | grep -qiE '"success"[[:space:]]*:[[:space:]]*true'; then
-              last="$$ip"; n=0
-              echo "[mam-seedbox] authorized $$ip"
-            else
-              echo "[mam-seedbox] update FAILED for $$ip -- $$resp"
+          now=$$(date +%s)
+          since=$$((now - last_ok))
+          if [ -n "$$ip" ] && { [ "$$last_ok" -eq 0 ] || [ "$$ip" != "$$last_ip" ] || [ "$$since" -ge 21600 ]; }; then
+            if [ "$$last_ok" -eq 0 ] || [ "$$since" -ge 3600 ]; then
+              resp=$$(curl -sS --max-time 20 -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php")
+              if echo "$$resp" | grep -qiE '"success"[[:space:]]*:[[:space:]]*true'; then
+                last_ip="$$ip"; last_ok="$$now"
+                echo "[mam-seedbox] authorized $$ip"
+              else
+                echo "[mam-seedbox] update FAILED for $$ip -- $$resp"
+              fi
             fi
           fi
-          n=$$((n + 1))
           sleep 300
         done
 
