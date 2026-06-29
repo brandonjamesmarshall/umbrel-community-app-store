@@ -56,6 +56,17 @@ description: >-
   bundled mam-seedbox sidecar then re-authorizes your iVPN exit IP on MAM
   whenever it changes, so seeding survives IP rotations. Leave MAM_ID blank
   if you do not use MAM.
+
+
+  MAM Rule 1.2 needs a SEMI-STABLE IP (changes less than once/hour). The .env
+  pins one iVPN server via a CUSTOM WireGuard endpoint (VPN_SERVICE_PROVIDER=
+  custom + WIREGUARD_ENDPOINT_IP/PORT/PUBLIC_KEY), which is stable AND immune to
+  gluetun's baked-in server list going stale (iVPN re-IPs servers, which would
+  otherwise dead-end a hostname pin). For seeding, create an IP-locked (NOT
+  ASN-locked) dynamic-seedbox session with its initial IP set to your iVPN exit
+  IP, and confirm your profile (User Profile -> VPN) shows "VPN Registration
+  Confirmed"; if not, open a Staff ticket to register provider = iVPN. Full
+  rationale and current server values are in .env.example.
 developer: Transmission Project + qmcgaw (gluetun)
 website: https://transmissionbt.com
 submitter: brandonjamesmarshall
@@ -65,9 +76,15 @@ support: https://github.com/transmission/transmission/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 releaseNotes: >-
-  mam-seedbox sidecar now reacts to iVPN IP changes (within MAM's 1-update-per-
-  hour limit) and logs failures clearly. NOTE: your MAM session must be an
-  IP-locked dynamic-seedbox session, NOT ASN-locked — iVPN rotates across ASNs.
+  MAM Rule 1.2 is now strictly enforced (semi-stable IP, <1 change/hour). The
+  .env now pins one iVPN server via a CUSTOM WireGuard endpoint
+  (VPN_SERVICE_PROVIDER=custom + WIREGUARD_ENDPOINT_IP/PORT/PUBLIC_KEY) instead
+  of SERVER_CITIES=Zurich — a stable exit IP that also sidesteps gluetun's
+  stale baked-in server list (which dead-ends a hostname pin when iVPN re-IPs a
+  server). Seeding: use an IP-locked (NOT ASN-locked) dynamic-seedbox session,
+  and verify your MAM profile shows "VPN Registration Confirmed" (else open a
+  Staff ticket, provider = iVPN). Migrating from a SERVER_CITIES .env: copy the
+  new custom block from .env.example.
 dependencies: []
 path: ""
 defaultUsername: "admin"

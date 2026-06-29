@@ -43,6 +43,9 @@ services:
     env_file:
       # required:false so a missing/misplaced .env doesn't wedge an update
       # at 99%; the container starts and the error shows in logs instead.
+      # The .env pins a CUSTOM WireGuard endpoint (VPN_SERVICE_PROVIDER=custom):
+      # the live iVPN server IP + key are specified directly, so gluetun never
+      # touches its (staleness-prone) baked-in server list. See .env.example.
       - path: ${APP_DATA_DIR}/.env
         required: false
     volumes:
