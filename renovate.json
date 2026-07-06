@@ -16,7 +16,8 @@
       "minimumReleaseAge": "14 days"
     },
     {
-      "description": "Digest-only refreshes (same tag, new sha) have no release timestamp on lscr.io/ghcr, so the renovate/stability-days check pends FOREVER and automerge can never fire — those PRs sat open indefinitely. Same-tag rebuilds skip the age gate; the 14-day supply-chain quarantine stays intact for real version bumps.",
+      "description": "Docker digest-only refreshes (same tag, new sha) have no release timestamp on lscr.io/ghcr, so the renovate/stability-days check pends FOREVER and automerge can never fire — those PRs sat open indefinitely. Same-tag rebuilds skip the age gate; the 14-day supply-chain quarantine stays intact for real version bumps. Scoped to the Docker managers on purpose: github-actions digest updates (tag re-pointing) keep the full gate, which works there because GitHub provides timestamps.",
+      "matchManagers": ["docker-compose", "custom.regex"],
       "matchUpdateTypes": ["digest", "pin", "pinDigest"],
       "minimumReleaseAge": null
     },
