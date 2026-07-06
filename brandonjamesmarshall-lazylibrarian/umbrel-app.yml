@@ -6,8 +6,10 @@ icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-ap
 category: Media
 # LinuxServer tags LazyLibrarian by upstream commit hash (no semver), so the
 # image is pinned to latest@sha256 and Renovate keeps the digest fresh. The
-# version below is the LSIO build date; bump it by hand on repackage so
-# umbrelOS surfaces "Update available".
+# base version below is the packaging date; the +suffixN counter is
+# auto-bumped by .github/workflows/bump-version-on-compose-change.yml
+# whenever docker-compose.yml changes (e.g. a Renovate digest refresh), so
+# umbrelOS surfaces "Update available" without any hand-bumping.
 version: "2026.06.13+nfs1"
 port: 5299
 description: >-

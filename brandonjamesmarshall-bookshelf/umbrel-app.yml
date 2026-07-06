@@ -4,10 +4,12 @@ name: Bookshelf
 tagline: eBook & audiobook manager (Readarr revival)
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/bookshelf.svg
 category: Media
-# pennydreadful/bookshelf ships rolling "hardcover"/"softcover" tags (no
-# semver), so the image is pinned to hardcover@sha256 and Renovate keeps the
-# digest fresh. The version below is the LSIO build date; bump it by hand on
-# repackage so umbrelOS surfaces "Update available".
+# pennydreadful/bookshelf ships a rolling "hardcover" tag (repointed at each
+# release), so the image is pinned to hardcover@sha256 and Renovate keeps the
+# digest fresh. The base version below is the packaging date; the +suffixN
+# counter is auto-bumped by .github/workflows/bump-version-on-compose-change.yml
+# whenever docker-compose.yml changes (e.g. a Renovate digest refresh), so
+# umbrelOS surfaces "Update available" without any hand-bumping.
 version: "2026.01.31+nfs1"
 port: 8787
 description: >-
@@ -61,8 +63,9 @@ description: >-
        Prowlarr server:  http://brandonjamesmarshall-prowlarr_server_1:9696
        Bookshelf server: http://brandonjamesmarshall-bookshelf_server_1:8787
        API key from Bookshelf -> Settings -> General.
-     Prowlarr then syncs its indexers as Newznab/Torznab. MyAnonaMouse can be
-     added directly under Settings -> Indexers without Prowlarr.
+     Prowlarr then syncs its indexers as Newznab/Torznab. Trackers with
+     native Readarr-API support can also be added directly under
+     Settings -> Indexers without Prowlarr.
 
   5. Add an author or search a title, mark it "Wanted", and Bookshelf fills it
      via SAB/Transmission and imports into /media/Books/Ingest. Calibre-Web-
