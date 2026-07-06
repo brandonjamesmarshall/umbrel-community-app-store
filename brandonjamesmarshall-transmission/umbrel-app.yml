@@ -52,12 +52,13 @@ description: >-
 
 
   OPTIONAL — private tracker seeding: if your tracker offers a dynamic
-  seedbox API, add SEEDBOX_UPDATE_URL=<endpoint URL> and
-  SEEDBOX_COOKIE=<session cookie, name=value> to the .env (use an IP-locked
-  dynamic-seedbox session, NOT ASN-locked — VPN providers span multiple
-  ASNs). The bundled seedbox-refresh sidecar then re-authorizes your VPN
-  exit IP with the tracker whenever it changes, so seeding survives IP
-  rotations. Leave both blank if you don't use one.
+  seedbox API, add SEEDBOX_UPDATE_URL=<endpoint URL> to the .env, plus
+  SEEDBOX_COOKIE=<session cookie, name=value> if the endpoint uses cookie
+  auth (use an IP-locked dynamic-seedbox session, NOT ASN-locked — VPN
+  providers span multiple ASNs). The bundled seedbox-refresh sidecar then
+  re-authorizes your VPN exit IP with the tracker whenever it changes, so
+  seeding survives IP rotations. Leave SEEDBOX_UPDATE_URL blank if you
+  don't use one.
 
 
   Trackers that require a SEMI-STABLE IP (changes less than once/hour) are

@@ -82,9 +82,10 @@ services:
   # session MUST be a dynamic-seedbox session (IP-locked + dynamic-seedbox
   # permission), NOT ASN-locked, or rotations into another ASN get rejected.
   # Without this, announces fail with "Unrecognized host/passkey" on rotation.
-  # SEEDBOX_UPDATE_URL + SEEDBOX_COOKIE come from .env; if blank/absent the
-  # container exits 0 right away, so users without such a tracker are
-  # unaffected.
+  # SEEDBOX_UPDATE_URL comes from .env; if blank/absent the container exits
+  # 0 right away, so users without such a tracker are unaffected.
+  # SEEDBOX_COOKIE is optional — only for trackers that authenticate the
+  # endpoint with a session cookie rather than a token in the URL.
   seedbox-refresh:
     image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     restart: on-failure
@@ -100,8 +101,8 @@ services:
       - sh
       - -c
       - |
-        if [ -z "$$SEEDBOX_UPDATE_URL" ] || [ -z "$$SEEDBOX_COOKIE" ]; then
-          echo "[seedbox-refresh] SEEDBOX_UPDATE_URL and/or SEEDBOX_COOKIE not set; set them in .env and restart. Exiting."
+        if [ -z "$$SEEDBOX_UPDATE_URL" ]; then
+          echo "[seedbox-refresh] SEEDBOX_UPDATE_URL not set; set it in .env and restart. Exiting."
           exit 0
         fi
         last_ip=""
@@ -122,8 +123,13 @@ services:
           [ -n "$$ip" ] && [ "$$ip" != "$$last_ip" ] && changed=1
           if [ "$$last_ok" -eq 0 ] || [ "$$changed" -eq 1 ] || [ "$$since" -ge 21600 ]; then
             if [ "$$last_ok" -eq 0 ] || [ "$$since" -ge 3600 ]; then
-              # Success convention: a JSON body containing "Success":true
-              resp=$$(curl -sS --max-time 20 -b "$$SEEDBOX_COOKIE" "$$SEEDBOX_UPDATE_URL")
+              # Success convention: a JSON body containing "Success":true.
+              # Cookie auth is optional (some trackers token-auth via URL).
+              if [ -n "$$SEEDBOX_COOKIE" ]; then
+                resp=$$(curl -sS --max-time 20 -b "$$SEEDBOX_COOKIE" "$$SEEDBOX_UPDATE_URL")
+              else
+                resp=$$(curl -sS --max-time 20 "$$SEEDBOX_UPDATE_URL")
+              fi
               if echo "$$resp" | grep -qiE '"success"[[:space:]]*:[[:space:]]*true'; then
                 last_ip="$${ip:-$$last_ip}"; last_ok="$$now"
                 echo "[seedbox-refresh] ok -- $$resp"
