@@ -5,7 +5,7 @@ tagline: Stream your media library, anywhere
 icon: https://getumbrel.github.io/umbrel-apps-gallery/plex/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/plex
-version: "1.43.2+nfs1"
+version: "1.43.2+nfs2"
 port: 32400
 description: >-
   Plex Media Server, packaged for this Umbrel community store with:

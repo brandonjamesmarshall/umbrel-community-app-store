@@ -14,6 +14,18 @@
       "automergeType": "pr",
       "platformAutomerge": false,
       "minimumReleaseAge": "14 days"
+    },
+    {
+      "description": "Digest-only refreshes (same tag, new sha) have no release timestamp on lscr.io/ghcr, so the renovate/stability-days check pends FOREVER and automerge can never fire — those PRs sat open indefinitely. Same-tag rebuilds skip the age gate; the 14-day supply-chain quarantine stays intact for real version bumps.",
+      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Automerge GitHub Actions bumps too (they were excluded from the docker-compose automerge rule and sat open forever). Version bumps stay behind the top-level 14-day gate, which works here because GitHub provides release timestamps.",
+      "matchManagers": ["github-actions"],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": false
     }
   ],
   "customManagers": [

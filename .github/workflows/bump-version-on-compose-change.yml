@@ -1,0 +1,91 @@
+name: Bump app version when its compose file changes
+
+# When Renovate (or anyone) commits a change to a covered app's
+# docker-compose.yml, auto-bump the trailing "+<word><N>" suffix counter on
+# the user-visible version field in that app's umbrel-app.yml. umbrelOS
+# surfaces "Update available" purely off the version string, so without
+# this, digest-only image refreshes would never reach devices. That matters
+# most for apps on rolling tags with no semver to track:
+#   - transmission  (+vpnN)  sidecar/digest updates
+#   - lazylibrarian (+nfsN)  lscr.io/linuxserver/lazylibrarian:latest
+#   - bookshelf     (+nfsN)  ghcr.io/pennydreadful/bookshelf:hardcover
+# Apps with real version tags don't need this — Renovate's custom manager
+# bumps their version field directly on tag updates.
+#
+# Security note: this workflow does NOT consume any untrusted GitHub event
+# input (no issue/PR/commit-message strings in run: blocks; the only event
+# values used are commit SHAs, validated as hex). The only data it reads is
+# umbrel-app.yml files already in the repo. Safe per
+# https://github.blog/security/vulnerability-research/how-to-catch-github-actions-workflow-injections-before-attackers-do/
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'brandonjamesmarshall-transmission/docker-compose.yml'
+      - 'brandonjamesmarshall-lazylibrarian/docker-compose.yml'
+      - 'brandonjamesmarshall-bookshelf/docker-compose.yml'
+
+jobs:
+  bump:
+    # Skip our own commits so we don't loop.
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump +suffixN for each app whose compose changed
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
+        run: |
+          set -euo pipefail
+          # Diff the pushed range; fall back to the last commit when BEFORE
+          # is unusable (branch creation = all zeros, or force-push history).
+          if [[ "$BEFORE" =~ ^[0-9a-f]{40}$ ]] && ! [[ "$BEFORE" =~ ^0+$ ]] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            RANGE="$BEFORE..$AFTER"
+          else
+            RANGE="HEAD^..HEAD"
+          fi
+          CHANGED=$(git diff --name-only $RANGE)
+          for APP in brandonjamesmarshall-transmission brandonjamesmarshall-lazylibrarian brandonjamesmarshall-bookshelf; do
+            echo "$CHANGED" | grep -qx "$APP/docker-compose.yml" || continue
+            FILE="$APP/umbrel-app.yml"
+            CURRENT=$(grep -E '^version:' "$FILE" | sed -E 's/^version:[[:space:]]*"([^"]+)"$/\1/')
+            BASE="${CURRENT%%+*}"
+            if [[ "$CURRENT" =~ \+([a-z]+)([0-9]+)$ ]]; then
+              WORD=${BASH_REMATCH[1]}
+              N=$((BASH_REMATCH[2] + 1))
+            else
+              WORD="rev"
+              N=1
+            fi
+            NEW_VERSION="${BASE}+${WORD}${N}"
+            echo "$APP: $CURRENT -> $NEW_VERSION"
+            sed -i "s|^version: \"${CURRENT}\"$|version: \"${NEW_VERSION}\"|" "$FILE"
+            if ! grep -qF "version: \"${NEW_VERSION}\"" "$FILE"; then
+              echo "ERROR: version line in $FILE was not updated; aborting." >&2
+              exit 1
+            fi
+            git add "$FILE"
+          done
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Auto-bump app version after compose change"
+          # Another bump run may have pushed between our checkout and now
+          # (Renovate can merge several compose PRs back-to-back) — rebase
+          # once and retry.
+          git push || { git pull --rebase && git push; }

@@ -72,17 +72,20 @@ services:
       - ${APP_DATA_DIR}/data/config:/config
       - media:/media
 
-  # Keeps the iVPN exit IP authorized on MyAnonaMouse. Shares gluetun's netns
-  # so the dynamicSeedbox call leaves via the iVPN tunnel (MAM authorizes the
-  # source IP it sees). Checks the live IP every 5 min and re-registers when
-  # it changes (within MAM's 1-update-per-hour limit) — iVPN rotates across
-  # servers AND ASNs, so the MAM
-  # session MUST be a dynamic-seedbox session (IP-locked + "Allow dynamic
-  # seedbox IP"), NOT ASN-locked, or rotations into another ASN get rejected.
+  # Keeps the VPN exit IP authorized on a private tracker that offers a
+  # "dynamic seedbox" API — an authenticated endpoint that re-authorizes
+  # whatever source IP the call arrives from. Shares gluetun's netns so the
+  # call leaves via the VPN tunnel (the tracker authorizes the source IP it
+  # sees). Checks the live IP every 5 min and re-registers when it changes
+  # (within the common 1-update-per-hour API limit) — VPN providers rotate
+  # across servers AND ASNs, so the tracker
+  # session MUST be a dynamic-seedbox session (IP-locked + dynamic-seedbox
+  # permission), NOT ASN-locked, or rotations into another ASN get rejected.
   # Without this, announces fail with "Unrecognized host/passkey" on rotation.
-  # MAM_ID comes from .env; if blank/absent the container exits 0 right away,
-  # so non-MAM users are unaffected.
-  mam-seedbox:
+  # SEEDBOX_UPDATE_URL + SEEDBOX_COOKIE come from .env; if blank/absent the
+  # container exits 0 right away, so users without such a tracker are
+  # unaffected.
+  seedbox-refresh:
     image: curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13
     restart: on-failure
     network_mode: "service:gluetun"
@@ -97,8 +100,8 @@ services:
       - sh
       - -c
       - |
-        if [ -z "$$MAM_ID" ]; then
-          echo "[mam-seedbox] MAM_ID not set; set it in .env and restart. Exiting."
+        if [ -z "$$SEEDBOX_UPDATE_URL" ] || [ -z "$$SEEDBOX_COOKIE" ]; then
+          echo "[seedbox-refresh] SEEDBOX_UPDATE_URL and/or SEEDBOX_COOKIE not set; set them in .env and restart. Exiting."
           exit 0
         fi
         last_ip=""
@@ -106,11 +109,12 @@ services:
         while true; do
           # The cheap public-IP probe (every 5 min) is used ONLY to detect a
           # change. We (re)register on first run, a detected change, or a 6h
-          # heartbeat — but MAM accepts one update/HOUR, so never call more
-          # often than that. Crucially, startup + heartbeat are NOT gated on the
-          # probe: dynamicSeedbox.php authorizes whatever source IP MAM sees, so
-          # MAM keeps getting refreshed even if icanhazip is unreachable. No -f
-          # / no 2>/dev/null on the MAM call, so curl transport errors surface.
+          # heartbeat — but these APIs accept one update/HOUR, so never call
+          # more often than that. Crucially, startup + heartbeat are NOT gated
+          # on the probe: the endpoint authorizes whatever source IP the
+          # tracker sees, so it keeps getting refreshed even if icanhazip is
+          # unreachable. No -f / no 2>/dev/null on the update call, so curl
+          # transport errors surface.
           ip=$$(curl -fsS --max-time 20 https://icanhazip.com 2>/dev/null | tr -d '[:space:]')
           now=$$(date +%s)
           since=$$((now - last_ok))
@@ -118,12 +122,13 @@ services:
           [ -n "$$ip" ] && [ "$$ip" != "$$last_ip" ] && changed=1
           if [ "$$last_ok" -eq 0 ] || [ "$$changed" -eq 1 ] || [ "$$since" -ge 21600 ]; then
             if [ "$$last_ok" -eq 0 ] || [ "$$since" -ge 3600 ]; then
-              resp=$$(curl -sS --max-time 20 -b "mam_id=$$MAM_ID" "https://t.myanonamouse.net/json/dynamicSeedbox.php")
+              # Success convention: a JSON body containing "Success":true
+              resp=$$(curl -sS --max-time 20 -b "$$SEEDBOX_COOKIE" "$$SEEDBOX_UPDATE_URL")
               if echo "$$resp" | grep -qiE '"success"[[:space:]]*:[[:space:]]*true'; then
                 last_ip="$${ip:-$$last_ip}"; last_ok="$$now"
-                echo "[mam-seedbox] ok -- $$resp"
+                echo "[seedbox-refresh] ok -- $$resp"
               else
-                echo "[mam-seedbox] update FAILED -- $$resp"
+                echo "[seedbox-refresh] update FAILED -- $$resp"
               fi
             fi
           fi

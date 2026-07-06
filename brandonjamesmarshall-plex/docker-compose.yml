@@ -15,7 +15,12 @@ services:
 
   server:
     # Pinned to immutable digest. Renovate refreshes this after a 14-day delay.
-    image: lscr.io/linuxserver/plex:1.43.2@sha256:626eb0d52b4522db3be91110a89161be6ccffc0741e9abf0e93aaf4fea98ccb9
+    # Pulled from Docker Hub, NOT lscr.io: Mend's hosted Renovate fails tag
+    # lookup for lscr.io/linuxserver/plex specifically ("no-result"), which
+    # silently disabled every Plex update PR. Same image and digests on both
+    # registries; the docker.io lookup path is the one umbrel-app.yml's
+    # version comment already uses, and it works.
+    image: linuxserver/plex:1.43.2@sha256:5a2dca89f4b53222ba2565ffa9ede3f320f37a69ac4b7fd475b492f772c5523b
     restart: on-failure
     network_mode: host
     environment:

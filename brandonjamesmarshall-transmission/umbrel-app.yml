@@ -5,7 +5,7 @@ tagline: Torrent client tunneled through iVPN
 icon: https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/transmission
-# Suffix "+vpnN" is auto-bumped by .github/workflows/bump-transmission-on-sidecar.yml
+# Suffix "+vpnN" is auto-bumped by .github/workflows/bump-version-on-compose-change.yml
 # whenever the gluetun sidecar (or anything else in docker-compose.yml) updates,
 # so umbrelOS shows "Update available" even when only the VPN sidecar changed.
 version: "4.1.2+vpn20"
@@ -35,10 +35,11 @@ description: >-
      The IP must be an iVPN IP, NOT your home IP.
 
 
-  RPC AUTH: web UI defaults to user "umbrel" / password "umbrelmedia"
-  on first install. Change in Edit -> Preferences in the web UI or by
-  editing settings.json in the app data dir, then restart. Use these
-  credentials in Sonarr/Radarr's Download Client config too.
+  RPC AUTH: web UI defaults to user "admin" with the per-install password
+  shown on this app's card in umbrelOS. Change in Edit -> Preferences in
+  the web UI or by editing settings.json in the app data dir, then
+  restart. Use these credentials in Sonarr/Radarr's Download Client
+  config too.
 
 
   5. In the Transmission UI -> Settings, set Default Download Directory:
@@ -50,24 +51,24 @@ description: >-
   docker-compose.yml loads them from the .env on your Umbrel.
 
 
-  OPTIONAL — MyAnonaMouse seeding: if you use MAM, add
-  MAM_ID=<dynamic-seedbox session id> to the .env (use an IP-locked
-  dynamic-seedbox session, NOT ASN-locked — iVPN spans multiple ASNs). The
-  bundled mam-seedbox sidecar then re-authorizes your iVPN exit IP on MAM
-  whenever it changes, so seeding survives IP rotations. Leave MAM_ID blank
-  if you do not use MAM.
+  OPTIONAL — private tracker seeding: if your tracker offers a dynamic
+  seedbox API, add SEEDBOX_UPDATE_URL=<endpoint URL> and
+  SEEDBOX_COOKIE=<session cookie, name=value> to the .env (use an IP-locked
+  dynamic-seedbox session, NOT ASN-locked — VPN providers span multiple
+  ASNs). The bundled seedbox-refresh sidecar then re-authorizes your VPN
+  exit IP with the tracker whenever it changes, so seeding survives IP
+  rotations. Leave both blank if you don't use one.
 
 
-  MAM Rule 1.2 needs a SEMI-STABLE IP (changes less than once/hour). The .env
-  pins one iVPN server via a CUSTOM WireGuard endpoint
+  Trackers that require a SEMI-STABLE IP (changes less than once/hour) are
+  covered: the .env pins one VPN server via a CUSTOM WireGuard endpoint
   (VPN_SERVICE_PROVIDER=custom + WIREGUARD_ENDPOINT_IP/PORT/PUBLIC_KEY), which is
-  stable AND immune to gluetun's baked-in server list going stale (iVPN re-IPs
-  servers, which would otherwise dead-end a hostname pin). For seeding, create
-  an IP-locked (NOT
-  ASN-locked) dynamic-seedbox session with its initial IP set to your iVPN exit
-  IP, and confirm your profile (User Profile -> VPN) shows "VPN Registration
-  Confirmed"; if not, open a Staff ticket to register provider = iVPN. Full
-  rationale and current server values are in .env.example.
+  stable AND immune to gluetun's baked-in server list going stale (providers
+  re-IP servers, which would otherwise dead-end a hostname pin). For seeding,
+  create an IP-locked (NOT ASN-locked) dynamic-seedbox session with its
+  initial IP set to your VPN exit IP; some trackers also want your VPN
+  provider registered on your account profile. Full rationale and current
+  server values are in .env.example.
 developer: Transmission Project + qmcgaw (gluetun)
 website: https://transmissionbt.com
 submitter: brandonjamesmarshall
@@ -77,16 +78,16 @@ support: https://github.com/transmission/transmission/issues
 gallery:
   - https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 releaseNotes: >-
-  MAM Rule 1.2 is now strictly enforced (semi-stable IP, <1 change/hour). The
-  .env now pins one iVPN server via a CUSTOM WireGuard endpoint
-  (VPN_SERVICE_PROVIDER=custom + WIREGUARD_ENDPOINT_IP/PORT/PUBLIC_KEY) instead
-  of SERVER_CITIES=Zurich — a stable exit IP that also sidesteps gluetun's
-  stale baked-in server list (which dead-ends a hostname pin when iVPN re-IPs a
-  server). Seeding: use an IP-locked (NOT ASN-locked) dynamic-seedbox session,
-  and verify your MAM profile shows "VPN Registration Confirmed" (else open a
-  Staff ticket, provider = iVPN). Migrating from a SERVER_CITIES .env: change
-  VPN_SERVICE_PROVIDER from ivpn to custom, delete SERVER_CITIES, and add the
-  WIREGUARD_ENDPOINT_IP/PORT/PUBLIC_KEY block from .env.example.
+  The dynamic-seedbox sidecar is now tracker-agnostic — it no longer
+  hardcodes any tracker. Configure it in
+  ~/umbrel/app-data/brandonjamesmarshall-transmission/.env with
+  SEEDBOX_UPDATE_URL (your tracker's dynamic-seedbox endpoint) and
+  SEEDBOX_COOKIE (the dedicated session's cookie as name=value).
+  MIGRATION: the previous tracker-specific session-ID variable is no longer
+  read — add the two new variables and restart the app. Until you do, the
+  sidecar idles harmlessly; your exit IP stays pinned via the custom
+  WireGuard endpoint, so seeding keeps working. Everything else is
+  unchanged.
 dependencies: []
 path: ""
 defaultUsername: "admin"
