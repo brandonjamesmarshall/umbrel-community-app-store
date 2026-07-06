@@ -15,7 +15,7 @@ services:
 
   server:
     # Pinned to immutable digest. Renovate refreshes this after a 14-day delay.
-    image: lscr.io/linuxserver/plex:1.43.2@sha256:626eb0d52b4522db3be91110a89161be6ccffc0741e9abf0e93aaf4fea98ccb9
+    image: lscr.io/linuxserver/plex:1.43.2@sha256:5a2dca89f4b53222ba2565ffa9ede3f320f37a69ac4b7fd475b492f772c5523b
     restart: on-failure
     network_mode: host
     environment:
