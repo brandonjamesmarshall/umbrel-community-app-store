@@ -5,7 +5,7 @@ tagline: Rule-based library cleanup for Plex
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/maintainerr.svg
 category: Media
 # renovate: datasource=docker depName=jorenn92/maintainerr
-version: "3.17.0+wl2"
+version: "3.17.1+wl2"
 port: 6246
 description: >-
   Maintainerr lets you define rule-based collections in Plex (e.g. "movies
