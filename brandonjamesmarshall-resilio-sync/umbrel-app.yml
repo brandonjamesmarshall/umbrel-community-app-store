@@ -5,7 +5,7 @@ tagline: Peer-to-peer file synchronization
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/resilio-sync.svg
 category: Files
 # renovate: datasource=docker depName=linuxserver/resilio-sync
-version: "3.1.2"
+version: "3.1.2+dh1"
 port: 8888
 description: >-
   Resilio Sync (formerly BitTorrent Sync) uses the BitTorrent protocol to sync

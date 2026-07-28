@@ -52,7 +52,7 @@ services:
       - ${APP_DATA_DIR}/data/gluetun:/gluetun
 
   server:
-    image: lscr.io/linuxserver/transmission:4.1.2@sha256:9e876c15ed4f9e7dbd9c7ad1b80664518b0733e3f7485de07f3e8cc8b436f2c0
+    image: linuxserver/transmission:4.1.2@sha256:9e876c15ed4f9e7dbd9c7ad1b80664518b0733e3f7485de07f3e8cc8b436f2c0
     restart: on-failure
     network_mode: "service:gluetun"
     depends_on:
