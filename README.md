@@ -22,6 +22,7 @@ and a VPN-isolated torrent client.
 | [LazyLibrarian](./brandonjamesmarshall-lazylibrarian) | Book & audiobook collection manager (the "arr" for books). |
 | [Bookshelf](./brandonjamesmarshall-bookshelf) | Book & audiobook manager — a Readarr revival; nicer-UI alternative to LazyLibrarian. |
 | [Calibre-Web Automated](./brandonjamesmarshall-calibre-web-automated) | eBook library, web reader, and Send-to-Kindle. |
+| [GitHub Actions Runner](./brandonjamesmarshall-github-runner) | Self-hosted CI runner with Docker support (for Vibewatch CI). |
 
 ## How to add this store to umbrelOS
 

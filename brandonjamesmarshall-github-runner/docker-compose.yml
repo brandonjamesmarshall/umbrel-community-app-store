@@ -1,0 +1,47 @@
+version: "3.7"
+
+# Self-hosted GitHub Actions runner (myoung34/github-runner) — no web UI,
+# so no app_proxy. Registers itself against GitHub on every container start
+# using the ACCESS_TOKEN PAT from ${APP_DATA_DIR}/.env.
+#
+# The Docker socket is mounted so workflow jobs can use service containers
+# (e.g. CI Postgres) and container actions. That is root-equivalent access
+# to this Umbrel — only register this runner against orgs/repos whose
+# workflows you fully trust.
+#
+# Credentials live in ${APP_DATA_DIR}/.env on your Umbrel, loaded via the
+# env_file directive below. Pre-create the .env before installing — see
+# .env.example for the required keys. The .env stays on your Umbrel only
+# and is never committed to the public repo.
+
+services:
+
+  runner:
+    # Pinned to immutable digest — refresh in a reviewed commit, never auto-update.
+    image: myoung34/github-runner:2.336.0@sha256:fc28f4cd67cacf3024984d873b2adbbd5809b85095747fa3fcd2421c098fb846
+    restart: unless-stopped
+    environment:
+      # Docker-in-docker quirk: jobs that spin up containers via the host
+      # socket pass host-side paths, so the workdir must be bind-mounted at
+      # the IDENTICAL absolute path on host and in the container (see the
+      # volumes below). Keep this in compose — .env authors can't know the
+      # APP_DATA_DIR path.
+      RUNNER_WORKDIR: ${APP_DATA_DIR}/work
+      # Persist registration (.runner/.credentials) across restarts so the
+      # runner keeps its identity instead of re-registering every start.
+      CONFIGURED_ACTIONS_RUNNER_FILES_DIR: /actions-runner-files
+      # Runner self-update stays ON (upstream default): GitHub refuses jobs
+      # from runners that fall behind the minimum version, and Renovate's
+      # 14-day quarantine can lag a mandatory bump. The in-container update
+      # is discarded on recreate and simply re-applies — image stays pinned.
+    env_file:
+      # Long-form with required:false so a missing/misplaced .env doesn't
+      # wedge an update at 99% — the container still starts (registration
+      # just fails until the .env is present). Needs Compose >= v2.24.
+      - path: ${APP_DATA_DIR}/.env
+        required: false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Same absolute path both sides — see RUNNER_WORKDIR note above.
+      - ${APP_DATA_DIR}/work:${APP_DATA_DIR}/work
+      - ${APP_DATA_DIR}/runner-files:/actions-runner-files

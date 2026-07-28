@@ -1,0 +1,64 @@
+manifestVersion: 1
+id: brandonjamesmarshall-github-runner
+name: GitHub Actions Runner
+tagline: Self-hosted GitHub Actions runner with Docker support
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/github-runner.svg
+category: Developer Tools
+# renovate: datasource=docker depName=myoung34/github-runner
+version: "2.336.0"
+port: 8480
+description: >-
+  A self-hosted GitHub Actions runner (myoung34/github-runner) that picks up
+  CI jobs from your GitHub org or repo and runs them on this Umbrel. The
+  Docker socket is mounted so workflows can use service containers (e.g. a
+  CI Postgres) and container actions.
+
+
+  SECURITY — the mounted Docker socket is root-equivalent access to this
+  device. Only register this runner against orgs/repos whose workflows you
+  fully trust, and never against public repos that accept fork PRs.
+
+
+  The runner has no web UI — it runs in the background. You will not see
+  anything when clicking "Open" in umbrelOS; confirm it is online under
+  GitHub → org Settings → Actions → Runners, or check the container logs.
+
+
+  SETUP — pre-create the .env BEFORE clicking Install. SSH into your
+  Umbrel and:
+
+
+    sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-github-runner
+    sudo nano  ~/umbrel/app-data/brandonjamesmarshall-github-runner/.env
+
+
+  Put these values inside (see .env.example in this app's folder for the
+  full template and PAT scopes):
+
+
+    ACCESS_TOKEN=your-github-pat
+    RUNNER_SCOPE=org
+    ORG_NAME=your-org
+    RUNNER_NAME=umbrel-home-runner
+    LABELS=umbrel,x64
+
+
+  Then click Install in umbrelOS. Target the runner from workflows with
+  "runs-on: [self-hosted, umbrel]". Credentials live only on your Umbrel —
+  never committed to the public app store repo.
+developer: Marcus Young (myoung34)
+website: https://github.com/myoung34/docker-github-actions-runner
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/myoung34/docker-github-actions-runner
+support: https://github.com/myoung34/docker-github-actions-runner/issues
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/github-runner.svg
+releaseNotes: >-
+  Auto-updated to the latest myoung34/github-runner release (tracks the
+  upstream actions/runner version). See what changed:
+  https://github.com/myoung34/docker-github-actions-runner/releases
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
