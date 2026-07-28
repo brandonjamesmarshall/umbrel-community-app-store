@@ -1,0 +1,66 @@
+manifestVersion: 1
+id: brandonjamesmarshall-github-runner
+name: GitHub Actions Runner
+tagline: Self-hosted GitHub Actions runner with Docker support
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/github-runner.svg
+category: Developer Tools
+# renovate: datasource=docker depName=ghcr.io/actions/actions-runner
+version: "2.336.0"
+port: 8480
+description: >-
+  A self-hosted GitHub Actions runner using GitHub's OFFICIAL runner image
+  (ghcr.io/actions/actions-runner) — no third-party wrapper images.
+  Registration against your org is handled by a short auditable script in
+  this app's docker-compose.yml. The Docker socket is mounted so workflows
+  can use service containers (e.g. a CI Postgres) and container actions.
+
+
+  SECURITY — the mounted Docker socket is root-equivalent access to this
+  device. Only register this runner against orgs whose workflows you
+  fully trust, and never against public repos that accept fork PRs.
+
+
+  The runner has no web UI — it runs in the background. You will not see
+  anything when clicking "Open" in umbrelOS; confirm it is online under
+  GitHub → org Settings → Actions → Runners, or check the container logs.
+
+
+  SETUP — pre-create the .env BEFORE clicking Install. SSH into your
+  Umbrel and:
+
+
+    sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-github-runner
+    sudo nano  ~/umbrel/app-data/brandonjamesmarshall-github-runner/.env
+    sudo chmod 600 ~/umbrel/app-data/brandonjamesmarshall-github-runner/.env
+
+
+  Put these values inside (see .env.example in this app's folder for the
+  full template; the PAT needs the classic admin:org scope or fine-grained
+  org "Self-hosted runners" permission):
+
+
+    ACCESS_TOKEN=your-github-pat
+    ORG_NAME=your-org
+    RUNNER_NAME=umbrel-home-runner
+    LABELS=umbrel,x64
+
+
+  Then click Install in umbrelOS. Target the runner from workflows with
+  "runs-on: [self-hosted, umbrel]". Credentials live only on your Umbrel —
+  never committed to the public app store repo.
+developer: GitHub
+website: https://github.com/actions/runner
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/actions/runner
+support: https://github.com/actions/runner/issues
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/github-runner.svg
+releaseNotes: >-
+  Auto-updated to the latest release of GitHub's official actions/runner
+  image. See what changed:
+  https://github.com/actions/runner/releases
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
