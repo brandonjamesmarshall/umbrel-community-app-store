@@ -23,6 +23,13 @@ services:
     # Pinned to immutable digest — refresh in a reviewed commit, never auto-update.
     image: ghcr.io/actions/actions-runner:2.336.0@sha256:0cfdcc701ce933c6d243c6b0b2da767366dc9f2e99961d4c3754b0b78084cdda
     restart: unless-stopped
+    # Host networking: workflow service containers (services: postgres) are
+    # created via the HOST docker daemon, so their published ports land on
+    # the host's loopback. Job steps reach them at localhost:<port> — which
+    # only resolves to the host if the runner shares the host netns. On a
+    # bridge network those jobs would dial the runner's own empty loopback
+    # and fail. The runner listens on nothing, so no port conflicts.
+    network_mode: host
     # Root for host-docker-socket access and for writing the bind-mounted
     # workdir; config.sh gates root behind RUNNER_ALLOW_RUNASROOT below.
     user: "0:0"
@@ -56,12 +63,17 @@ services:
       - |
         set -euo pipefail
         cd /home/runner
-        if [ -z "$${ACCESS_TOKEN:-}" ] || [ -z "$${ORG_NAME:-}" ]; then
+        # Move the PAT into an unexported shell var so job steps (children of
+        # run.sh) don't inherit it. Defense in depth, not a boundary — root
+        # jobs can still read /proc/1/environ; trusted workflows only.
+        GH_PAT="$${ACCESS_TOKEN:-}"
+        unset ACCESS_TOKEN
+        if [ -z "$$GH_PAT" ] || [ -z "$${ORG_NAME:-}" ]; then
           echo "github-runner: ACCESS_TOKEN / ORG_NAME not set — create the app-data .env (see .env.example), then restart the app. Idling."
           exec sleep infinity
         fi
         gh_api() {
-          curl -sf -X POST -H "Authorization: Bearer $${ACCESS_TOKEN}" \
+          curl -sf -X POST -H "Authorization: Bearer $$GH_PAT" \
             -H "Accept: application/vnd.github+json" \
             "https://api.github.com/orgs/$${ORG_NAME}/actions/runners/$$1" | jq -r .token
         }

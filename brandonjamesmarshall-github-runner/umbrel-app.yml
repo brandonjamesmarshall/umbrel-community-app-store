@@ -31,6 +31,7 @@ description: >-
 
     sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-github-runner
     sudo nano  ~/umbrel/app-data/brandonjamesmarshall-github-runner/.env
+    sudo chmod 600 ~/umbrel/app-data/brandonjamesmarshall-github-runner/.env
 
 
   Put these values inside (see .env.example in this app's folder for the

@@ -138,19 +138,23 @@ the same "invisible digest update" behaviour as LazyLibrarian above. The two can
 side by side; just manage a given book in one or the other to avoid double
 grabs.
 
-## Per-app `.env` files (Newt + Transmission only)
+## Per-app `.env` files (Newt, Transmission, GitHub Actions Runner)
 
-Two apps need an `.env` at `~/umbrel/app-data/<app-id>/.env`, loaded via
+Three apps need an `.env` at `~/umbrel/app-data/<app-id>/.env`, loaded via
 the `env_file:` directive in their compose. **Pre-create the .env before
-clicking Install** — otherwise the install fails (Newt because env_file
-short-form requires the file to exist; Transmission because gluetun
+clicking Install** — otherwise the install fails for Newt (env_file
+short-form requires the file to exist) and Transmission (gluetun
 can't start without a private key, which blocks the dependent server
-container).
+container); the GitHub Actions Runner installs fine but idles
+unregistered until the `.env` exists.
 
 - **Newt**: `PANGOLIN_ENDPOINT`, `NEWT_ID`, `NEWT_SECRET`. See
   [brandonjamesmarshall-newt/.env.example](./brandonjamesmarshall-newt/.env.example).
 - **Transmission**: iVPN WireGuard credentials. See
   [brandonjamesmarshall-transmission/.env.example](./brandonjamesmarshall-transmission/.env.example).
+- **GitHub Actions Runner**: `ACCESS_TOKEN` (PAT with `admin:org`),
+  `ORG_NAME`, `RUNNER_NAME`, `LABELS` — `chmod 600` it. See
+  [brandonjamesmarshall-github-runner/.env.example](./brandonjamesmarshall-github-runner/.env.example).
 
 The other 5 apps (Plex/Sonarr/Radarr/SABnzbd/Resilio Sync) need no
 `.env` — they get the media library from the Docker-managed NFS volume
