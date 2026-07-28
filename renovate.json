@@ -7,6 +7,15 @@
   "schedule": ["before 06:00"],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
+  "hostRules": [
+    {
+      "description": "Authenticated ghcr.io lookups. Mend's hosted env fails to resolve ghcr.io/actions/actions-runner ('no-result' every run) even though anonymous registry access and local Renovate both work — so the github-runner app silently got no update PRs. A read:packages PAT uploaded as GHCR_TOKEN in the Mend Developer Portal (developer.mend.io -> repo settings -> Credentials) fixes both plausible causes (the actions org rejecting Mend's app token, or shared-egress rate limits).",
+      "matchHost": "ghcr.io",
+      "hostType": "docker",
+      "username": "brandonjamesmarshall",
+      "password": "{{ secrets.GHCR_TOKEN }}"
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": ["docker-compose", "custom.regex"],
