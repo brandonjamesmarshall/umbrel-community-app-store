@@ -5,7 +5,7 @@ tagline: Self-hosted GitHub Actions runner with Docker support
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/github-runner.svg
 category: Developer Tools
 # renovate: datasource=docker depName=ghcr.io/actions/actions-runner
-version: "2.336.0"
+version: "2.336.0+dual1"
 port: 8480
 description: >-
   A self-hosted GitHub Actions runner using GitHub's OFFICIAL runner image
@@ -45,7 +45,9 @@ description: >-
     LABELS=umbrel,x64
 
 
-  Then click Install in umbrelOS. Target the runner from workflows with
+  Then click Install in umbrelOS. TWO runners register from this app
+  (RUNNER_NAME and RUNNER_NAME-2, same labels) so two CI jobs can run
+  concurrently. Target them from workflows with
   "runs-on: [self-hosted, umbrel]". Credentials live only on your Umbrel —
   never committed to the public app store repo.
 developer: GitHub
@@ -57,9 +59,14 @@ support: https://github.com/actions/runner/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/github-runner.svg
 releaseNotes: >-
-  Auto-updated to the latest release of GitHub's official actions/runner
-  image. See what changed:
-  https://github.com/actions/runner/releases
+  2.336.0+dual1: registers a SECOND runner (RUNNER_NAME-2, own work2
+  directory, same labels) so two CI jobs run concurrently. Same pinned
+  runner image; the second runner has the same root-equivalent Docker
+  socket access as the first and shares the device's CPU/RAM. Consuming
+  workflows whose jobs publish fixed host ports for service containers
+  should switch to dynamically assigned ports before relying on
+  concurrency - two same-port jobs on one Docker daemon collide. Runner
+  image releases: https://github.com/actions/runner/releases
 dependencies: []
 path: ""
 defaultUsername: ""

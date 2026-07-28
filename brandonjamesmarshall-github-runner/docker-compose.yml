@@ -7,6 +7,13 @@ version: "3.7"
 # the whole supply chain is GitHub's image + auditable lines in this file.
 # No web UI, so no app_proxy.
 #
+# TWO runner services register from this app (a GitHub runner takes one
+# job at a time, so two registrations let e.g. a backend and a frontend CI
+# job run concurrently — they share the host's cores, so this trades
+# per-job speed for wall-clock). Shared config lives in the x-runner
+# anchor; each service sets only its own workdir and name suffix. Both
+# read the same ${APP_DATA_DIR}/.env.
+#
 # The Docker socket is mounted so workflow jobs can use service containers
 # (e.g. CI Postgres) and container actions. That is root-equivalent access
 # to this Umbrel — only register this runner against orgs whose workflows
@@ -17,85 +24,105 @@ version: "3.7"
 # .env.example for the required keys. The .env stays on your Umbrel only
 # and is never committed to the public repo.
 
+x-runner: &runner
+  # Pinned to immutable digest — refresh in a reviewed commit, never auto-update.
+  image: ghcr.io/actions/actions-runner:2.336.0@sha256:0cfdcc701ce933c6d243c6b0b2da767366dc9f2e99961d4c3754b0b78084cdda
+  restart: unless-stopped
+  # Host networking: workflow service containers (services: postgres) are
+  # created via the HOST docker daemon, so their published ports land on
+  # the host's loopback. Job steps reach them at localhost:<port> — which
+  # only resolves to the host if the runner shares the host netns. On a
+  # bridge network those jobs would dial the runner's own empty loopback
+  # and fail. The runner listens on nothing, so no port conflicts.
+  network_mode: host
+  # Root for host-docker-socket access and for writing the bind-mounted
+  # workdir; config.sh gates root behind RUNNER_ALLOW_RUNASROOT below.
+  user: "0:0"
+  env_file:
+    # Long-form with required:false so a missing/misplaced .env doesn't
+    # wedge an update at 99% — the container still starts (the script
+    # below just idles until the .env is present). Needs Compose >= v2.24.
+    - path: ${APP_DATA_DIR}/.env
+      required: false
+  entrypoint: ["/bin/bash", "-c"]
+  # $$ is compose-escaping for a literal $ — every $$VAR below is a
+  # container-side shell expansion, not compose interpolation. The script
+  # is shared by both services: RUNNER_WORKDIR and RUNNER_SUFFIX come from
+  # each service's environment block. Registered name is
+  # "$RUNNER_NAME$RUNNER_SUFFIX" — the suffix keeps the two registrations
+  # distinct (a shared name + --replace would evict the sibling).
+  command:
+    - |
+      set -euo pipefail
+      cd /home/runner
+      # Move the PAT into an unexported shell var so job steps (children of
+      # run.sh) don't inherit it. Defense in depth, not a boundary — root
+      # jobs can still read /proc/1/environ; trusted workflows only.
+      GH_PAT="$${ACCESS_TOKEN:-}"
+      unset ACCESS_TOKEN
+      if [ -z "$$GH_PAT" ] || [ -z "$${ORG_NAME:-}" ]; then
+        echo "github-runner: ACCESS_TOKEN / ORG_NAME not set — create the app-data .env (see .env.example), then restart the app. Idling."
+        exec sleep infinity
+      fi
+      RUNNER_FULL_NAME="$${RUNNER_NAME:-umbrel-runner}$${RUNNER_SUFFIX:-}"
+      gh_api() {
+        curl -sf -X POST -H "Authorization: Bearer $$GH_PAT" \
+          -H "Accept: application/vnd.github+json" \
+          "https://api.github.com/orgs/$${ORG_NAME}/actions/runners/$$1" | jq -r .token
+      }
+      if [ ! -e .runner ]; then
+        echo "github-runner: registering $$RUNNER_FULL_NAME against https://github.com/$${ORG_NAME}"
+        ./config.sh --unattended --replace \
+          --url "https://github.com/$${ORG_NAME}" \
+          --token "$$(gh_api registration-token)" \
+          --name "$$RUNNER_FULL_NAME" \
+          --labels "$${LABELS:-umbrel}" \
+          --work "$$RUNNER_WORKDIR"
+      fi
+      deregister() {
+        [ -e .runner ] || return 0
+        echo "github-runner: deregistering $$RUNNER_FULL_NAME"
+        ./config.sh remove --token "$$(gh_api remove-token)" || true
+      }
+      # docker stop signals only PID 1 (this bash): forward TERM/INT to
+      # the runner, then deregister once it's down. config.sh remove
+      # deletes .runner, so the EXIT-trap backup call is a no-op.
+      trap 'kill "$$RUNNER_PID" 2>/dev/null || true' TERM INT
+      trap deregister EXIT
+      ./run.sh & RUNNER_PID=$$!
+      wait "$$RUNNER_PID" || true
+      deregister
+
 services:
 
   runner:
-    # Pinned to immutable digest — refresh in a reviewed commit, never auto-update.
-    image: ghcr.io/actions/actions-runner:2.336.0@sha256:0cfdcc701ce933c6d243c6b0b2da767366dc9f2e99961d4c3754b0b78084cdda
-    restart: unless-stopped
-    # Host networking: workflow service containers (services: postgres) are
-    # created via the HOST docker daemon, so their published ports land on
-    # the host's loopback. Job steps reach them at localhost:<port> — which
-    # only resolves to the host if the runner shares the host netns. On a
-    # bridge network those jobs would dial the runner's own empty loopback
-    # and fail. The runner listens on nothing, so no port conflicts.
-    network_mode: host
-    # Root for host-docker-socket access and for writing the bind-mounted
-    # workdir; config.sh gates root behind RUNNER_ALLOW_RUNASROOT below.
-    user: "0:0"
+    <<: *runner
     environment:
       RUNNER_ALLOW_RUNASROOT: "1"
       # Docker-in-docker quirk: jobs that spin up containers via the host
       # socket pass host-side paths, so the workdir must be bind-mounted at
       # the IDENTICAL absolute path on host and in the container (see the
       # volumes below). Keep this in compose — .env authors can't know the
-      # APP_DATA_DIR path.
+      # APP_DATA_DIR path. Each runner service needs its OWN workdir.
       RUNNER_WORKDIR: ${APP_DATA_DIR}/work
       # Runner self-update stays ON (no --disableupdate): GitHub refuses
       # jobs from runners that fall behind the minimum version, and
       # Renovate's 14-day quarantine can lag a mandatory bump. The
       # in-container update is discarded on recreate and simply re-applies
       # — the image stays pinned.
-    env_file:
-      # Long-form with required:false so a missing/misplaced .env doesn't
-      # wedge an update at 99% — the container still starts (the script
-      # below just idles until the .env is present). Needs Compose >= v2.24.
-      - path: ${APP_DATA_DIR}/.env
-        required: false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       # Same absolute path both sides — see RUNNER_WORKDIR note above.
       - ${APP_DATA_DIR}/work:${APP_DATA_DIR}/work
-    entrypoint: ["/bin/bash", "-c"]
-    # $$ is compose-escaping for a literal $ — every $$VAR below is a
-    # container-side shell expansion, not compose interpolation.
-    command:
-      - |
-        set -euo pipefail
-        cd /home/runner
-        # Move the PAT into an unexported shell var so job steps (children of
-        # run.sh) don't inherit it. Defense in depth, not a boundary — root
-        # jobs can still read /proc/1/environ; trusted workflows only.
-        GH_PAT="$${ACCESS_TOKEN:-}"
-        unset ACCESS_TOKEN
-        if [ -z "$$GH_PAT" ] || [ -z "$${ORG_NAME:-}" ]; then
-          echo "github-runner: ACCESS_TOKEN / ORG_NAME not set — create the app-data .env (see .env.example), then restart the app. Idling."
-          exec sleep infinity
-        fi
-        gh_api() {
-          curl -sf -X POST -H "Authorization: Bearer $$GH_PAT" \
-            -H "Accept: application/vnd.github+json" \
-            "https://api.github.com/orgs/$${ORG_NAME}/actions/runners/$$1" | jq -r .token
-        }
-        if [ ! -e .runner ]; then
-          echo "github-runner: registering against https://github.com/$${ORG_NAME}"
-          ./config.sh --unattended --replace \
-            --url "https://github.com/$${ORG_NAME}" \
-            --token "$$(gh_api registration-token)" \
-            --name "$${RUNNER_NAME:-umbrel-runner}" \
-            --labels "$${LABELS:-umbrel}" \
-            --work "$$RUNNER_WORKDIR"
-        fi
-        deregister() {
-          [ -e .runner ] || return 0
-          echo "github-runner: deregistering"
-          ./config.sh remove --token "$$(gh_api remove-token)" || true
-        }
-        # docker stop signals only PID 1 (this bash): forward TERM/INT to
-        # the runner, then deregister once it's down. config.sh remove
-        # deletes .runner, so the EXIT-trap backup call is a no-op.
-        trap 'kill "$$RUNNER_PID" 2>/dev/null || true' TERM INT
-        trap deregister EXIT
-        ./run.sh & RUNNER_PID=$$!
-        wait "$$RUNNER_PID" || true
-        deregister
+
+  runner-2:
+    <<: *runner
+    environment:
+      RUNNER_ALLOW_RUNASROOT: "1"
+      RUNNER_WORKDIR: ${APP_DATA_DIR}/work2
+      # Registers as "$RUNNER_NAME-2" with the same labels — GitHub
+      # load-balances queued jobs across both online runners.
+      RUNNER_SUFFIX: "-2"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${APP_DATA_DIR}/work2:${APP_DATA_DIR}/work2
