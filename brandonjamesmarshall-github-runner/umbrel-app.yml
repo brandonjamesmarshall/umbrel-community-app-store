@@ -59,9 +59,14 @@ support: https://github.com/actions/runner/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/github-runner.svg
 releaseNotes: >-
-  Auto-updated to the latest release of GitHub's official actions/runner
-  image. See what changed:
-  https://github.com/actions/runner/releases
+  2.336.0+dual1: registers a SECOND runner (RUNNER_NAME-2, own work2
+  directory, same labels) so two CI jobs run concurrently. Same pinned
+  runner image; the second runner has the same root-equivalent Docker
+  socket access as the first and shares the device's CPU/RAM. Consuming
+  workflows whose jobs publish fixed host ports for service containers
+  should switch to dynamically assigned ports before relying on
+  concurrency - two same-port jobs on one Docker daemon collide. Runner
+  image releases: https://github.com/actions/runner/releases
 dependencies: []
 path: ""
 defaultUsername: ""
