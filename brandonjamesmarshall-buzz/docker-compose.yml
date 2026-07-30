@@ -1,0 +1,141 @@
+version: "3.7"
+
+# Buzz (github.com/block/buzz) — self-hosted relay stack: relay + Postgres +
+# Redis + MinIO. Ported from upstream deploy/compose/compose.yml with two
+# Umbrel-specific changes:
+#
+#   1. Internal infra secrets (Postgres/Redis/MinIO) are derived from Umbrel's
+#      per-app ${APP_SEED} at compose time — they never leave the box and are
+#      not user-facing. Upstream composes these from a .env next to the compose
+#      file, which would live in this public repo; APP_SEED avoids that.
+#   2. Named volumes are converted to ${APP_DATA_DIR} bind mounts so umbrelOS
+#      backups cover the relay's Postgres (the workspace history + audit
+#      chain), git data, and media.
+#
+# Identity + domain config (relay keypair, owner pubkey, Pangolin domain URLs,
+# relay policy) is user-specific and lives in ${APP_DATA_DIR}/.env — pre-create
+# it BEFORE installing (see .env.example and the app description). Same pattern
+# as the newt app. With required:false a missing .env doesn't wedge the
+# install; the relay just crash-loops until the .env exists (check logs).
+# Needs Compose >= v2.24 (long-form env_file), same as newt.
+
+services:
+
+  relay:
+    # Tracks upstream's recommended pre-release tag, pinned to an immutable
+    # digest (resolved 2026-07-30) — refresh in a reviewed commit. Upstream has
+    # no semver release tags yet; switch to one when they exist.
+    image: ghcr.io/block/buzz:main@sha256:f46a7b3c6eb5d0fe0e68e4622473512ae0abce61d7cc1e1757769ba40b94b7e3
+    restart: unless-stopped
+    env_file:
+      - path: ${APP_DATA_DIR}/.env
+        required: false
+    environment:
+      BUZZ_BIND_ADDR: 0.0.0.0:3000
+      BUZZ_HEALTH_PORT: "8080"
+      BUZZ_METRICS_PORT: "9102"
+      DATABASE_URL: postgres://buzz:${APP_SEED}-pg@postgres:5432/buzz
+      REDIS_URL: redis://:${APP_SEED}-redis@redis:6379
+      BUZZ_S3_ENDPOINT: http://minio:9000
+      # Docker DNS resolves `minio`, not arbitrary `<bucket>.minio` hosts.
+      BUZZ_S3_ADDRESSING_STYLE: path
+      BUZZ_S3_ACCESS_KEY: buzz-media
+      BUZZ_S3_SECRET_KEY: ${APP_SEED}-s3
+      BUZZ_S3_BUCKET: buzz-media
+      BUZZ_GIT_REPO_PATH: /data/git
+      # Opt-in upstream; enabled here so a fresh install migrates itself.
+      BUZZ_AUTO_MIGRATE: "true"
+    ports:
+      - "3777:3000"
+    volumes:
+      - ${APP_DATA_DIR}/data/git:/data/git
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    # Probe /_readiness over /dev/tcp because the runtime image has bash but no
+    # curl/wget/socat (verbatim from upstream).
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "bash -ec 'exec 3<>/dev/tcp/127.0.0.1/8080; printf \"GET /_readiness HTTP/1.1\\r\\nHost: 127.0.0.1\\r\\nConnection: close\\r\\n\\r\\n\" >&3; grep -q \"200 OK\" <&3'",
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 30s
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: buzz
+      POSTGRES_USER: buzz
+      POSTGRES_PASSWORD: ${APP_SEED}-pg
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # Upstream interpolates the password into `command:` at compose time from
+    # its local .env; here the shell expands it in-container from environment
+    # so the secret stays out of this file.
+    command:
+      ["sh", "-c", 'exec redis-server --appendonly yes --requirepass "$$REDIS_PASSWORD"']
+    environment:
+      REDIS_PASSWORD: ${APP_SEED}-redis
+    volumes:
+      - ${APP_DATA_DIR}/data/redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep -q PONG"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  minio:
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: buzz-media
+      MINIO_ROOT_PASSWORD: ${APP_SEED}-s3
+    volumes:
+      - ${APP_DATA_DIR}/data/minio:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  minio-init:
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      BUZZ_S3_ACCESS_KEY: buzz-media
+      BUZZ_S3_SECRET_KEY: ${APP_SEED}-s3
+      BUZZ_S3_BUCKET: buzz-media
+    entrypoint: >
+      /bin/sh -euc '
+        mc alias set local http://minio:9000 "$${BUZZ_S3_ACCESS_KEY}" "$${BUZZ_S3_SECRET_KEY}"
+        mc mb --ignore-existing "local/$${BUZZ_S3_BUCKET}"
+        mc anonymous set none "local/$${BUZZ_S3_BUCKET}"
+      '
+    restart: "no"
