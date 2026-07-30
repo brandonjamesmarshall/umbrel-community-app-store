@@ -27,11 +27,14 @@ version: "3.7"
 
 services:
 
+  # Runs as root: Docker creates missing bind-mount dirs owned by root, and the
+  # relay runs as uid 1000 — without the chown it can't write /data/git.
   env-init:
     image: alpine:3.20@sha256:d9e853e87e55526f6b2917df91a2115c36dd7c696a35be12163d44e6e2a4b6bc
-    user: "1000:1000"
     entrypoint: >
       /bin/sh -euc '
+        mkdir -p /appdata/data/git;
+        chown -R 1000:1000 /appdata/data/git;
         if [ ! -f /appdata/.env ]; then
           RK=$(head -c32 /dev/urandom | od -An -tx1 | tr -d " \n");
           HM=$(head -c32 /dev/urandom | od -An -tx1 | tr -d " \n");
@@ -58,6 +61,7 @@ services:
             echo "BUZZ_GIT_CONFORMANCE_PROBE=true";
             echo "RUST_LOG=buzz_relay=info,buzz_db=info,buzz_auth=info,buzz_pubsub=info,tower_http=info";
           } > /appdata/.env;
+          chown 1000:1000 /appdata/.env;
           echo "env-init: wrote fresh /appdata/.env — fill the CHANGE_ME values, then Stop/Start the app.";
         else
           echo "env-init: .env already exists, leaving it untouched.";
