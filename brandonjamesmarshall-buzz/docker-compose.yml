@@ -12,11 +12,16 @@ version: "3.7"
 #      backups cover the relay's Postgres (the workspace history + audit
 #      chain), git data, and media.
 #
-# Identity + domain config (relay keypair, owner pubkey, Pangolin domain URLs,
-# relay policy) is user-specific and lives in ${APP_DATA_DIR}/.env — pre-create
-# it BEFORE installing (see .env.example and the app description). Same pattern
-# as the newt app. With required:false a missing .env doesn't wedge the
-# install; the relay just crash-loops until the .env exists (check logs).
+# Identity + domain config (relay keypair, owner pubkey, Pangolin domain URLs)
+# is user-specific and lives in ${APP_DATA_DIR}/.env — pre-create it BEFORE
+# installing (see .env.example and the app description). Unlike the newt app
+# this .env is required:true — Buzz's own code defaults auth/membership
+# enforcement OFF, so a relay started without its .env would come up as an
+# OPEN relay, not a crash loop (and env_file is only read at container
+# creation, so dropping the file in later wouldn't heal a running container).
+# Failing the install loudly is the safe behavior. The closed-relay policy
+# toggles are additionally hardcoded under environment: below, which takes
+# precedence over env_file — they cannot be weakened from .env.
 # Needs Compose >= v2.24 (long-form env_file), same as newt.
 
 services:
@@ -29,8 +34,13 @@ services:
     restart: unless-stopped
     env_file:
       - path: ${APP_DATA_DIR}/.env
-        required: false
+        required: true
     environment:
+      # Fail-closed relay policy — environment: overrides env_file, so these
+      # are not configurable from .env (Buzz code defaults them to false).
+      BUZZ_REQUIRE_AUTH_TOKEN: "true"
+      BUZZ_REQUIRE_RELAY_MEMBERSHIP: "true"
+      BUZZ_ALLOW_NIP_OA_AUTH: "true"
       BUZZ_BIND_ADDR: 0.0.0.0:3000
       BUZZ_HEALTH_PORT: "8080"
       BUZZ_METRICS_PORT: "9102"
@@ -72,7 +82,7 @@ services:
       start_period: 30s
 
   postgres:
-    image: postgres:17-alpine
+    image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
     restart: unless-stopped
     environment:
       POSTGRES_DB: buzz
@@ -89,7 +99,7 @@ services:
       start_period: 10s
 
   redis:
-    image: redis:7-alpine
+    image: redis:7-alpine@sha256:e7723ff73d963f5cc6d9c4643ea3d989527a402a319239054e9472a7fb9219a2
     restart: unless-stopped
     # Upstream interpolates the password into `command:` at compose time from
     # its local .env; here the shell expands it in-container from environment
@@ -108,7 +118,7 @@ services:
       start_period: 5s
 
   minio:
-    image: minio/minio:RELEASE.2025-09-07T16-13-09Z
+    image: minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
     restart: unless-stopped
     command: server /data --console-address ":9001"
     environment:
@@ -124,7 +134,7 @@ services:
       start_period: 10s
 
   minio-init:
-    image: minio/mc:RELEASE.2025-08-13T08-35-41Z
+    image: minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
     depends_on:
       minio:
         condition: service_healthy

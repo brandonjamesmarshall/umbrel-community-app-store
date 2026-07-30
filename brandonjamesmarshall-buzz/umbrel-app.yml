@@ -24,19 +24,24 @@ description: >-
   wss://your-domain.
 
 
-  SETUP — pre-create the .env BEFORE clicking Install. SSH into your Umbrel
-  and:
+  SETUP — pre-create the .env BEFORE clicking Install. The install FAILS if
+  the file is missing — by design: Buzz's own defaults would otherwise start
+  an OPEN relay (the closed-relay policy is additionally hardcoded in this
+  app's docker-compose.yml and cannot be weakened from .env). SSH into your
+  Umbrel and:
 
 
-    sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-buzz
-    sudo nano  ~/umbrel/app-data/brandonjamesmarshall-buzz/.env
+    sudo install -d -m 700 ~/umbrel/app-data/brandonjamesmarshall-buzz
+    curl -fsSL https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/brandonjamesmarshall-buzz/.env.example | sudo tee ~/umbrel/app-data/brandonjamesmarshall-buzz/.env >/dev/null
+    sudo chmod 600 ~/umbrel/app-data/brandonjamesmarshall-buzz/.env
+    sudo nano ~/umbrel/app-data/brandonjamesmarshall-buzz/.env
 
 
-  Fill it from .env.example in this app's folder: your Nostr owner pubkey
-  (64-char hex), a relay private key + git HMAC secret (openssl rand -hex 32
-  for each), and your Pangolin domain in the URL values. Then click Install.
-  If the relay crash-loops, the .env is missing or incomplete — check the
-  container logs. Verify with: curl http://umbrel.local:3777/_liveness
+  Replace every CHANGE_ME: your Nostr owner pubkey (64-char hex, not npub), a
+  relay private key + git HMAC secret (openssl rand -hex 32 for each), and
+  your Pangolin domain in the URL values. The file holds those secrets — keep
+  it mode 600. Then click Install. Verify with:
+  curl http://umbrel.local:3777/_liveness
 developer: Block, Inc.
 website: https://buzz.xyz
 submitter: brandonjamesmarshall
