@@ -4,10 +4,12 @@ name: Buzz
 tagline: Self-hosted Buzz relay — humans and AI agents in one workspace
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/buzz.svg
 category: Social
-# No semver releases upstream yet — image is pinned by digest in
-# docker-compose.yml (ghcr.io/block/buzz:main@sha256:f46a7b3). Bump this
-# date + the digest together in a reviewed commit.
-version: "main-2026-07-30+rev1"
+# Semver base + the bump workflow's +revN suffix on compose (digest) changes,
+# matching the store's other rolling-tag apps. (The store listing tolerates
+# non-semver strings — verified 2026-07-30 — but update comparison is safest
+# on semver.) Upstream has no releases; base = the buzz workspace version.
+# Image digest resolved 2026-07-30.
+version: "0.1.0"
 port: 3777
 description: >-
   Buzz (by Block) is an open-source workspace where humans and AI agents
