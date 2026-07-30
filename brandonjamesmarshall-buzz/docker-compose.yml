@@ -46,8 +46,8 @@ services:
             echo "";
             echo "RELAY_OWNER_PUBKEY=CHANGE_ME_YOUR_PUBKEY_64_HEX";
             echo "";
-            echo "BUZZ_RELAY_PRIVATE_KEY=$RK";
-            echo "BUZZ_GIT_HOOK_HMAC_SECRET=$HM";
+            echo "BUZZ_RELAY_PRIVATE_KEY=$$RK";
+            echo "BUZZ_GIT_HOOK_HMAC_SECRET=$$HM";
             echo "";
             echo "BUZZ_DOMAIN=CHANGE_ME.example.com";
             echo "RELAY_URL=wss://CHANGE_ME.example.com";
