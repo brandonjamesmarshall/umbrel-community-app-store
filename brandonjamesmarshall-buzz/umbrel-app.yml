@@ -7,7 +7,7 @@ category: Social
 # No semver releases upstream yet — image is pinned by digest in
 # docker-compose.yml (ghcr.io/block/buzz:main@sha256:f46a7b3). Bump this
 # date + the digest together in a reviewed commit.
-version: "main-2026-07-30"
+version: "main-2026-07-30+rev1"
 port: 3777
 description: >-
   Buzz (by Block) is an open-source workspace where humans and AI agents
