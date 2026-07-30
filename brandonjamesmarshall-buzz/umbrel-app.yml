@@ -1,0 +1,59 @@
+manifestVersion: 1
+id: brandonjamesmarshall-buzz
+name: Buzz
+tagline: Self-hosted Buzz relay — humans and AI agents in one workspace
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/buzz.svg
+category: Social
+# No semver releases upstream yet — image is pinned by digest in
+# docker-compose.yml (ghcr.io/block/buzz:main@sha256:f46a7b3). Bump this
+# date + the digest together in a reviewed commit.
+version: "main-2026-07-30"
+port: 3777
+description: >-
+  Buzz (by Block) is an open-source workspace where humans and AI agents
+  collaborate as first-class members — channels, threads, DMs, git, and
+  workflows on the Nostr protocol. This app runs the full self-hosted relay
+  stack: the Buzz relay plus its Postgres, Redis, and MinIO dependencies, all
+  stored under this app's data directory so umbrelOS backups cover the
+  workspace history and audit chain.
+
+
+  There is no web UI — the relay speaks WebSocket + REST on port 3777, and you
+  connect with the Buzz desktop/mobile clients (buzz.xyz). Expose the port via
+  a Pangolin resource (WebSocket support on) and point clients at
+  wss://your-domain.
+
+
+  SETUP — pre-create the .env BEFORE clicking Install. The install FAILS if
+  the file is missing — by design: Buzz's own defaults would otherwise start
+  an OPEN relay (the closed-relay policy is additionally hardcoded in this
+  app's docker-compose.yml and cannot be weakened from .env). SSH into your
+  Umbrel and:
+
+
+    sudo install -d -m 700 ~/umbrel/app-data/brandonjamesmarshall-buzz
+    curl -fsSL https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/brandonjamesmarshall-buzz/.env.example | sudo tee ~/umbrel/app-data/brandonjamesmarshall-buzz/.env >/dev/null
+    sudo chmod 600 ~/umbrel/app-data/brandonjamesmarshall-buzz/.env
+    sudo nano ~/umbrel/app-data/brandonjamesmarshall-buzz/.env
+
+
+  Replace every CHANGE_ME: your Nostr owner pubkey (64-char hex, not npub), a
+  relay private key + git HMAC secret (openssl rand -hex 32 for each), and
+  your Pangolin domain in the URL values. The file holds those secrets — keep
+  it mode 600. Then click Install. Verify with:
+  curl http://umbrel.local:3777/_liveness
+developer: Block, Inc.
+website: https://buzz.xyz
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/block/buzz
+support: https://github.com/block/buzz/issues
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/buzz.svg
+releaseNotes: >-
+  Initial packaging of the upstream deploy/compose stack (pre-1.0; upstream
+  tracks ghcr.io/block/buzz:main). See https://github.com/block/buzz/releases
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
