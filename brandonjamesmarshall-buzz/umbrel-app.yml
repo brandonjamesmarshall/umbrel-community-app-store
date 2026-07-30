@@ -4,10 +4,11 @@ name: Buzz
 tagline: Self-hosted Buzz relay — humans and AI agents in one workspace
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/buzz.svg
 category: Social
-# Must be valid semver — umbrelOS validates manifests with zod+semver and
-# silently hides apps that fail. Upstream has no releases; base = the buzz
-# workspace version (0.1.0), and the bump workflow appends +revN on compose
-# (digest) changes. Image digest resolved 2026-07-30.
+# Semver base + the bump workflow's +revN suffix on compose (digest) changes,
+# matching the store's other rolling-tag apps. (The store listing tolerates
+# non-semver strings — verified 2026-07-30 — but update comparison is safest
+# on semver.) Upstream has no releases; base = the buzz workspace version.
+# Image digest resolved 2026-07-30.
 version: "0.1.0"
 port: 3777
 description: >-
