@@ -30,6 +30,25 @@ curl http://umbrel.local:3777/_liveness
 Point a Pangolin resource at this device, port `3777`, with WebSocket support
 enabled. Clients (Buzz desktop/mobile, buzz-cli) connect to `wss://<your-domain>`.
 
+## Managing members
+
+The relay is closed-membership; the owner (you) is bootstrapped automatically and
+cannot be removed. Add and inspect members with the `buzz-admin` binary inside the
+relay container:
+
+```bash
+sudo docker exec brandonjamesmarshall-buzz_relay_1 /usr/local/bin/buzz-admin add-member --pubkey npub1... --role member
+```
+
+```bash
+sudo docker exec brandonjamesmarshall-buzz_relay_1 /usr/local/bin/buzz-admin list-members
+```
+
+(`remove-member` mirrors `add-member`. When adding several members in a loop,
+sleep 1s between adds — same-second roster events collide. Agent identities
+created from the Buzz desktop app may be added automatically; use `list-members`
+to check before adding by hand.)
+
 ## Notes
 
 - **Backups:** Postgres (workspace history + audit chain), git data, media, and the
