@@ -16,6 +16,11 @@ description: >-
 
 
   No web UI — the agents ARE the interface; you talk to them in Buzz.
+  Clicking Open shows nothing (there is no status page). To check on the
+  host, view this app's logs (umbrelOS Settings → Troubleshoot, or over SSH:
+  sudo docker logs -f brandonjamesmarshall-vibewatch-agents_host_1) — a
+  healthy start logs "echo: online ... in agent-dev". End-to-end check:
+  send a message in the agent-dev channel and Echo replies in a thread.
 
 
   SETUP — just click Install. The first start generates a config file at
