@@ -31,7 +31,13 @@ services:
             echo "# Relay on this same Umbrel (Buzz app publishes host port 3777).";
             echo "BUZZ_RELAY_URL=http://host.docker.internal:3777";
             echo "";
-            echo "# Optional: GitHub read token for the product-repo checkouts.";
+            echo "# Repo identities are config, not image contents: the brain repo";
+            echo "# (roster + briefs) and the extra repos the agents read.";
+            echo "BRAIN_REPO=Vibewatch-io/vibewatch-agents";
+            echo "SIBLING_REPOS=Vibewatch-io/vibewatch-docs Vibewatch-io/vibewatch-marketing Vibewatch-io/vibewatch-content";
+            echo "";
+            echo "# GitHub read token used to clone the repos above. Without it the";
+            echo "# host runs the baked echo-only fallback (fine for the smoke test).";
             echo "# GH_TOKEN=";
           } > /appdata/.env;
           chown 1000:1000 /appdata/.env;
