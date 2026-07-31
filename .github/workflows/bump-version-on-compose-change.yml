@@ -10,6 +10,7 @@ name: Bump app version when its compose file changes
 #   - lazylibrarian (+nfsN)  lscr.io/linuxserver/lazylibrarian:latest
 #   - bookshelf     (+nfsN)  ghcr.io/pennydreadful/bookshelf:hardcover
 #   - buzz          (+revN)  ghcr.io/block/buzz:main (digest-pinned rolling tag)
+#   - vibewatch-agents (+revN) ghcr.io/vibewatch-io/vibewatch-agent-host (digest-pinned)
 # Apps with real version tags don't need this — Renovate's custom manager
 # bumps their version field directly on tag updates.
 #
@@ -27,6 +28,7 @@ on:
       - 'brandonjamesmarshall-lazylibrarian/docker-compose.yml'
       - 'brandonjamesmarshall-bookshelf/docker-compose.yml'
       - 'brandonjamesmarshall-buzz/docker-compose.yml'
+      - 'brandonjamesmarshall-vibewatch-agents/docker-compose.yml'
 
 jobs:
   bump:
@@ -55,7 +57,7 @@ jobs:
             RANGE="HEAD^..HEAD"
           fi
           CHANGED=$(git diff --name-only $RANGE)
-          for APP in brandonjamesmarshall-transmission brandonjamesmarshall-lazylibrarian brandonjamesmarshall-bookshelf brandonjamesmarshall-buzz; do
+          for APP in brandonjamesmarshall-transmission brandonjamesmarshall-lazylibrarian brandonjamesmarshall-bookshelf brandonjamesmarshall-buzz brandonjamesmarshall-vibewatch-agents; do
             echo "$CHANGED" | grep -qx "$APP/docker-compose.yml" || continue
             FILE="$APP/umbrel-app.yml"
             CURRENT=$(grep -E '^version:' "$FILE" | sed -E 's/^version:[[:space:]]*"([^"]+)"$/\1/')
