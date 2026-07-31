@@ -1,15 +1,20 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended", ":dependencyDashboard"],
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard"
+  ],
   "pinDigests": true,
   "minimumReleaseAge": "14 days",
   "internalChecksAsSuccess": true,
-  "schedule": ["before 06:00"],
+  "schedule": [
+    "before 06:00"
+  ],
   "prHourlyLimit": 0,
   "prConcurrentLimit": 0,
   "hostRules": [
     {
-      "description": "Authenticated ghcr.io lookups. Mend's hosted env fails to resolve ghcr.io/actions/actions-runner ('no-result' every run) even though anonymous registry access and local Renovate both work — so the github-runner app silently got no update PRs. A read:packages PAT uploaded as GHCR_TOKEN in the Mend Developer Portal (developer.mend.io -> repo settings -> Credentials) fixes both plausible causes (the actions org rejecting Mend's app token, or shared-egress rate limits).",
+      "description": "Authenticated ghcr.io lookups. Mend's hosted env fails to resolve ghcr.io/actions/actions-runner ('no-result' every run) even though anonymous registry access and local Renovate both work \u2014 so the github-runner app silently got no update PRs. A read:packages PAT uploaded as GHCR_TOKEN in the Mend Developer Portal (developer.mend.io -> repo settings -> Credentials) fixes both plausible causes (the actions org rejecting Mend's app token, or shared-egress rate limits).",
       "matchHost": "ghcr.io",
       "hostType": "docker",
       "username": "brandonjamesmarshall",
@@ -18,32 +23,56 @@
   ],
   "packageRules": [
     {
-      "matchManagers": ["docker-compose", "custom.regex"],
+      "matchManagers": [
+        "docker-compose",
+        "custom.regex"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": false,
       "minimumReleaseAge": "14 days"
     },
     {
-      "description": "Docker digest-only refreshes (same tag, new sha) have no release timestamp on lscr.io/ghcr, so the renovate/stability-days check pends FOREVER and automerge can never fire — those PRs sat open indefinitely. Same-tag rebuilds skip the age gate; the 14-day supply-chain quarantine stays intact for real version bumps. Scoped to the Docker managers on purpose: github-actions digest updates (tag re-pointing) keep the full gate, which works there because GitHub provides timestamps. ignoreTests is required on top of the null age gate: dropping stability-days left digest PRs with ZERO status checks, and in a repo with no CI Renovate won't automerge a check-less PR without it (internalChecksAsSuccess has no internal checks to count here).",
-      "matchManagers": ["docker-compose", "custom.regex"],
-      "matchUpdateTypes": ["digest", "pin", "pinDigest"],
+      "description": "Docker digest-only refreshes (same tag, new sha) have no release timestamp on lscr.io/ghcr, so the renovate/stability-days check pends FOREVER and automerge can never fire \u2014 those PRs sat open indefinitely. Same-tag rebuilds skip the age gate; the 14-day supply-chain quarantine stays intact for real version bumps. Scoped to the Docker managers on purpose: github-actions digest updates (tag re-pointing) keep the full gate, which works there because GitHub provides timestamps. ignoreTests is required on top of the null age gate: dropping stability-days left digest PRs with ZERO status checks, and in a repo with no CI Renovate won't automerge a check-less PR without it (internalChecksAsSuccess has no internal checks to count here).",
+      "matchManagers": [
+        "docker-compose",
+        "custom.regex"
+      ],
+      "matchUpdateTypes": [
+        "digest",
+        "pin",
+        "pinDigest"
+      ],
       "minimumReleaseAge": null,
       "ignoreTests": true
     },
     {
       "description": "Automerge GitHub Actions bumps too (they were excluded from the docker-compose automerge rule and sat open forever). Version bumps stay behind the top-level 14-day gate, which works here because GitHub provides release timestamps.",
-      "matchManagers": ["github-actions"],
+      "matchManagers": [
+        "github-actions"
+      ],
       "automerge": true,
       "automergeType": "pr",
       "platformAutomerge": false
+    },
+    {
+      "description": "Stateful infra in the buzz app must never automerge majors: a Postgres major refuses to start on the previous major's data dir (pg_upgrade is a manual migration \u2014 exactly what took the relay down on 2026-07-31 when postgres 17->18 automerged and shipped as an app update). Majors here open a PR and wait for a human.",
+      "matchFileNames": [
+        "brandonjamesmarshall-buzz/**"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
     }
   ],
   "customManagers": [
     {
       "customType": "regex",
       "description": "Bump the version: field in each umbrel-app.yml in lockstep with its app's Docker image",
-      "fileMatch": ["(^|/)umbrel-app\\.yml$"],
+      "fileMatch": [
+        "(^|/)umbrel-app\\.yml$"
+      ],
       "matchStrings": [
         "# renovate: datasource=docker depName=(?<depName>\\S+)(?: registryUrl=(?<registryUrl>\\S+))?\\s+version:\\s*\"(?<currentValue>[^\"+]+)(?:\\+[^\"]*)?\""
       ],
@@ -51,5 +80,7 @@
       "versioningTemplate": "docker"
     }
   ],
-  "dockerfile": { "enabled": false }
+  "dockerfile": {
+    "enabled": false
+  }
 }
