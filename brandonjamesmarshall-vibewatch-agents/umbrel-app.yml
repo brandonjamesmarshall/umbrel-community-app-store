@@ -1,0 +1,46 @@
+manifestVersion: 1
+id: brandonjamesmarshall-vibewatch-agents
+name: Vibewatch Agents
+tagline: Resident Buzz agents via headless Claude Code
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/vibewatch-agents.svg
+category: Automation
+# Semver base + the bump workflow's +revN suffix on compose (digest) changes.
+version: "0.1.0"
+port: 3778
+description: >-
+  The always-on host for the Vibewatch marketing agent team. Each resident
+  agent is a persistent headless Claude Code session with its own Buzz
+  identity, living in channels on this Umbrel's Buzz relay — replies in
+  seconds, remembers its channel context, and runs its own proactive
+  schedule. Authenticates with a Claude subscription token (no API billing).
+
+
+  No web UI — the agents ARE the interface; you talk to them in Buzz.
+
+
+  SETUP — just click Install. The first start generates a config file at
+  app-data/brandonjamesmarshall-vibewatch-agents/.env with two CHANGE_ME
+  values: your Claude subscription token (from running: claude setup-token on
+  your computer) and the Echo agent's key (create an agent named Echo in the
+  Buzz desktop app and copy its nsec, then add Echo to the agent-dev
+  channel). Fill both with nano, Stop and Start the app, and say hi in
+  agent-dev.
+
+
+  Copy-pasteable steps in this app's README:
+  https://github.com/brandonjamesmarshall/umbrel-community-app-store/tree/master/brandonjamesmarshall-vibewatch-agents
+developer: Vibewatch
+website: https://vibewatch.io
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/Vibewatch-io/vibewatch-agents
+support: https://github.com/Vibewatch-io/vibewatch-agents/issues
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/vibewatch-agents.svg
+releaseNotes: >-
+  Initial packaging: orchestrator + buzz-cli + Claude Code, echo smoke-test
+  agent. See https://github.com/Vibewatch-io/vibewatch-agents/pull/81
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
