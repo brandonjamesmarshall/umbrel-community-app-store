@@ -16,8 +16,9 @@ sudo nano ~/umbrel/app-data/brandonjamesmarshall-buzz/.env
 - `RELAY_OWNER_PUBKEY` → your Nostr pubkey, **64-char hex** (not `npub…`; convert if
   needed).
 - Replace `CHANGE_ME.example.com` with your Pangolin domain **everywhere** (6 lines —
-  in nano `Ctrl+\` does replace-all; the pairing line becomes `pair.<your-domain>`,
-  or set any other host you prefer). Leave the generated secrets alone.
+  in nano press `Ctrl+\`, enter the old and new text, then answer `A` to replace
+  All; the pairing line becomes `pair.<your-domain>`, or set any other host you
+  prefer). Leave the generated secrets alone.
 
 Then **Stop and Start the app** in umbrelOS (env changes only apply on a full
 stop/start, not a plain restart) and verify:
@@ -37,8 +38,13 @@ The Buzz mobile app pairs by QR (NIP-AB): the desktop transfers your identity to
 the phone over an end-to-end-encrypted channel, confirmed by a code shown on both
 screens. Because the main relay is closed-membership, an unpaired phone can't
 reach it — pairing goes through the app's dedicated **open** pairing sidecar
-(`buzz-pair-relay`, host port `3778`; stateless, sees only throwaway-key
-ciphertext, safe to expose). Without this setup, desktop Settings → Mobile shows
+(`buzz-pair-relay`, host port `3778`). It is a publicly reachable,
+unauthenticated endpoint by design: what's protected is the *content* (only
+ephemeral NIP-44 ciphertext between throwaway session keys ever transits it,
+and it stores nothing), while the endpoint itself carries the same
+resource-exposure surface as any public WebSocket — the app caps it with a
+container memory limit, and Pangolin sits in front if you want rate limiting.
+Without this setup, desktop Settings → Mobile shows
 `WebSocket connection failed: HTTP error: 404 Not Found` — that's "pairing not
 configured", nothing is broken.
 

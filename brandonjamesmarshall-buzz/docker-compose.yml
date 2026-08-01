@@ -132,18 +132,23 @@ services:
 
   # NIP-AB device-pairing sidecar — lets the Buzz mobile app pair by QR. The
   # main relay is membership-gated, so an unpaired phone can never reach it;
-  # pairing instead runs on this dedicated OPEN relay (same pinned image — the
-  # binary ships in it; upstream's helm chart runs it exactly like this).
-  # Stateless and DB-less: it only routes ephemeral NIP-44 ciphertext between
-  # throwaway session keypairs, so exposing it publicly is by design. The
-  # desktop discovers it via BUZZ_PAIRING_RELAY_URL in the relay's NIP-11
-  # (set in ${APP_DATA_DIR}/.env — see README "Mobile pairing"); while unset,
-  # desktop pairing falls back to <relay>/pair and fails 404, which is just
-  # "pairing not configured", not an error in this stack.
+  # pairing instead runs on this dedicated open relay (same pinned image — the
+  # binary ships in it, mirroring upstream's helm pairing-relay.yaml). It is a
+  # deliberately public, unauthenticated endpoint whose PAYLOADS are opaque
+  # (ephemeral NIP-44 ciphertext between throwaway session keys, no DB, no
+  # state) — mem_limit bounds the blast radius of that exposure. The image
+  # ENTRYPOINT is buzz-relay, so this must be an `entrypoint:` override —
+  # `command:` would append the path as an argument to the MAIN relay (the
+  # helm chart says `command:` because k8s command ≙ docker entrypoint).
+  # The desktop discovers the sidecar via BUZZ_PAIRING_RELAY_URL in the
+  # relay's NIP-11 (set in ${APP_DATA_DIR}/.env — see README "Mobile
+  # pairing"); while unset, desktop pairing falls back to <relay>/pair and
+  # fails 404, which is just "pairing not configured", not an error here.
   pairing:
     image: ghcr.io/block/buzz:main@sha256:1748b57c52fe3da86bd0e2ff1a7dffa2f21db07aa4e4a33e7c0214c1dccf4e18
     restart: unless-stopped
-    command: ["/usr/local/bin/buzz-pair-relay"]
+    entrypoint: ["/usr/local/bin/buzz-pair-relay"]
+    mem_limit: 256m
     environment:
       BUZZ_PAIR_RELAY_BIND_ADDR: 0.0.0.0:5000
     ports:
