@@ -71,7 +71,7 @@ services:
     # Tracks upstream's recommended pre-release tag, pinned to an immutable
     # digest (resolved 2026-07-30) — refresh in a reviewed commit. Upstream has
     # no semver release tags yet; switch to one when they exist.
-    image: ghcr.io/block/buzz:main@sha256:a2b59030b29242adb0783a05cbabd63f51518fdfe7b724845a68f77adab7e1f9
+    image: ghcr.io/block/buzz:main@sha256:80ee929de9584f030286d9d20c9fde724c200665fd36910387668df3764a065c
     restart: unless-stopped
     env_file:
       - path: ${APP_DATA_DIR}/.env
