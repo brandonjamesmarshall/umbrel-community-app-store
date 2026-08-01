@@ -51,7 +51,24 @@ configured", nothing is broken.
 1. Add a second Pangolin resource: same device, port `3778`, WebSocket support
    on, its own hostname (any works — `pair.<your-domain>`,
    `buzz-pair.<apex>`, …). Both the desktop and the phone connect to it, so it
-   must be publicly reachable.
+   must be publicly reachable, and resource **authentication must be off**
+   (protocol clients can't do Pangolin SSO — same as the main relay resource).
+   ⚠️ If you configure a health check on the target, use **TCP mode**: the
+   pairing relay is WebSocket-only and answers plain HTTP GETs with
+   `400 Bad Request`, so an HTTP health check marks the healthy target
+   Unhealthy and Pangolin serves `503` for the whole resource (verified
+   2026-08-01 — this exact trap).
+   ⚠️ If your Pangolin stack runs **CrowdSec**, allowlist your own egress
+   IPs (`cscli allowlists`) — it WILL eventually flag them, and no remediation
+   works for protocol clients: a challenge page breaks the WebSocket handshake
+   ("HTTP error: 200 OK" — the captcha HTML where `101 Switching Protocols`
+   should be), and a ban breaks it harder. Verified twice on 2026-08-01: a
+   pairing session hanging at "Sending identity" then dropping both ends, and
+   — on the MAIN relay resource — always-on agents crash-looping, where each
+   reconnect looks like more probing and keeps the decision alive. Diagnostic
+   curls returning 4xx/5xx are enough to trip `http-probing`/`http-crawl`
+   against your own IP. Dynamic home IP: refresh the allowlist entry from a
+   DDNS name on a cron, with `-e 24h` expiry so stale IPs age out.
 2. Make sure `.env` has the matching line (fresh installs get a template line;
    **existing installs add it by hand** — `.env` is never regenerated):
 
