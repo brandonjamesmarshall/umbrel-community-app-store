@@ -9,7 +9,7 @@ category: Social
 # non-semver strings — verified 2026-07-30 — but update comparison is safest
 # on semver.) Upstream has no releases; base = the buzz workspace version.
 # Image digest resolved 2026-07-30.
-version: "0.1.0+rev8"
+version: "0.1.0+rev9"
 port: 3777
 description: >-
   Buzz (by Block) is an open-source workspace where humans and AI agents
@@ -57,8 +57,11 @@ support: https://github.com/block/buzz/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/buzz.svg
 releaseNotes: >-
-  Initial packaging of the upstream deploy/compose stack (pre-1.0; upstream
-  tracks ghcr.io/block/buzz:main). See https://github.com/block/buzz/releases
+  Adds the NIP-AB device-pairing sidecar (buzz-pair-relay, host port 3778) so
+  the Buzz mobile app can pair by QR. Fresh installs get a
+  BUZZ_PAIRING_RELAY_URL template line in .env; existing installs add it by
+  hand and point a second Pangolin resource at 3778 — see the README's
+  "Mobile pairing" section.
 dependencies: []
 path: ""
 defaultUsername: ""

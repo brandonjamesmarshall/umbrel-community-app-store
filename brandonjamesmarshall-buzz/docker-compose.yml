@@ -57,6 +57,10 @@ services:
             echo "BUZZ_MEDIA_SERVER_DOMAIN=CHANGE_ME.example.com";
             echo "BUZZ_CORS_ORIGINS=https://CHANGE_ME.example.com";
             echo "";
+            echo "# Mobile pairing (optional): advertised to the desktop via NIP-11.";
+            echo "# Point a Pangolin resource (WebSocket on) at port 3778 first — see README.";
+            echo "BUZZ_PAIRING_RELAY_URL=wss://pair.CHANGE_ME.example.com";
+            echo "";
             echo "BUZZ_GIT_CONFORMANCE_PROBE=true";
             echo "RUST_LOG=buzz_relay=info,buzz_db=info,buzz_auth=info,buzz_pubsub=info,tower_http=info";
           } > /appdata/.env;
@@ -125,6 +129,38 @@ services:
       timeout: 3s
       retries: 12
       start_period: 30s
+
+  # NIP-AB device-pairing sidecar — lets the Buzz mobile app pair by QR. The
+  # main relay is membership-gated, so an unpaired phone can never reach it;
+  # pairing instead runs on this dedicated open relay (same pinned image — the
+  # binary ships in it, mirroring upstream's helm pairing-relay.yaml). It is a
+  # deliberately public, unauthenticated endpoint whose PAYLOADS are opaque
+  # (ephemeral NIP-44 ciphertext between throwaway session keys, no DB, no
+  # state) — mem_limit bounds the blast radius of that exposure. The image
+  # ENTRYPOINT is buzz-relay, so this must be an `entrypoint:` override —
+  # `command:` would append the path as an argument to the MAIN relay (the
+  # helm chart says `command:` because k8s command ≙ docker entrypoint).
+  # The desktop discovers the sidecar via BUZZ_PAIRING_RELAY_URL in the
+  # relay's NIP-11 (set in ${APP_DATA_DIR}/.env — see README "Mobile
+  # pairing"); while unset, desktop pairing falls back to <relay>/pair and
+  # fails 404, which is just "pairing not configured", not an error here.
+  pairing:
+    image: ghcr.io/block/buzz:main@sha256:1748b57c52fe3da86bd0e2ff1a7dffa2f21db07aa4e4a33e7c0214c1dccf4e18
+    restart: unless-stopped
+    entrypoint: ["/usr/local/bin/buzz-pair-relay"]
+    mem_limit: 256m
+    environment:
+      BUZZ_PAIR_RELAY_BIND_ADDR: 0.0.0.0:5000
+    ports:
+      - "3778:5000"
+    # TCP-connect probe via /dev/tcp — image has bash but no curl/wget (same
+    # trick as the relay's healthcheck; the chart uses a tcpSocket probe).
+    healthcheck:
+      test: ["CMD-SHELL", "bash -ec 'exec 3<>/dev/tcp/127.0.0.1/5000'"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
 
   postgres:
     image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
