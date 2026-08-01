@@ -58,6 +58,13 @@ configured", nothing is broken.
    `400 Bad Request`, so an HTTP health check marks the healthy target
    Unhealthy and Pangolin serves `503` for the whole resource (verified
    2026-08-01 — this exact trap).
+   ⚠️ If your Pangolin stack runs **CrowdSec**, exempt this resource (or your
+   own IPs) from the **captcha** remediation: protocol clients can't answer a
+   challenge page, so a mid-session decision reads as "lost connection" on
+   both devices — a pairing session that hangs at "Sending identity" and then
+   drops both ends is the signature (also verified 2026-08-01; diagnostic
+   curls returning 4xx/5xx are enough to trip the http-probing scenario
+   against your own IP).
 2. Make sure `.env` has the matching line (fresh installs get a template line;
    **existing installs add it by hand** — `.env` is never regenerated):
 
