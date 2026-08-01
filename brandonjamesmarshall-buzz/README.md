@@ -51,7 +51,13 @@ configured", nothing is broken.
 1. Add a second Pangolin resource: same device, port `3778`, WebSocket support
    on, its own hostname (any works — `pair.<your-domain>`,
    `buzz-pair.<apex>`, …). Both the desktop and the phone connect to it, so it
-   must be publicly reachable.
+   must be publicly reachable, and resource **authentication must be off**
+   (protocol clients can't do Pangolin SSO — same as the main relay resource).
+   ⚠️ If you configure a health check on the target, use **TCP mode**: the
+   pairing relay is WebSocket-only and answers plain HTTP GETs with
+   `400 Bad Request`, so an HTTP health check marks the healthy target
+   Unhealthy and Pangolin serves `503` for the whole resource (verified
+   2026-08-01 — this exact trap).
 2. Make sure `.env` has the matching line (fresh installs get a template line;
    **existing installs add it by hand** — `.env` is never regenerated):
 
