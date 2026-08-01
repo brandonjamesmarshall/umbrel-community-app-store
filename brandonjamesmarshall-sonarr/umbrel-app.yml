@@ -5,7 +5,7 @@ tagline: TV show collection manager
 icon: https://getumbrel.github.io/umbrel-apps-gallery/sonarr/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/sonarr
-version: "4.0.18+nfs7"
+version: "4.0.19+nfs7"
 port: 8989
 description: >-
   Sonarr automatically finds, downloads, and organises TV shows. Packaged for
