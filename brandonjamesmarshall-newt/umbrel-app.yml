@@ -5,7 +5,7 @@ tagline: Userspace WireGuard tunnel client for Pangolin
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/newt.svg
 category: Networking
 # renovate: datasource=docker depName=fosrl/newt
-version: "1.14.0"
+version: "1.15.0"
 port: 41641
 description: >-
   Newt is a fully userspace WireGuard tunnel client and TCP/UDP proxy that
