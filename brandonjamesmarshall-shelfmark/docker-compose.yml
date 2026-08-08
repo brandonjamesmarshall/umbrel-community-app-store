@@ -9,8 +9,10 @@ version: "3.7"
 # Config lives on the local SSD; the media library and download area come
 # from the NAS NFS share at /media — the SAME mount and container paths the
 # download clients use, so Shelfmark sees completed torrents at the exact
-# path Transmission reports, and its torrent hardlinking works: the file
-# keeps seeding in the client while a hardlink goes to the ingest folder.
+# path Transmission reports. Completed torrents are COPIED to the ingest
+# folder (the client's copy is untouched and keeps seeding). Hardlinking is
+# deliberately left off: Shelfmark's docs say not to hardlink into a
+# library ingest folder, since CWA deletes ingest files after import.
 
 services:
 
@@ -30,6 +32,11 @@ services:
       # Finished books go to the Calibre-Web-Automated ingest folder on the
       # shared /media mount; CWA auto-imports from there and empties it.
       INGEST_DIR: /media/Books/Ingest
+      # Copy (don't hardlink) torrents into ingest. Books already default to
+      # copy; the audiobook flag defaults to TRUE upstream, and Shelfmark's
+      # docs warn against hardlinking into a library ingest folder.
+      HARDLINK_TORRENTS: "false"
+      HARDLINK_TORRENTS_AUDIOBOOK: "false"
     # Direct port bypasses the umbrelOS auth gateway — enable Shelfmark's
     # built-in authentication (Settings) so this entry point isn't open.
     ports:

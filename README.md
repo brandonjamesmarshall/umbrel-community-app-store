@@ -40,7 +40,7 @@ auto-updates) are general — fork it and swap in your own NAS address.
 ## Media stack: one-time setup
 
 The media apps (Plex, Sonarr, Radarr, SABnzbd, Transmission, LazyLibrarian,
-Bookshelf, Calibre-Web Automated) each declare a **Docker-managed NFS volume** in their
+Bookshelf, Shelfmark, Calibre-Web Automated) each declare a **Docker-managed NFS volume** in their
 `docker-compose.yml` pointing at the NAS share
 (`192.168.50.111:/volume3/Plex Media`). Most mount the whole share at `/media`;
 Calibre-Web Automated instead mounts two sub-folders of it
@@ -71,7 +71,13 @@ match your NAS before installing.**
   - Hostname/IP: your Umbrel's LAN IP (or subnet, e.g. `192.168.1.0/24`).
   - Privilege: Read/Write.
   - Squash: **Map all users to admin** (simplest; containers running as
-    PUID=1000 will write as the NAS admin user).
+    PUID=1000 will write as the NAS admin user). ⚠️ This is a homelab
+    trade-off: ANY host allowed by this NFS rule writes with admin
+    identity on the share. Scope the rule to the Umbrel's exact IP (not a
+    subnet), or — more locked down — create a dedicated low-privilege NAS
+    user and squash to that instead (map all users to that account, or use
+    no squash with matching UIDs); the containers only need read/write on
+    this one share.
   - Security: `sys`. Async: on. Allow non-privileged ports: on. Allow
     access to mounted subfolders: on.
 
@@ -117,7 +123,7 @@ packaged; pick whichever fits how you acquire books:
 **Before installing CWA**, create two folders on the NAS share (alongside
 `TV`, `Movies`, `Download`):
 
-```
+```text
 Books/CalibreLibrary    ← CWA's Calibre library (metadata.db lives here)
 Books/Ingest            ← front-ends write here; CWA imports & empties it
 ```

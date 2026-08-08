@@ -49,8 +49,10 @@ description: >-
 
      Shelfmark mounts the same /media share at the same paths as the
      download clients, so completed downloads are found without remote path
-     mappings — and torrent hardlinking means the file keeps seeding in the
-     client after it's been delivered to ingest.
+     mappings. Completed torrents are COPIED into the ingest folder — the
+     client's copy is untouched and keeps seeding until you remove the
+     torrent. (Hardlinking into ingest is disabled per Shelfmark's docs:
+     CWA deletes ingest files after import.)
 
   4. Direct web sources need no download client at all — enable and
      configure the sources you want in Shelfmark's settings.
