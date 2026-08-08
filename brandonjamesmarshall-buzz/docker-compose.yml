@@ -1,7 +1,7 @@
 version: "3.7"
 
 # Buzz (github.com/block/buzz) — self-hosted relay stack: relay + Postgres +
-# Redis + MinIO. Ported from upstream deploy/compose/compose.yml with two
+# Redis + MinIO. Ported from upstream deploy/compose/compose.yml with three
 # Umbrel-specific changes:
 #
 #   1. Internal infra secrets (Postgres/Redis/MinIO) are derived from Umbrel's
@@ -11,6 +11,9 @@ version: "3.7"
 #   2. Named volumes are converted to ${APP_DATA_DIR} bind mounts so umbrelOS
 #      backups cover the relay's Postgres (the workspace history + audit
 #      chain), git data, and media.
+#   3. A pg-migrate one-shot dump/restores the Postgres cluster across major
+#      version bumps, since app updates ship unattended and a Postgres major
+#      cannot start on the previous major's data dir (see its comment).
 #
 # Identity + domain config (relay keypair, owner pubkey, Pangolin domain URLs)
 # is user-specific and lives in ${APP_DATA_DIR}/.env. The env-init service
@@ -162,21 +165,92 @@ services:
       retries: 12
       start_period: 10s
 
-  postgres:
+  # One-shot Postgres major-version migration (17 -> 18). A Postgres major
+  # cannot start on the previous major's data dir, and pg_upgrade needs both
+  # majors' binaries in one image, so migration is dump/restore with only
+  # official images: this service stays on the OLD major (17 — hence the
+  # renovate.json rule exempting it from version bumps) and, when the old
+  # cluster (pgdata) is present, boots it socket-only and pg_dumps the buzz DB
+  # into the postgres-upgrade staging dir. That dir is the postgres service's
+  # /docker-entrypoint-initdb.d, so 18's first init (fresh pgdata18) replays
+  # the dump. The dump's LAST statement is a server-side COPY that writes a
+  # sentinel file, so the sentinel exists iff the whole restore committed; on
+  # the next start this service sees it and retires the old cluster to
+  # pgdata-17-retired — a rollback artifact, deletable once the relay is
+  # verified healthy. The old cluster is never modified before the restore
+  # completes; a restore that died mid-init (pgdata18 present, no sentinel) is
+  # wiped for a clean retry, and the sentinel gate means a fully-restored
+  # cluster can never be wiped. Fresh installs and already-migrated starts are
+  # no-ops. The .part rename makes staging atomic so a dump interrupted
+  # mid-write is redone, never restored.
+  pg-migrate:
     image: postgres:17-alpine@sha256:742f40ea20b9ff2ff31db5458d127452988a2164df9e17441e191f3b72252193
+    entrypoint: >
+      /bin/sh -euc '
+        D=/var/lib/postgresql/data;
+        U=/upgrade;
+        if [ -f "$$D/.pg18-restore-complete" ]; then
+          echo "pg-migrate: restore into 18 is complete — retiring the old 17 cluster.";
+          if [ -d "$$D/pgdata" ]; then mv "$$D/pgdata" "$$D/pgdata-17-retired"; fi;
+          rm -f "$$U/01-restore.sql" "$$U/01-restore.sql.part" "$$D/.pg18-restore-complete";
+          echo "pg-migrate: done — old cluster kept at pgdata-17-retired until you delete it."; exit 0;
+        fi;
+        if [ ! -f "$$D/pgdata/PG_VERSION" ]; then
+          echo "pg-migrate: no old cluster present — nothing to migrate."; exit 0;
+        fi;
+        V=$$(cat "$$D/pgdata/PG_VERSION");
+        if [ "$$V" != "17" ]; then
+          echo "pg-migrate: pgdata is major $$V, expected 17 — refusing to touch it." >&2; exit 1;
+        fi;
+        if [ -f "$$U/01-restore.sql" ]; then
+          if [ -d "$$D/pgdata18" ]; then
+            echo "pg-migrate: last restore died mid-init — clearing pgdata18 for a clean retry.";
+            rm -rf "$$D/pgdata18";
+          fi;
+          echo "pg-migrate: dump staged — postgres 18 restores it on this start."; exit 0;
+        fi;
+        if [ -d "$$D/pgdata18" ]; then
+          echo "pg-migrate: pgdata18 exists but no dump is staged and the 17 cluster was never retired — refusing to guess." >&2; exit 1;
+        fi;
+        echo "pg-migrate: dumping the 17 cluster for restore into 18...";
+        chown postgres:postgres "$$D" "$$U";
+        gosu postgres pg_ctl -D "$$D/pgdata" -o "-c listen_addresses=" -t 300 -w start;
+        gosu postgres pg_dump -U buzz -d buzz --clean --if-exists -f "$$U/01-restore.sql.part";
+        gosu postgres pg_ctl -D "$$D/pgdata" -m fast -t 300 -w stop;
+        printf "COPY (SELECT 1) TO \047%s\047;\n" /var/lib/postgresql/.pg18-restore-complete >> "$$U/01-restore.sql.part";
+        mv "$$U/01-restore.sql.part" "$$U/01-restore.sql";
+        echo "pg-migrate: dump staged.";
+      '
+    volumes:
+      - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql/data
+      - ${APP_DATA_DIR}/data/postgres-upgrade:/upgrade
+    restart: "no"
+
+  postgres:
+    image: postgres:18-alpine@sha256:9a8afca54e7861fd90fab5fdf4c42477a6b1cb7d293595148e674e0a3181de15
     restart: unless-stopped
     environment:
       POSTGRES_DB: buzz
       POSTGRES_USER: buzz
       POSTGRES_PASSWORD: ${APP_SEED}-pg
-      PGDATA: /var/lib/postgresql/data/pgdata
+      # 18 images moved their VOLUME up to /var/lib/postgresql (the bind below
+      # covers it — mounting at .../data like 17 did would leave an orphaned
+      # anonymous volume behind on every restart). The pre-migration 17
+      # cluster sits beside this at .../pgdata until pg-migrate retires it.
+      PGDATA: /var/lib/postgresql/pgdata18
     volumes:
-      - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql/data
+      - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql
+      - ${APP_DATA_DIR}/data/postgres-upgrade:/docker-entrypoint-initdb.d
+    depends_on:
+      pg-migrate:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
-      retries: 12
+      # 5 min unhealthy budget: the first start after a major bump replays the
+      # pg-migrate dump during init, before the server accepts TCP.
+      retries: 60
       start_period: 10s
 
   redis:

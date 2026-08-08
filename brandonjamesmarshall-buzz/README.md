@@ -105,6 +105,12 @@ to check before adding by hand.)
 - **Updates:** the relay image is pinned by digest and tracks upstream `main`
   (pre-1.0, no releases yet); `BUZZ_AUTO_MIGRATE=true` is set so image bumps
   self-migrate the database.
+- **Postgres major upgrades:** handled automatically — the `pg-migrate`
+  one-shot dumps the old cluster and Postgres restores it into a fresh one on
+  the first start after the update. The old cluster is kept at
+  `data/postgres/pgdata-17-retired`; delete it once the relay is verified
+  healthy. To roll back instead: stop the app, revert the compose change, and
+  rename `pgdata-17-retired` back to `pgdata`.
 - **Reset:** deleting the app's `.env` and stop/starting regenerates it with new
   secrets — the relay's own keypair changes, so treat that as a re-install, not a
   routine operation.

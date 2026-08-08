@@ -56,7 +56,7 @@
       "platformAutomerge": false
     },
     {
-      "description": "Stateful infra in the buzz app must never automerge majors: a Postgres major refuses to start on the previous major's data dir (pg_upgrade is a manual migration \u2014 exactly what took the relay down on 2026-07-31 when postgres 17->18 automerged and shipped as an app update). Majors here open a PR and wait for a human.",
+      "description": "Stateful infra in the buzz app must never automerge majors: a Postgres major refuses to start on the previous major's data dir (pg_upgrade is a manual migration \u2014 exactly what took the relay down on 2026-07-31 when postgres 17->18 automerged and shipped as an app update). Majors here open a PR and wait for a human \u2014 the pg-migrate one-shot automates the data migration, but the compose (pg-migrate's pinned old major, PGDATA path, retire paths) must be updated in the same PR.",
       "matchFileNames": [
         "brandonjamesmarshall-buzz/**"
       ],
@@ -64,6 +64,22 @@
         "major"
       ],
       "automerge": false
+    },
+    {
+      "description": "The buzz pg-migrate one-shot intentionally stays on the PREVIOUS Postgres major \u2014 its whole job is dumping the old-major cluster during the major upgrade \u2014 so never propose version bumps for it (digest refreshes are fine). Its pin moves by hand in the same PR as the next major.",
+      "matchFileNames": [
+        "brandonjamesmarshall-buzz/**"
+      ],
+      "matchPackageNames": [
+        "postgres"
+      ],
+      "matchCurrentValue": "17-alpine",
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "patch"
+      ],
+      "enabled": false
     }
   ],
   "customManagers": [
