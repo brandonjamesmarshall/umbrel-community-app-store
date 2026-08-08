@@ -10,7 +10,7 @@ category: Media
 # counter is auto-bumped by .github/workflows/bump-version-on-compose-change.yml
 # whenever docker-compose.yml changes (e.g. a Renovate digest refresh), so
 # umbrelOS surfaces "Update available" without any hand-bumping.
-version: "2026.01.31+nfs1"
+version: "2026.01.31+nfs2"
 port: 8787
 description: >-
   Bookshelf is a community revival of Readarr — the "arr" for books, with the
