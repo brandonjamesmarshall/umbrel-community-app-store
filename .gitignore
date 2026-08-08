@@ -1,5 +1,9 @@
 .DS_Store
 
+# Local-only operator notes (setup-specific details deliberately kept out of
+# this public repo — see the "keep public docs general" convention there).
+CLAUDE.md
+
 # Never commit secrets — Newt credentials and any other env files live only on
 # the Umbrel device, not in this public repo.
 .env

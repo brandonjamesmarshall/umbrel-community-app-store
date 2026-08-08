@@ -1,0 +1,54 @@
+version: "3.7"
+
+# Shelfmark — self-hosted search & request hub for ebooks and audiobooks
+# (the successor to Calibre-Web-Automated Book Downloader). Searches direct
+# web sources plus your Prowlarr indexers, downloads over HTTP or via your
+# existing torrent/usenet clients, and drops finished books into the
+# Calibre-Web-Automated ingest folder, where they're imported automatically.
+#
+# Config lives on the local SSD; the media library and download area come
+# from the NAS NFS share at /media — the SAME mount and container paths the
+# download clients use, so Shelfmark sees completed torrents at the exact
+# path Transmission reports. Completed torrents are COPIED to the ingest
+# folder (the client's copy is untouched and keeps seeding). Hardlinking is
+# deliberately left off: Shelfmark's docs say not to hardlink into a
+# library ingest folder, since CWA deletes ingest files after import.
+
+services:
+
+  app_proxy:
+    environment:
+      # Full container name (see Sonarr compose for why we can't use bare "server").
+      APP_HOST: brandonjamesmarshall-shelfmark_server_1
+      APP_PORT: 8084
+
+  server:
+    image: ghcr.io/calibrain/shelfmark:v1.3.5@sha256:bd314405a9ca1eb176d1618c38f19948a1feb18ec4190a7665d3096163eab0a4
+    restart: on-failure
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+      # Finished books go to the Calibre-Web-Automated ingest folder on the
+      # shared /media mount; CWA auto-imports from there and empties it.
+      INGEST_DIR: /media/Books/Ingest
+      # Copy (don't hardlink) torrents into ingest. Books already default to
+      # copy; the audiobook flag defaults to TRUE upstream, and Shelfmark's
+      # docs warn against hardlinking into a library ingest folder.
+      HARDLINK_TORRENTS: "false"
+      HARDLINK_TORRENTS_AUDIOBOOK: "false"
+    # Direct port bypasses the umbrelOS auth gateway — enable Shelfmark's
+    # built-in authentication (Settings) so this entry point isn't open.
+    ports:
+      - "18084:8084"
+    volumes:
+      - ${APP_DATA_DIR}/data/config:/config
+      - media:/media
+
+volumes:
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media"

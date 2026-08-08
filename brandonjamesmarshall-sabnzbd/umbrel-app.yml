@@ -8,7 +8,7 @@ category: Media
 version: "5.0.3+nfs4"
 port: 8080
 description: >-
-  SABnzbd is a Usenet (NZB) download client. Mounts the Synology share
+  SABnzbd is a Usenet (NZB) download client. Mounts the NAS share
   at /media via a Docker-managed NFS volume — no host fstab needed,
   survives umbrelOS reboots and firmware updates.
 

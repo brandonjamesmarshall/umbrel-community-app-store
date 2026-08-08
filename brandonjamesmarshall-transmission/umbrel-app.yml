@@ -1,7 +1,7 @@
 manifestVersion: 1
 id: brandonjamesmarshall-transmission
-name: Transmission (via iVPN)
-tagline: Torrent client tunneled through iVPN
+name: Transmission (via VPN)
+tagline: Torrent client tunneled through a WireGuard VPN
 icon: https://getumbrel.github.io/umbrel-apps-gallery/transmission/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/transmission
@@ -11,17 +11,21 @@ category: Media
 version: "4.1.2+vpn23"
 port: 9091
 description: >-
-  Transmission torrent client, forced through an iVPN WireGuard tunnel via
+  Transmission torrent client, forced through a WireGuard VPN tunnel via
   gluetun with a built-in kill-switch. If the VPN drops, Transmission loses
-  all network access.
+  all network access. Works with any provider that hands out WireGuard
+  configs (iVPN, Mullvad, ProtonVPN, ...).
 
 
-  SETUP — pre-create the .env BEFORE clicking Install (otherwise gluetun
-  can't start without a private key, and Transmission can't attach to
-  gluetun's netns, which fails the whole install).
+  SETUP — create and FULLY populate the .env BEFORE clicking Install (all
+  values from .env.example, including your WireGuard private key and
+  assigned address). The compose tolerates a missing file so app updates
+  don't wedge, but gluetun crash-loops without real credentials, and
+  Transmission — which shares gluetun's network namespace — has no network
+  until the .env is complete and the app is restarted.
 
-  1. Generate a WireGuard keypair locally and register the public key in
-     your iVPN account area. iVPN returns your assigned tunnel address.
+  1. Generate a WireGuard keypair locally and register the public key with
+     your VPN provider; the provider returns your assigned tunnel address.
 
   2. On your Umbrel:
        sudo mkdir -p ~/umbrel/app-data/brandonjamesmarshall-transmission
@@ -32,7 +36,7 @@ description: >-
 
   4. Verify the kill-switch — SSH the Umbrel and run:
        docker exec brandonjamesmarshall-transmission_gluetun_1 wget -qO- https://ifconfig.me
-     The IP must be an iVPN IP, NOT your home IP.
+     The IP must be your VPN provider's exit IP, NOT your home IP.
 
 
   RPC AUTH: web UI defaults to user "admin" with the per-install password

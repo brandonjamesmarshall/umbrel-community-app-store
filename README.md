@@ -2,8 +2,10 @@
 
 A personal [Umbrel](https://umbrel.com) community app store with self-hosted
 apps that aren't (yet) in the official store, plus a full TRaSH-style media
-stack with hardware-transcoded Plex, NFS-backed library on a Synology NAS,
-and a VPN-isolated torrent client.
+stack with hardware-transcoded Plex, an NFS-backed library on a NAS, and a
+VPN-isolated torrent client. It's built for one specific homelab, but the
+packaging patterns (NFS volumes, digest pinning, VPN kill-switch, Renovate
+auto-updates) are general — fork it and swap in your own NAS address.
 
 ## Apps
 
@@ -16,13 +18,14 @@ and a VPN-isolated torrent client.
 | [Radarr](./brandonjamesmarshall-radarr) | Movie collection manager. |
 | [Prowlarr](./brandonjamesmarshall-prowlarr) | Indexer manager for the *arr stack. |
 | [SABnzbd](./brandonjamesmarshall-sabnzbd) | Usenet download client. |
-| [Transmission (via iVPN)](./brandonjamesmarshall-transmission) | Torrent client tunneled through iVPN with kill-switch. |
+| [Transmission (via VPN)](./brandonjamesmarshall-transmission) | Torrent client tunneled through a WireGuard VPN with kill-switch. |
 | [Tautulli](./brandonjamesmarshall-tautulli) | Plex stats and history. |
 | [Maintainerr](./brandonjamesmarshall-maintainerr) | Rule-based library cleanup. |
 | [LazyLibrarian](./brandonjamesmarshall-lazylibrarian) | Book & audiobook collection manager (the "arr" for books). |
 | [Bookshelf](./brandonjamesmarshall-bookshelf) | Book & audiobook manager — a Readarr revival; nicer-UI alternative to LazyLibrarian. |
+| [Shelfmark](./brandonjamesmarshall-shelfmark) | On-demand search & request hub for ebooks/audiobooks; feeds the CWA ingest folder. |
 | [Calibre-Web Automated](./brandonjamesmarshall-calibre-web-automated) | eBook library, web reader, and Send-to-Kindle. |
-| [GitHub Actions Runner](./brandonjamesmarshall-github-runner) | Self-hosted CI runner with Docker support (for Vibewatch CI). |
+| [GitHub Actions Runner](./brandonjamesmarshall-github-runner) | Self-hosted CI runner with Docker support, registered at the org level. |
 
 ## How to add this store to umbrelOS
 
@@ -37,8 +40,8 @@ and a VPN-isolated torrent client.
 ## Media stack: one-time setup
 
 The media apps (Plex, Sonarr, Radarr, SABnzbd, Transmission, LazyLibrarian,
-Bookshelf, Calibre-Web Automated) each declare a **Docker-managed NFS volume** in their
-`docker-compose.yml` pointing at the Synology share
+Bookshelf, Shelfmark, Calibre-Web Automated) each declare a **Docker-managed NFS volume** in their
+`docker-compose.yml` pointing at the NAS share
 (`192.168.50.111:/volume3/Plex Media`). Most mount the whole share at `/media`;
 Calibre-Web Automated instead mounts two sub-folders of it
 (`Books/CalibreLibrary` and `Books/Ingest`) at the paths it expects.
@@ -54,12 +57,13 @@ Why this approach over a host-level NFS mount:
   work natively — Sonarr/Radarr import via `link(2)` instead of copying
   gigabytes.
 
-The NAS IP (`192.168.50.111`) is hard-coded in the compose files. It's
-an RFC1918 LAN address with zero exposure outside the network — your NAS
-isn't internet-facing, and a private IP is useless to anyone not already
-on your LAN.
+The NAS address and export path are hard-coded in each compose file's
+`volumes:` block (an RFC1918 LAN address — private, useless off-LAN, and
+safe to publish). **If you're using this store on your own network, edit
+the `addr=` and `device=` values in each app's `docker-compose.yml` to
+match your NAS before installing.**
 
-### 1. Enable NFS on the Synology
+### 1. Enable NFS on the NAS (Synology shown; any NFSv4.1 server works)
 
 - Control Panel → File Services → NFS → **Enable NFS service**, choose **NFSv4.1**.
 - File Station → right-click your media share (e.g. `Plex Media`) →
@@ -67,7 +71,13 @@ on your LAN.
   - Hostname/IP: your Umbrel's LAN IP (or subnet, e.g. `192.168.1.0/24`).
   - Privilege: Read/Write.
   - Squash: **Map all users to admin** (simplest; containers running as
-    PUID=1000 will write as the NAS admin user).
+    PUID=1000 will write as the NAS admin user). ⚠️ This is a homelab
+    trade-off: ANY host allowed by this NFS rule writes with admin
+    identity on the share. Scope the rule to the Umbrel's exact IP (not a
+    subnet), or — more locked down — create a dedicated low-privilege NAS
+    user and squash to that instead (map all users to that account, or use
+    no squash with matching UIDs); the containers only need read/write on
+    this one share.
   - Security: `sys`. Async: on. Allow non-privileged ports: on. Allow
     access to mounted subfolders: on.
 
@@ -85,38 +95,52 @@ Order is mostly free, but a sensible flow:
    → Settings → Apps and connect them so Prowlarr can sync indexers.
 6. **Tautulli** → point at Plex.
 7. **Maintainerr** → point at Plex + Sonarr + Radarr.
-8. **Books (LazyLibrarian + Calibre-Web Automated)** → see below.
+8. **Books (Shelfmark + Calibre-Web Automated)** → see below.
 
 Each app's `umbrel-app.yml` description has the specific paths and host
 names to paste during setup.
 
-### Books stack (LazyLibrarian + Calibre-Web Automated)
+### Books stack (Shelfmark + Calibre-Web Automated)
 
-The book flow mirrors the *arr stack: **LazyLibrarian** searches your Prowlarr
-indexers and hands downloads to SABnzbd/Transmission, then drops finished
-books into a shared **ingest** folder. **Calibre-Web Automated (CWA)**
-auto-imports from ingest into a Calibre library, serves a web reader/OPDS,
-and sends books to your **Kindle** by e-mail.
+The book flow centres on a shared **ingest** folder: a front-end app finds
+and downloads a book into it, and **Calibre-Web Automated (CWA)**
+auto-imports it into a Calibre library, serves a web reader/OPDS, and sends
+books to your **Kindle** by e-mail. Three interchangeable front-ends are
+packaged; pick whichever fits how you acquire books:
+
+- [**Shelfmark**](./brandonjamesmarshall-shelfmark) — on-demand search &
+  request hub (the recommended default). Searches direct web sources plus
+  your Prowlarr indexers, downloads via HTTP or your existing
+  torrent/usenet clients, and hardlinks completed torrents into ingest so
+  they keep seeding. No library management, no background automation —
+  find it, fetch it, done.
+- [**Bookshelf**](./brandonjamesmarshall-bookshelf) — a Readarr revival
+  with the Sonarr/Radarr UI, for *automated* collection building
+  (monitor authors, auto-grab new releases via RSS).
+- [**LazyLibrarian**](./brandonjamesmarshall-lazylibrarian) — the veteran
+  do-everything book manager; clunkier UI, broadest feature set.
 
 **Before installing CWA**, create two folders on the NAS share (alongside
 `TV`, `Movies`, `Download`):
 
-```
+```text
 Books/CalibreLibrary    ← CWA's Calibre library (metadata.db lives here)
-Books/Ingest            ← LazyLibrarian writes here; CWA imports & empties it
+Books/Ingest            ← front-ends write here; CWA imports & empties it
 ```
 
 CWA mounts those two sub-folders directly (`/calibre-library`,
 `/cwa-book-ingest`) and runs with `NETWORK_SHARE_MODE=true`, which switches
 its file watcher from inotify to ~5s polling — required because inotify
 events don't cross NFS clients, so CWA would otherwise never see the books
-LazyLibrarian writes. CWA seeds an empty library on first run if
+the front-ends write. CWA seeds an empty library on first run if
 `CalibreLibrary` is empty.
 
-Then: install **LazyLibrarian** (wire to Prowlarr + your download clients,
-set eBook destination `/media/Books/Ingest`), install **CWA**, log in
-(`admin` / `admin123` — change it immediately), and configure the SMTP/Send-
-to-Kindle e-mail server under Admin → Edit Basic Configuration.
+Then: install **CWA**, log in (`admin` / `admin123` — change it
+immediately), and configure the SMTP/Send-to-Kindle e-mail server under
+Admin → Edit Basic Configuration. Install **Shelfmark** (its ingest path is
+preset; optionally wire it to Prowlarr + your download clients per its app
+description), and/or **Bookshelf** / **LazyLibrarian** with eBook
+destination `/media/Books/Ingest`.
 
 > **Heads-up on updates:** LinuxServer tags LazyLibrarian by git commit hash
 > (no semver), so it's pinned to `latest@sha256` and Renovate refreshes only
@@ -125,18 +149,15 @@ to-Kindle e-mail server under Admin → Edit Basic Configuration.
 > surfaces updates normally. If you want visible LazyLibrarian updates, the
 > Transmission `+vpnN` auto-bump workflow can be generalised to it.
 
-**Alternative front-end — Bookshelf:** if LazyLibrarian feels clunky,
-[**Bookshelf**](./brandonjamesmarshall-bookshelf) (a community revival of
-Readarr, with the Sonarr/Radarr UI) is packaged here as a drop-in replacement
-for the *grabber* half of this flow. Point its root folder at the same
-`/media/Books/Ingest` and wire it to Prowlarr + your download clients exactly
-like Sonarr — CWA picks up its output identically. Turn on **Unmonitor
-Deleted Books** in its Media Management settings so the post-import deletion
-CWA performs doesn't make Bookshelf re-grab the same titles. It runs the
-rolling `hardcover` tag (Hardcover.app metadata) pinned by digest, so it has
-the same "invisible digest update" behaviour as LazyLibrarian above. The two can run
-side by side; just manage a given book in one or the other to avoid double
-grabs.
+**Bookshelf notes:** point its root folder at the same
+`/media/Books/Ingest` and wire it to Prowlarr + your download clients
+exactly like Sonarr — CWA picks up its output identically. Turn on
+**Unmonitor Deleted Books** in its Media Management settings so the
+post-import deletion CWA performs doesn't make Bookshelf re-grab the same
+titles. It runs the rolling `hardcover` tag (Hardcover.app metadata) pinned
+by digest, so it has the same "invisible digest update" behaviour as
+LazyLibrarian above. The front-ends can run side by side; just manage a
+given book in one of them to avoid double grabs.
 
 ## Per-app `.env` files (Newt, Transmission, GitHub Actions Runner)
 
@@ -150,7 +171,7 @@ unregistered until the `.env` exists.
 
 - **Newt**: `PANGOLIN_ENDPOINT`, `NEWT_ID`, `NEWT_SECRET`. See
   [brandonjamesmarshall-newt/.env.example](./brandonjamesmarshall-newt/.env.example).
-- **Transmission**: iVPN WireGuard credentials. See
+- **Transmission**: your VPN provider's WireGuard credentials. See
   [brandonjamesmarshall-transmission/.env.example](./brandonjamesmarshall-transmission/.env.example).
 - **GitHub Actions Runner**: `ACCESS_TOKEN` (PAT with `admin:org`),
   `ORG_NAME`, `RUNNER_NAME`, `LABELS` — `chmod 600` it. See
@@ -164,7 +185,7 @@ Verify the Transmission kill-switch once configured:
 
 ```bash
 docker exec brandonjamesmarshall-transmission_gluetun_1 wget -qO- https://ifconfig.me
-# must return an iVPN IP, NOT your home IP
+# must return your VPN exit IP, NOT your home IP
 ```
 
 ## Image pinning policy

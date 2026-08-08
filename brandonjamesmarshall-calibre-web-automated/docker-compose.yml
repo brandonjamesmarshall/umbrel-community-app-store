@@ -2,7 +2,7 @@ version: "3.7"
 
 # Calibre-Web-Automated. Config + app.db live on the local SSD; the Calibre
 # library (metadata.db + book files) and the ingest folder are Docker-managed
-# NFS sub-mounts of the Synology share.
+# NFS sub-mounts of the NAS share.
 #
 # NETWORK_SHARE_MODE=true makes CWA poll (~every 5s) instead of using inotify,
 # which doesn't deliver events across NFS clients — so books LazyLibrarian
