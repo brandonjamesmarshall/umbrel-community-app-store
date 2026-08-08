@@ -5,7 +5,7 @@ version: "3.7"
 # umbrelOS auto-injects /dev/dri when permissions: [GPU] is set in
 # umbrel-app.yml and the host has a Intel/AMD/NVIDIA GPU device node.
 #
-# Media library: Docker-managed NFS volume backed by the Synology share.
+# Media library: Docker-managed NFS volume backed by the NAS share.
 # Mount lives in container at /media (matches the migrated Plex DB's
 # library paths). Survives umbrelOS reboots/firmware-updates because
 # the in-kernel NFS module is part of the firmware — no apt packages

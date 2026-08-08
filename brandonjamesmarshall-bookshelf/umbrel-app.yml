@@ -24,7 +24,7 @@ description: >-
   Packaged as a nicer-UI, drop-in alternative to LazyLibrarian: it writes to
   the same /media/Books/Ingest folder and wires up exactly like Sonarr/Radarr,
   so it slots straight into your existing Prowlarr + download-client stack.
-  Library and downloads come from the shared Synology NFS share at /media;
+  Library and downloads come from the shared NAS NFS share at /media;
   format conversion and the Kindle hand-off stay downstream in CWA.
 
 

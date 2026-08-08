@@ -15,7 +15,7 @@ description: >-
     Home 2024 (umbrelOS auto-injects /dev/dri when the GPU permission below
     is granted). Requires Plex Pass.
 
-  - Media library mounted from your Synology NAS via NFS at /data, sharing
+  - Media library mounted from your NAS via NFS at /data, sharing
     one mount point with Sonarr, Radarr, SABnzbd, and Transmission so
     Sonarr/Radarr can hardlink imports instead of copying.
 
@@ -32,7 +32,7 @@ description: >-
 
 
   Media library is mounted at /media via a Docker-managed NFS volume
-  pointing at the Synology share — no host fstab needed, survives
+  pointing at the NAS share — no host fstab needed, survives
   umbrelOS reboots and firmware updates.
 developer: Plex, Inc.
 website: https://www.plex.tv

@@ -14,7 +14,7 @@ description: >-
   and sends books straight to your Kindle by e-mail.
 
 
-  Runs against the Synology share over NFS: the Calibre library and the ingest
+  Runs against the NAS share over NFS: the Calibre library and the ingest
   folder are Docker-managed NFS sub-mounts, and NETWORK_SHARE_MODE=true switches
   CWA's file watcher to ~5-second polling so it reliably detects books
   LazyLibrarian drops in over the network (inotify does not fire across NFS

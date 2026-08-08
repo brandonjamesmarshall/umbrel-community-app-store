@@ -19,7 +19,7 @@ description: >-
   they land in your library (and on your Kindle) automatically.
 
 
-  Library and downloads come from the shared Synology NFS share mounted at
+  Library and downloads come from the shared NAS NFS share mounted at
   /media (same volume as Sonarr/Radarr/SAB). Format conversion and the Kindle
   hand-off are handled downstream by Calibre-Web-Automated, so this stays
   lean — no Calibre bundled in by default.

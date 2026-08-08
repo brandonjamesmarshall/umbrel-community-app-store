@@ -2,7 +2,7 @@ version: "3.7"
 
 # Bookshelf — the "arr" for books (a community revival of Readarr), built on
 # the LinuxServer baseimage like Sonarr/Radarr/LazyLibrarian. Config + DB live
-# on the local SSD; the media library and download area come from the Synology
+# on the local SSD; the media library and download area come from the NAS
 # NFS share at /media (same volume as the rest of the *arr stack). Bookshelf
 # imports finished books into /media/Books/Ingest, where Calibre-Web-Automated
 # picks them up, converts, and files them into the Calibre library.

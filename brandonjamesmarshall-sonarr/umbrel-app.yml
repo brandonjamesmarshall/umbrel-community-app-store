@@ -14,7 +14,7 @@ description: >-
 
 
   Media library and downloads are mounted via a Docker-managed NFS
-  volume pointing at the Synology share — no host fstab needed.
+  volume pointing at the NAS share — no host fstab needed.
 
 
   POST-INSTALL (only if starting fresh; skip if migrating from a NAS):

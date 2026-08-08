@@ -1,0 +1,71 @@
+manifestVersion: 1
+id: brandonjamesmarshall-shelfmark
+name: Shelfmark
+tagline: Search & request hub for ebooks and audiobooks
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/shelfmark.png
+category: Media
+# renovate: datasource=docker depName=ghcr.io/calibrain/shelfmark
+version: "1.3.5"
+port: 8084
+description: >-
+  Shelfmark is a self-hosted search and request hub for ebooks and audiobooks
+  — the successor to Calibre-Web-Automated Book Downloader. Search multiple
+  sources from one interface (direct web sources, plus torrents/usenet via
+  your own indexers), pick a release, and Shelfmark downloads it and drops
+  the file into your library's ingest folder. It supports multiple users
+  with a request/approval flow, pulls rich metadata from Hardcover, Open
+  Library, or Google Books, and offers several auth options (built-in login,
+  proxy auth, OIDC, or reusing a Calibre-Web user database).
+
+
+  Shelfmark intentionally does NOT manage a library and has no background
+  automation — it's the "find it and fetch it" front door. Pair it with
+  Calibre-Web Automated (packaged in this store): everything Shelfmark drops
+  into the shared ingest folder is auto-imported into the Calibre library
+  (and can be auto-sent to a Kindle).
+
+
+  POST-INSTALL:
+
+  1. Open Shelfmark and enable authentication in its settings. The direct
+     port 18084 bypasses umbrelOS auth, so Shelfmark's own login is the only
+     gate on that entry point.
+
+  2. Downloads already land in /media/Books/Ingest (preset via the
+     INGEST_DIR environment variable) — the same folder Calibre-Web
+     Automated watches. No path setup needed.
+
+  3. OPTIONAL — wire up the torrent/usenet stack from this store in
+     Shelfmark's settings:
+
+       Prowlarr:      http://brandonjamesmarshall-prowlarr_server_1:9696
+                      (+ API key from Prowlarr -> Settings -> General)
+
+       Transmission:  host brandonjamesmarshall-transmission_gluetun_1,
+                      port 9091, your RPC username/password
+
+       SABnzbd:       host brandonjamesmarshall-sabnzbd_server_1,
+                      port 8080, API key from SAB
+
+     Shelfmark mounts the same /media share at the same paths as the
+     download clients, so completed downloads are found without remote path
+     mappings — and torrent hardlinking means the file keeps seeding in the
+     client after it's been delivered to ingest.
+
+  4. Direct web sources need no download client at all — enable and
+     configure the sources you want in Shelfmark's settings.
+developer: calibrain
+website: https://github.com/calibrain/shelfmark
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/calibrain/shelfmark
+support: https://github.com/calibrain/shelfmark/issues
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/shelfmark.png
+releaseNotes: >-
+  Auto-updated to the latest Shelfmark release. See what changed:
+  https://github.com/calibrain/shelfmark/releases
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

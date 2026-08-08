@@ -1,6 +1,6 @@
 version: "3.7"
 
-# Media library: Docker-managed NFS volume backed by the Synology share.
+# Media library: Docker-managed NFS volume backed by the NAS share.
 # Mounted at /media so SAB can write completed downloads under
 # /media/Download/sabnzbd/ where Sonarr/Radarr can hardlink-import.
 

@@ -1,7 +1,7 @@
 version: "3.7"
 
 # Books manager (the "arr" for books). Config + DB live on the local SSD;
-# the media library and download area come from the Synology NFS share at
+# the media library and download area come from the NAS NFS share at
 # /media (same volume as Sonarr/Radarr/SAB). LazyLibrarian post-processes
 # finished books into /media/Books/Ingest, where Calibre-Web-Automated
 # picks them up, converts, and files them into the Calibre library.

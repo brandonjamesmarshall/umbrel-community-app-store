@@ -1,6 +1,6 @@
 version: "3.7"
 
-# Media library: Docker-managed NFS volume backed by the Synology share,
+# Media library: Docker-managed NFS volume backed by the NAS share,
 # mounted at /media. Sonarr's DB references /media/TV (works as-is) and
 # /Download/<category> (legacy paths from the NAS install — handled via
 # Settings -> Download Clients -> Remote Path Mappings in the UI, where
