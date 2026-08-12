@@ -57,12 +57,10 @@ support: https://github.com/block/buzz/issues
 gallery:
   - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/buzz.svg
 releaseNotes: >-
-  Upgrades Postgres from 17 to 18. A Postgres major cannot start on the
-  previous major's data directory, so a new pg-migrate one-shot handles the
-  data migration automatically on the first start after this update: it dumps
-  the old 17 cluster and Postgres 18 restores it into a fresh cluster. No
-  manual steps. The old cluster is kept at data/postgres/pgdata-17-retired as
-  a rollback artifact — delete it once the relay is verified healthy.
+  Auto-updated to the latest Buzz relay build. Upstream's published releases
+  cover the desktop client; the relay image is built from main, so see what
+  changed in the relay itself:
+  https://github.com/block/buzz/commits/main/crates/buzz-relay
 dependencies: []
 path: ""
 defaultUsername: ""
