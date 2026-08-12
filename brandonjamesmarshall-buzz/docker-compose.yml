@@ -80,7 +80,7 @@ services:
     # Tracks upstream's recommended pre-release tag, pinned to an immutable
     # digest (resolved 2026-07-30) — refresh in a reviewed commit. Upstream has
     # no semver release tags yet; switch to one when they exist.
-    image: ghcr.io/block/buzz:main@sha256:3fca165b3ebb2b9eb61449251b6e6696e3a8e28d37f2018ea3a38339694d9e6b
+    image: ghcr.io/block/buzz:main@sha256:4cbe1e9f44b7bf61e6da29bbdeaac944ffd33f2b758617c1b77b2d31cc38a586
     restart: unless-stopped
     env_file:
       - path: ${APP_DATA_DIR}/.env
@@ -148,7 +148,7 @@ services:
   # pairing"); while unset, desktop pairing falls back to <relay>/pair and
   # fails 404, which is just "pairing not configured", not an error here.
   pairing:
-    image: ghcr.io/block/buzz:main@sha256:3fca165b3ebb2b9eb61449251b6e6696e3a8e28d37f2018ea3a38339694d9e6b
+    image: ghcr.io/block/buzz:main@sha256:4cbe1e9f44b7bf61e6da29bbdeaac944ffd33f2b758617c1b77b2d31cc38a586
     restart: unless-stopped
     entrypoint: ["/usr/local/bin/buzz-pair-relay"]
     mem_limit: 256m
