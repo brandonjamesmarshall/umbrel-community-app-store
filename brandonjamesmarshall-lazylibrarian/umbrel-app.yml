@@ -10,7 +10,7 @@ category: Media
 # auto-bumped by .github/workflows/bump-version-on-compose-change.yml
 # whenever docker-compose.yml changes (e.g. a Renovate digest refresh), so
 # umbrelOS surfaces "Update available" without any hand-bumping.
-version: "2026.06.13+nfs18"
+version: "2026.06.13+nfs19"
 port: 5299
 description: >-
   LazyLibrarian is the "arr" for books — it follows authors, searches your
