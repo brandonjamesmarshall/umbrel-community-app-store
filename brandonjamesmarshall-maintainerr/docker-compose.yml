@@ -11,7 +11,7 @@ services:
       PROXY_AUTH_WHITELIST: /api
 
   server:
-    image: jorenn92/maintainerr:3.21.1@sha256:811a580fdf479e8582d3c97047b1aa8930fc5523f63143498020864ad6a7cd80
+    image: jorenn92/maintainerr:3.22.1@sha256:8759d68ceef64093893596df78d9045b5d100e59409af6cea14d41735ba7de5a
     restart: on-failure
     user: "1000:1000"
     environment:
