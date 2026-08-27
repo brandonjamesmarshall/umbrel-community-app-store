@@ -64,6 +64,13 @@ services:
             echo "# Point a Pangolin resource (WebSocket on) at port 3778 first — see README.";
             echo "BUZZ_PAIRING_RELAY_URL=wss://pair.CHANGE_ME.example.com";
             echo "";
+            echo "# Media upload limits, raised from upstream defaults (2 concurrent";
+            echo "# uploads per pubkey, 30/min) — the desktop uploads a multi-image drop";
+            echo "# in parallel and trips them as \"relay rate-limited: quota exceeded\".";
+            echo "BUZZ_MEDIA_MAX_CONCURRENT_UPLOADS=16";
+            echo "BUZZ_MEDIA_MAX_CONCURRENT_UPLOADS_PER_PUBKEY=8";
+            echo "BUZZ_MEDIA_UPLOADS_PER_MINUTE=120";
+            echo "";
             echo "BUZZ_GIT_CONFORMANCE_PROBE=true";
             echo "RUST_LOG=buzz_relay=info,buzz_db=info,buzz_auth=info,buzz_pubsub=info,tower_http=info";
           } > /appdata/.env;

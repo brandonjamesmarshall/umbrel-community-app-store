@@ -79,6 +79,27 @@ configured", nothing is broken.
 3. Stop and Start the app, then in Buzz desktop: Settings → Mobile → scan the QR
    with the phone and confirm the matching code on both screens.
 
+## Uploads failing with "relay rate-limited: quota exceeded"
+
+Dropping several images into a message uploads them in parallel, and the relay's
+upstream defaults are tight: **2 concurrent uploads per pubkey** and **30 uploads
+per minute** (both return a bare 429, which the desktop shows as
+`quota exceeded`). Fresh installs get raised limits in the generated `.env`;
+**existing installs add them by hand** (`.env` is never regenerated):
+
+```bash
+sudo nano ~/umbrel/app-data/brandonjamesmarshall-buzz/.env
+```
+
+```text
+BUZZ_MEDIA_MAX_CONCURRENT_UPLOADS=16
+BUZZ_MEDIA_MAX_CONCURRENT_UPLOADS_PER_PUBKEY=8
+BUZZ_MEDIA_UPLOADS_PER_MINUTE=120
+```
+
+Then **Stop and Start the app** (env changes need a full stop/start). Tune to
+taste — the per-pubkey value is capped at the global one by the relay.
+
 ## Managing members
 
 The relay is closed-membership; the owner (you) is bootstrapped automatically and
