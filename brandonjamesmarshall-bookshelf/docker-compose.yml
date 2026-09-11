@@ -24,7 +24,7 @@ services:
       PROXY_AUTH_WHITELIST: /api,/signalr,/feed,/Content,/MediaCover,/initialize.json,/ping
 
   server:
-    image: ghcr.io/pennydreadful/bookshelf:hardcover@sha256:4d5147f970182fd6e742f0ca181fbfd22f90343fa51c981b3267374511ed8f6d
+    image: ghcr.io/pennydreadful/bookshelf:hardcover@sha256:67498dd5ece516867d72ee642abd6c1a66b36a135c8f7da0127109564372beb1
     restart: on-failure
     environment:
       PUID: "1000"
