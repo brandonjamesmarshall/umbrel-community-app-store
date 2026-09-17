@@ -1,0 +1,48 @@
+version: "3.7"
+
+# Mealie — recipe manager and meal planner, packaged here (instead of the
+# stock umbrelOS app) so it can be reached WITHOUT the umbrelOS auth gateway.
+# The stock app is only reachable through app_proxy, which redirects every
+# unauthenticated request to the umbrelOS login at :2000 — a dead end for
+# the Mealie mobile apps, browser extensions, and anyone you share the app
+# with via Pangolin/Tailscale who doesn't have (and shouldn't have) an
+# umbrelOS login. Mealie has its own accounts, so its login is the only gate
+# on the direct port.
+#
+# Data layout matches the stock app exactly (${APP_DATA_DIR}/data -> /app/data),
+# so migrating is a straight copy of that directory — see umbrel-app.yml.
+
+services:
+
+  app_proxy:
+    environment:
+      # Full container name (see Sonarr compose for why we can't use bare "server").
+      APP_HOST: brandonjamesmarshall-mealie_server_1
+      APP_PORT: 9000
+      # Same whitelist as the stock app: API clients with a Mealie token can
+      # go through the dashboard port too.
+      PROXY_AUTH_WHITELIST: "/api/*"
+
+  server:
+    image: ghcr.io/mealie-recipes/mealie:v3.25.1@sha256:6066c29eca95a6cac640ecadf734799522f3b646ee4a714e0d13ce795d989ba2
+    restart: on-failure
+    environment:
+      PUID: "1000"
+      PGID: "1000"
+      TZ: "Etc/UTC"
+      MAX_WORKERS: "1"
+      WEB_CONCURRENCY: "1"
+      # Open signup is OFF: the direct port is reachable without umbrelOS
+      # auth, so only an admin should be able to create accounts (Admin ->
+      # Users, or invite links).
+      ALLOW_SIGNUP: "false"
+      # Used for links in share pages, emails and the PWA manifest. Change to
+      # your public URL if you expose Mealie through Pangolin.
+      BASE_URL: "http://umbrel.local:19926"
+    # Direct port bypasses the umbrelOS auth gateway — Mealie's own login is
+    # the only gate here. Point Pangolin / mobile apps / shared users at this
+    # port, not the dashboard one.
+    ports:
+      - "19926:9000"
+    volumes:
+      - ${APP_DATA_DIR}/data:/app/data
