@@ -25,6 +25,7 @@ auto-updates) are general — fork it and swap in your own NAS address.
 | [Bookshelf](./brandonjamesmarshall-bookshelf) | Book & audiobook manager — a Readarr revival; nicer-UI alternative to LazyLibrarian. |
 | [Shelfmark](./brandonjamesmarshall-shelfmark) | On-demand search & request hub for ebooks/audiobooks; feeds the CWA ingest folder. |
 | [Calibre-Web Automated](./brandonjamesmarshall-calibre-web-automated) | eBook library, web reader, and Send-to-Kindle. |
+| [Mealie](./brandonjamesmarshall-mealie) | Recipe manager and meal planner; direct port bypasses umbrelOS auth so mobile apps and shared users use Mealie's own login. |
 | [GitHub Actions Runner](./brandonjamesmarshall-github-runner) | Self-hosted CI runner with Docker support, registered at the org level. |
 
 ## How to add this store to umbrelOS

@@ -1,0 +1,68 @@
+manifestVersion: 1
+id: brandonjamesmarshall-mealie
+name: Mealie
+tagline: Recipe manager and meal planner, with its own login
+icon: https://getumbrel.github.io/umbrel-apps-gallery/mealie/icon.svg
+category: Files
+# renovate: datasource=docker depName=ghcr.io/mealie-recipes/mealie
+version: "3.25.1"
+port: 9926
+description: >-
+  Mealie is a self-hosted recipe manager and meal planner. Import recipes
+  from a URL, plan the week's meals, build shopping lists, and organise
+  recipes into cookbooks. Mealie has its own multi-user accounts and an API
+  for third-party and mobile apps.
+
+
+  This build is the stock Mealie image with one difference from the official
+  umbrelOS app: it also listens on a DIRECT port (19926) that bypasses the
+  umbrelOS login gateway. The official app can only be reached through the
+  umbrelOS proxy, which sends every unauthenticated request to the umbrelOS
+  login screen — so mobile apps, browser extensions, and family members you
+  share the app with (who have no umbrelOS account) can't get in. On the
+  direct port, Mealie's own login is the only gate, exactly like running
+  Mealie anywhere else.
+
+
+  Open signup is disabled by default because that port is reachable without
+  umbrelOS auth. Create accounts as an admin (Settings -> Users) or send
+  invite links.
+
+
+  MIGRATING FROM THE OFFICIAL MEALIE APP:
+
+  The data directory layout is identical, so it's a straight copy. Over SSH:
+
+  1. Install this app, then stop it from the umbrelOS dashboard.
+
+  2. sudo rsync -a --delete ~/umbrel/app-data/mealie/data/
+     ~/umbrel/app-data/brandonjamesmarshall-mealie/data/
+
+  3. Start this app. Your recipes, users and passwords come across as-is
+     (both apps run the same Mealie version). Uninstall the official app
+     once you've confirmed everything is there.
+
+
+  POST-INSTALL:
+
+  - Use http://umbrel.local:19926 (or the LAN IP) in the Mealie mobile app,
+    browser extension, and any Pangolin/Tailscale resource. The dashboard
+    tile (port 9926) still works for you but goes through umbrelOS auth.
+
+  - If you expose it publicly, set BASE_URL in the compose file to that
+    public URL so share links and emails point to the right place.
+developer: Mealie
+website: https://docs.mealie.io/
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/mealie-recipes/mealie
+support: https://github.com/mealie-recipes/mealie/issues
+gallery:
+  - https://getumbrel.github.io/umbrel-apps-gallery/mealie/icon.svg
+releaseNotes: >-
+  Auto-updated to the latest Mealie release. See what changed:
+  https://github.com/mealie-recipes/mealie/releases
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
