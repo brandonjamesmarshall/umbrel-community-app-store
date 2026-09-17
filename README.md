@@ -12,6 +12,7 @@ auto-updates) are general — fork it and swap in your own NAS address.
 | App | What it is |
 | --- | --- |
 | [Resilio Sync](./brandonjamesmarshall-resilio-sync) | Peer-to-peer file sync (BitTorrent Sync). |
+| [PairDrop](./brandonjamesmarshall-pairdrop) | Browser-based AirDrop for any device; files go peer-to-peer, the server only introduces them. |
 | [Newt](./brandonjamesmarshall-newt) | Userspace WireGuard tunnel client for [Pangolin](https://docs.pangolin.net). |
 | [Plex](./brandonjamesmarshall-plex) | Media server with N100 hardware transcoding. |
 | [Sonarr](./brandonjamesmarshall-sonarr) | TV collection manager. |
