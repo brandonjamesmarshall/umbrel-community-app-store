@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+
+  app_proxy:
+    environment:
+      # Full container name (see Sonarr compose for why we can't use bare "server").
+      APP_HOST: brandonjamesmarshall-pairdrop_server_1
+      APP_PORT: 3000
+
+  server:
+    # Official upstream image (not the linuxserver wrapper). Pinned tag + digest;
+    # Renovate bumps both and keeps umbrel-app.yml version: in lockstep.
+    image: ghcr.io/schlagmichdoch/pairdrop:v1.11.2@sha256:c4b30977264a76e335740089e693a52a0d0d616330dec7f93c7b96beef7b4a02
+    restart: on-failure
+    environment:
+      # Files go browser-to-browser over WebRTC; this container is only the
+      # signaling server. WS_FALLBACK=true would relay files THROUGH the
+      # server for clients whose WebRTC is blocked (some VPNs) — off by
+      # default so nothing ever touches the box. RTC_CONFIG can point at a
+      # JSON file with your own STUN/TURN servers (default: Google STUN) for
+      # cross-network pairing.
+      RATE_LIMIT: "false"
+      WS_FALLBACK: "false"
+      RTC_CONFIG: "false"
+      DEBUG_MODE: "false"
+    # Direct port — bypasses the umbrelOS auth gateway so phones/guests can
+    # open it without an umbrelOS login. PairDrop has no auth of its own; it
+    # only ever exposes device names, never files, and files never touch
+    # the server, so LAN exposure is acceptable. Don't forward this to the
+    # internet without a reverse proxy + TLS in front.
+    ports:
+      - "18223:3000"

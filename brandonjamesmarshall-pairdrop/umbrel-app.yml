@@ -1,0 +1,49 @@
+manifestVersion: 1
+id: brandonjamesmarshall-pairdrop
+name: PairDrop
+tagline: AirDrop for every device, in the browser
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/pairdrop.png
+category: Files
+# renovate: datasource=docker depName=ghcr.io/schlagmichdoch/pairdrop
+version: "v1.11.2"
+port: 8223
+description: >-
+  PairDrop is the maintained successor to Snapdrop: local file sharing in
+  your browser, inspired by Apple's AirDrop. Open it on any two devices on
+  the same network (phone, laptop, TV, anything with a browser) and they see
+  each other instantly. Files, text, and clipboard contents go directly
+  device-to-device over WebRTC — this server only introduces the peers and
+  never sees the data.
+
+
+  Beyond Snapdrop it adds device pairing (a 6-digit code or QR to link
+  devices across different networks, e.g. phone on cellular to laptop at
+  home), temporary public rooms, an installable PWA, and a send-to share
+  target on mobile.
+
+
+  POST-INSTALL:
+
+  1. Open PairDrop on two devices on your home network — they appear
+     automatically. No accounts, no setup.
+
+  2. For phones and guests, use the direct port
+     http://<umbrel-ip>:18223 — it skips the umbrelOS login.
+
+  3. To reach paired devices across networks, most home setups need a TURN
+     server; see the app README.
+developer: schlagmichdoch
+website: https://pairdrop.net
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/schlagmichdoch/PairDrop
+support: https://github.com/schlagmichdoch/PairDrop/issues
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/pairdrop.png
+releaseNotes: >-
+  Auto-updated to the latest PairDrop release. See what changed:
+  https://github.com/schlagmichdoch/PairDrop/releases
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""
