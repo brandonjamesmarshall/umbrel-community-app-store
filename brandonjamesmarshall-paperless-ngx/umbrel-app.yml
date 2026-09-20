@@ -15,10 +15,10 @@ description: >-
 
 
   This build runs the full Postgres stack (webserver + Postgres + Valkey).
-  The database and search index live on the Umbrel's SSD; the documents
-  themselves and the consume dropbox live on the NAS over NFS, so the archive
-  sits next to the rest of your files and the scanner keeps writing where it
-  always has.
+  The database and search index live on the Umbrel's SSD, where they belong;
+  the scanner dropbox, the document archive and the exports all live in one
+  NAS share over NFS, so every actual file is browsable and backed up without
+  Paperless in the loop.
 
 
   Like this store's other apps it also listens on a DIRECT port (18000) that
@@ -27,11 +27,10 @@ description: >-
   Pangolin can reach it. Paperless's own login is the gate on that port.
 
 
-  BEFORE INSTALLING — on the NAS, create the documents folder inside the
-  media share and put a file in it (an empty NFS folder makes the install
-  hang at 1%), and make sure both it and the consume share have an NFS
-  permission rule for the Umbrel's IP. The paths are at the bottom of this
-  app's docker-compose.yml.
+  BEFORE INSTALLING — on the NAS, create the Inbox, Documents and Export
+  folders in the share and put a file in each (an empty NFS folder makes the
+  install hang at 1%), and give the share an NFS permission rule for the
+  Umbrel's IP. The paths are at the bottom of this app's docker-compose.yml.
 
 
   FIRST LOGIN: Paperless ships with no default account. Either import your
@@ -43,10 +42,10 @@ description: >-
 
 
   MIGRATING AN EXISTING PAPERLESS: use Paperless's own exporter, not a file
-  copy — it is version- and database-agnostic. On the old machine run
-  document_exporter, rsync the export into this app's export folder
-  (app-data/brandonjamesmarshall-paperless-ngx/data/export), then run
-  document_importer here. Step-by-step commands are in the README:
+  copy — it is version- and database-agnostic, so SQLite to Postgres is fine.
+  On the old machine run document_exporter, move the export into the share's
+  Export folder, then run document_importer here. Step-by-step commands are
+  in the README:
   https://github.com/brandonjamesmarshall/umbrel-community-app-store/tree/master/brandonjamesmarshall-paperless-ngx
 
 
