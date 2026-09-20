@@ -1,0 +1,145 @@
+version: "3.7"
+
+# Paperless-ngx — document scanner/archive, ported here from a NAS Docker
+# install. Four services, matching upstream's docker-compose.postgres.yml:
+# webserver + Postgres + Valkey (the Redis fork upstream switched to).
+# Gotenberg/Tika are deliberately NOT included — they only add Office-doc and
+# email-body parsing, at the cost of two more always-on containers.
+#
+# STORAGE SPLIT — the thing to understand before touching this file:
+#
+#   local (app-data, NVMe)   data/   search index (tantivy), classification
+#                                    model, logs; Postgres; Valkey AOF
+#   NFS (NAS, Plex share)    media/  originals + archive PDFs + thumbnails
+#   NFS (NAS, Paperless)     consume/  the scanner's existing dropbox
+#
+# The database and search index MUST stay local — Postgres over NFS is a
+# corruption story, and tantivy does a lot of small random IO. Only the
+# document blobs and the consume dropbox live on the NAS.
+#
+# PRE-CREATE on the NAS before installing, each with a file inside (an empty
+# NFS-backed Docker volume fails to start with "failed to chmod ...
+# operation not permitted", which umbrelOS shows as an install stuck at 1%):
+#   <Plex Media share>/Documents        (media root — touch .keep inside)
+#   <Paperless share>/Paperless         (the scanner dropbox, already there)
+# Each SHARE needs an NFS permission rule for the Umbrel's IP. The media
+# mount is a subdirectory of the already-exported Plex Media share, so it
+# inherits that rule; the consume share needs its own.
+#
+# Because the consume dir is NFS, inotify is useless there: PAPERLESS_CONSUMER_
+# POLLING_INTERVAL switches the consumer to polling, and STABILITY_DELAY is
+# raised so a slow scanner write isn't consumed half-finished.
+#
+# Postgres majors are pinned and gated to a human PR in renovate.json — a
+# major refuses to start on the previous major's data dir. When one lands,
+# copy the pg-migrate one-shot from the buzz app into this compose.
+#
+# User-specific config (PAPERLESS_URL for a Pangolin domain, PAPERLESS_TIME_ZONE,
+# PAPERLESS_OCR_LANGUAGE) goes in ${APP_DATA_DIR}/.env — see the README.
+# Nothing below is set in `environment:` unless it must not be overridable
+# there, since `environment:` wins over `env_file:`. Needs Compose >= v2.24
+# for the long-form env_file, same as newt and buzz.
+
+services:
+
+  app_proxy:
+    environment:
+      # Full container name (see Sonarr compose for why we can't use bare "webserver").
+      APP_HOST: brandonjamesmarshall-paperless-ngx_webserver_1
+      APP_PORT: 8000
+      # Token-authenticated API clients (Paperless Mobile, scanners posting to
+      # /api/documents/post_document/) can use the dashboard port too, instead
+      # of bouncing off the umbrelOS session login at :2000.
+      PROXY_AUTH_WHITELIST: "/api/*"
+
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:3.1.3@sha256:aa810a36942c63d4ee70d00eda7236cd3d6acfb7eb3f7987fb568ed14df8817a
+    restart: on-failure
+    depends_on:
+      db:
+        condition: service_healthy
+      broker:
+        condition: service_healthy
+    env_file:
+      - path: ${APP_DATA_DIR}/.env
+        required: false
+    environment:
+      USERMAP_UID: "1000"
+      USERMAP_GID: "1000"
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBENGINE: postgresql
+      PAPERLESS_DBHOST: db
+      PAPERLESS_DBNAME: paperless
+      PAPERLESS_DBUSER: paperless
+      # Derived from Umbrel's per-app APP_SEED so no credential lives in this
+      # public repo. Postgres only listens on the app's compose network.
+      PAPERLESS_DBPASS: ${APP_SEED}-pg
+      # NFS consume dir: poll every 30s (inotify events don't cross NFS), and
+      # require a file to sit unchanged for 10s before consuming it.
+      PAPERLESS_CONSUMER_POLLING_INTERVAL: "30"
+      PAPERLESS_CONSUMER_STABILITY_DELAY: "10"
+      # Deleted documents go to media/trash instead of being unlinked, so a
+      # mis-click is recoverable from the NAS side too.
+      PAPERLESS_EMPTY_TRASH_DIR: /usr/src/paperless/media/trash
+    # Direct port bypasses the umbrelOS auth gateway — Paperless's own login is
+    # the only gate. Point Pangolin, the mobile app and the scanner here, not
+    # at the dashboard port.
+    ports:
+      - "18000:8000"
+    volumes:
+      - ${APP_DATA_DIR}/data/data:/usr/src/paperless/data
+      # Staging area for document_exporter/document_importer — the NAS export
+      # gets rsynced in here during the migration (see README).
+      - ${APP_DATA_DIR}/data/export:/usr/src/paperless/export
+      - media:/usr/src/paperless/media
+      - consume:/usr/src/paperless/consume
+
+  db:
+    image: postgres:18-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
+    restart: on-failure
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: ${APP_SEED}-pg
+      # The 18 images' VOLUME is /var/lib/postgresql (not .../data as in 17),
+      # so the bind covers the whole thing; PGDATA is named for its major so a
+      # future dump/restore migration has somewhere to put the new cluster.
+      PGDATA: /var/lib/postgresql/pgdata18
+    volumes:
+      - ${APP_DATA_DIR}/data/postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 10s
+
+  broker:
+    image: valkey/valkey:9-alpine@sha256:a0dbf4c1d5708782907c10e2c72deff317518518b5288a58416981d9db95d30b
+    restart: on-failure
+    command: ["valkey-server", "--appendonly", "yes"]
+    volumes:
+      - ${APP_DATA_DIR}/data/valkey:/data
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+volumes:
+  # Originals, archive PDFs and thumbnails. `hard` so a NAS reboot blocks IO
+  # and resumes rather than handing Paperless write errors mid-consume.
+  media:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Plex Media/Documents"
+  # The scanner's existing dropbox share, kept exactly where it is.
+  consume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Paperless/Paperless"

@@ -1,0 +1,71 @@
+manifestVersion: 1
+id: brandonjamesmarshall-paperless-ngx
+name: Paperless-ngx
+tagline: Scan, OCR and search every document you own
+icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/paperless-ngx.png
+category: Files
+# renovate: datasource=docker depName=ghcr.io/paperless-ngx/paperless-ngx
+version: "3.1.3"
+port: 8000
+description: >-
+  Paperless-ngx turns a pile of scans into a searchable archive. Drop a PDF or
+  an image into the consume folder and it OCRs the text, guesses the
+  correspondent, document type and tags from what it has learned so far, files
+  the original away untouched, and makes every word full-text searchable.
+
+
+  This build runs the full Postgres stack (webserver + Postgres + Valkey).
+  The database and search index live on the Umbrel's SSD; the documents
+  themselves and the consume dropbox live on the NAS over NFS, so the archive
+  sits next to the rest of your files and the scanner keeps writing where it
+  always has.
+
+
+  Like this store's other apps it also listens on a DIRECT port (18000) that
+  bypasses the umbrelOS login gateway, so the Paperless mobile app, a
+  network scanner posting to the API, and anyone you share it with through
+  Pangolin can reach it. Paperless's own login is the gate on that port.
+
+
+  BEFORE INSTALLING — on the NAS, create the documents folder inside the
+  media share and put a file in it (an empty NFS folder makes the install
+  hang at 1%), and make sure both it and the consume share have an NFS
+  permission rule for the Umbrel's IP. The paths are at the bottom of this
+  app's docker-compose.yml.
+
+
+  FIRST LOGIN: Paperless ships with no default account. Either import your
+  existing install (below), which brings your users and passwords across, or
+  create one over SSH:
+
+  docker exec -it brandonjamesmarshall-paperless-ngx_webserver_1 python3
+  manage.py createsuperuser
+
+
+  MIGRATING AN EXISTING PAPERLESS: use Paperless's own exporter, not a file
+  copy — it is version- and database-agnostic. On the old machine run
+  document_exporter, rsync the export into this app's export folder
+  (app-data/brandonjamesmarshall-paperless-ngx/data/export), then run
+  document_importer here. Step-by-step commands are in the README:
+  https://github.com/brandonjamesmarshall/umbrel-community-app-store/tree/master/brandonjamesmarshall-paperless-ngx
+
+
+  OPTIONAL CONFIG: create app-data/brandonjamesmarshall-paperless-ngx/.env to
+  set PAPERLESS_URL (your Pangolin domain — needed for CSRF once you expose
+  it), PAPERLESS_TIME_ZONE and PAPERLESS_OCR_LANGUAGE, then Stop/Start the
+  app.
+developer: Paperless-ngx
+website: https://docs.paperless-ngx.com/
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/paperless-ngx/paperless-ngx
+support: https://github.com/paperless-ngx/paperless-ngx/discussions
+gallery:
+  - https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/paperless-ngx.png
+releaseNotes: >-
+  Auto-updated to the latest Paperless-ngx release. See what changed:
+  https://github.com/paperless-ngx/paperless-ngx/releases
+dependencies: []
+path: ""
+defaultUsername: ""
+defaultPassword: ""

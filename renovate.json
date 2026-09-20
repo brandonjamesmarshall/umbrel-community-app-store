@@ -79,6 +79,16 @@
       "automerge": false
     },
     {
+      "description": "Same rule for paperless-ngx: its Postgres holds the document metadata, and a major bump shipped unattended would strand it on the old data dir. Majors open a PR and wait for a human, who copies buzz's pg-migrate one-shot into the paperless compose in that same PR.",
+      "matchFileNames": [
+        "brandonjamesmarshall-paperless-ngx/**"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "automerge": false
+    },
+    {
       "description": "The buzz pg-migrate one-shot intentionally stays on the PREVIOUS Postgres major \u2014 its whole job is dumping the old-major cluster during the major upgrade \u2014 so never propose version bumps for it (digest refreshes are fine). Its pin moves by hand in the same PR as the next major.",
       "matchFileNames": [
         "brandonjamesmarshall-buzz/**"
