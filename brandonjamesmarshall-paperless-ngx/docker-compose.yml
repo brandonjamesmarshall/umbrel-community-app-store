@@ -21,8 +21,10 @@ version: "3.7"
 # NFS-backed Docker volume fails to start with "failed to chmod ...
 # operation not permitted", which umbrelOS shows as an install stuck at 1%):
 #   <Plex Media share>/Documents        (media root — touch .keep inside)
-#   <Paperless share>                   (already exists, already has files)
-# Both need an NFS permission rule for the Umbrel's IP on the NAS.
+#   <Paperless share>/Paperless         (the scanner dropbox, already there)
+# Each SHARE needs an NFS permission rule for the Umbrel's IP. The media
+# mount is a subdirectory of the already-exported Plex Media share, so it
+# inherits that rule; the consume share needs its own.
 #
 # Because the consume dir is NFS, inotify is useless there: PAPERLESS_CONSUMER_
 # POLLING_INTERVAL switches the consumer to polling, and STABILITY_DELAY is
@@ -140,4 +142,4 @@ volumes:
     driver_opts:
       type: nfs
       o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
-      device: ":/volume1/Paperless"
+      device: ":/volume3/Paperless/Paperless"
