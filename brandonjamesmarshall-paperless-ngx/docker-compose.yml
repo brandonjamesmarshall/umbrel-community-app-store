@@ -75,6 +75,14 @@ services:
       # Derived from Umbrel's per-app APP_SEED so no credential lives in this
       # public repo. Postgres only listens on the app's compose network.
       PAPERLESS_DBPASS: ${APP_SEED}-pg
+      # Signs sessions and password-reset tokens. 3.x refuses to start without
+      # it — there is no usable default any more. APP_SEED is stable for the
+      # life of the install, so sessions survive restarts and updates; it is
+      # deliberately not settable from .env, where a weak or lost value would
+      # silently invalidate every session. Not needed to match the old
+      # install's key when migrating: password hashes and API tokens are
+      # stored independently of it.
+      PAPERLESS_SECRET_KEY: ${APP_SEED}-secret
       # NFS consume dir: poll every 30s (inotify events don't cross NFS), and
       # require a file to sit unchanged for 10s before consuming it.
       PAPERLESS_CONSUMER_POLLING_INTERVAL: "30"
