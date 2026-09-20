@@ -8,23 +8,24 @@ version: "3.7"
 #
 # STORAGE SPLIT — the thing to understand before touching this file:
 #
-#   local (app-data, NVMe)   data/   search index (tantivy), classification
-#                                    model, logs; Postgres; Valkey AOF
-#   NFS (NAS, Plex share)    media/  originals + archive PDFs + thumbnails
-#   NFS (NAS, Paperless)     consume/  the scanner's existing dropbox
+# Everything a human touches lives in one NAS share, so the archive is
+# browsable, backed up and restorable on its own terms:
+#
+#   NFS (NAS)  <share>/Inbox      -> consume/  the scanner's dropbox
+#   NFS (NAS)  <share>/Documents  -> media/    originals, archive PDFs, thumbnails
+#   NFS (NAS)  <share>/Export     -> export/   document_exporter output, migrations
+#   local (app-data, NVMe)        -> data/     search index (tantivy), classifier,
+#                                              logs; plus Postgres and the Valkey AOF
 #
 # The database and search index MUST stay local — Postgres over NFS is a
-# corruption story, and tantivy does a lot of small random IO. Only the
-# document blobs and the consume dropbox live on the NAS.
+# corruption story, and tantivy does a lot of small random IO. Everything
+# that is a FILE you might want without Paperless lives on the NAS; everything
+# that is derived state Paperless rebuilds lives on the SSD.
 #
-# PRE-CREATE on the NAS before installing, each with a file inside (an empty
-# NFS-backed Docker volume fails to start with "failed to chmod ...
-# operation not permitted", which umbrelOS shows as an install stuck at 1%):
-#   <Plex Media share>/Documents        (media root — touch .keep inside)
-#   <Paperless share>/Paperless         (the scanner dropbox, already there)
-# Each SHARE needs an NFS permission rule for the Umbrel's IP. The media
-# mount is a subdirectory of the already-exported Plex Media share, so it
-# inherits that rule; the consume share needs its own.
+# PRE-CREATE the three folders on the NAS before installing, each with a file
+# inside (an empty NFS-backed Docker volume fails to start with "failed to
+# chmod ... operation not permitted", which umbrelOS shows as an install
+# stuck at 1%), and give the share an NFS permission rule for the Umbrel's IP.
 #
 # Because the consume dir is NFS, inotify is useless there: PAPERLESS_CONSUMER_
 # POLLING_INTERVAL switches the consumer to polling, and STABILITY_DELAY is
@@ -88,11 +89,9 @@ services:
       - "18000:8000"
     volumes:
       - ${APP_DATA_DIR}/data/data:/usr/src/paperless/data
-      # Staging area for document_exporter/document_importer — the NAS export
-      # gets rsynced in here during the migration (see README).
-      - ${APP_DATA_DIR}/data/export:/usr/src/paperless/export
       - media:/usr/src/paperless/media
       - consume:/usr/src/paperless/consume
+      - export:/usr/src/paperless/export
 
   db:
     image: postgres:18-alpine@sha256:6c538e7206ea40ff740ef27883529390a690b6ead6ba96b44c67a9f7c638e8fd
@@ -127,19 +126,30 @@ services:
       retries: 12
       start_period: 5s
 
+# Three subdirectories of one NAS share. `hard` so a NAS reboot blocks IO and
+# resumes rather than handing Paperless write errors mid-consume.
 volumes:
-  # Originals, archive PDFs and thumbnails. `hard` so a NAS reboot blocks IO
-  # and resumes rather than handing Paperless write errors mid-consume.
+  # Originals, archive PDFs and thumbnails, in Paperless's own layout — the
+  # database tracks these paths, so don't reorganize this by hand.
   media:
     driver: local
     driver_opts:
       type: nfs
       o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
-      device: ":/volume3/Plex Media/Documents"
-  # The scanner's existing dropbox share, kept exactly where it is.
+      device: ":/volume3/Paperless/Documents"
+  # The scanner's dropbox. Consumed files are moved out of here, not copied.
   consume:
     driver: local
     driver_opts:
       type: nfs
       o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
-      device: ":/volume3/Paperless/Paperless"
+      device: ":/volume3/Paperless/Inbox"
+  # document_exporter output: a portable copy of the whole archive (files plus
+  # manifest.json) that any Paperless install can import. On the NAS so it
+  # rides the NAS's own backups and doesn't eat the Umbrel's SSD.
+  export:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.50.111,nfsvers=4.1,rw,hard,noatime"
+      device: ":/volume3/Paperless/Export"
