@@ -27,6 +27,12 @@ version: "3.7"
 # chmod ... operation not permitted", which umbrelOS shows as an install
 # stuck at 1%), and give the share an NFS permission rule for the Umbrel's IP.
 #
+# PAPERLESS_EMPTY_TRASH_DIR is deliberately NOT set: Paperless validates at
+# startup that the directory already exists and refuses to boot otherwise, and
+# nothing in the image creates it — so setting it would add a hand-created
+# folder to the install steps. Deleted documents still go to Paperless's own
+# trash (recoverable for the retention period) before they are unlinked.
+#
 # Because the consume dir is NFS, inotify is useless there: PAPERLESS_CONSUMER_
 # POLLING_INTERVAL switches the consumer to polling, and STABILITY_DELAY is
 # raised so a slow scanner write isn't consumed half-finished.
@@ -87,9 +93,6 @@ services:
       # require a file to sit unchanged for 10s before consuming it.
       PAPERLESS_CONSUMER_POLLING_INTERVAL: "30"
       PAPERLESS_CONSUMER_STABILITY_DELAY: "10"
-      # Deleted documents go to media/trash instead of being unlinked, so a
-      # mis-click is recoverable from the NAS side too.
-      PAPERLESS_EMPTY_TRASH_DIR: /usr/src/paperless/media/trash
     # Direct port bypasses the umbrelOS auth gateway — Paperless's own login is
     # the only gate. Point Pangolin, the mobile app and the scanner here, not
     # at the dashboard port.
