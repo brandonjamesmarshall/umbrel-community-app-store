@@ -9,7 +9,7 @@ services:
 
   server:
     # Pinned to immutable digest — refresh in a reviewed commit, never auto-update.
-    image: linuxserver/resilio-sync:3.1.2@sha256:9ed5f20db1b0a15e6f732c364a14a05616c775fd7fc3fbe63c43dff58989722f
+    image: linuxserver/resilio-sync:3.1.2@sha256:41c0507945fe572aa6e3711637a79dfc35d13acaf1bf5929714e9d157bd32e0d
     restart: on-failure
     environment:
       PUID: "1000"
