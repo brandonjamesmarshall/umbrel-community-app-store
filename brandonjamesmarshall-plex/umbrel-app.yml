@@ -6,7 +6,8 @@ icon: https://getumbrel.github.io/umbrel-apps-gallery/plex/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/plex
 version: "1.43.3+nfs2"
-port: 32400
+# Not 32400: umbrelOS intercepts the manifest port. See docker-compose.yml.
+port: 32499
 description: >-
   Plex Media Server, packaged for this Umbrel community store with:
 
