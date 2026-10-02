@@ -312,10 +312,22 @@ services:
       BUZZ_S3_ACCESS_KEY: buzz-media
       BUZZ_S3_SECRET_KEY: ${APP_SEED}-s3
       BUZZ_S3_BUCKET: buzz-media
+    # Retried because the minio healthcheck (/minio/health/live) is liveness
+    # only — it can pass before the object layer accepts writes — and this
+    # one-shot has restart: "no", so a single early failure would leave the
+    # relay's service_completed_successfully dependency unmet. All three steps
+    # are idempotent. Bounded at ~2 min, then fail loudly.
     entrypoint: >
       /bin/sh -euc '
-        mc alias set local http://minio:9000 "$${BUZZ_S3_ACCESS_KEY}" "$${BUZZ_S3_SECRET_KEY}"
-        mc mb --ignore-existing "local/$${BUZZ_S3_BUCKET}"
-        mc anonymous set none "local/$${BUZZ_S3_BUCKET}"
+        n=0;
+        until mc alias set local http://minio:9000 "$${BUZZ_S3_ACCESS_KEY}" "$${BUZZ_S3_SECRET_KEY}" &&
+              mc mb --ignore-existing "local/$${BUZZ_S3_BUCKET}" &&
+              mc anonymous set none "local/$${BUZZ_S3_BUCKET}"; do
+          n=$$((n + 1));
+          if [ "$$n" -ge 60 ]; then echo "minio-init: object store not ready after 60 attempts." >&2; exit 1; fi;
+          echo "minio-init: object store not ready (attempt $$n/60), retrying in 2s...";
+          sleep 2;
+        done;
+        echo "minio-init: bucket ready.";
       '
     restart: "no"
