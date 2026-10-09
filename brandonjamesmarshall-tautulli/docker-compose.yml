@@ -12,7 +12,7 @@ services:
       PROXY_AUTH_WHITELIST: /api/v2,/api,/newsletter
 
   server:
-    image: linuxserver/tautulli:2.18.0@sha256:05cb00b7aaaee15d7d72b1efa4c271b057e88c4496f654e6774291b99920ed06
+    image: linuxserver/tautulli:2.18.1@sha256:c66d3afa8f7a701a48dd1b1f57b22eca0483d895d670fe11ecff783f6a9bbd73
     restart: on-failure
     environment:
       PUID: "1000"
