@@ -5,7 +5,7 @@ tagline: Self-hosted GitHub Actions runner with Docker support
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/github-runner.svg
 category: Developer Tools
 # renovate: datasource=docker depName=ghcr.io/actions/actions-runner
-version: "2.336.0+dual1"
+version: "2.336.0+dual2"
 port: 8480
 description: >-
   A self-hosted GitHub Actions runner using GitHub's OFFICIAL runner image
@@ -68,6 +68,9 @@ releaseNotes: >-
   concurrency - two same-port jobs on one Docker daemon collide. Runner
   image releases: https://github.com/actions/runner/releases
 dependencies: []
+backupIgnore:
+  - work/*
+  - work2/*
 path: ""
 defaultUsername: ""
 defaultPassword: ""

@@ -5,7 +5,7 @@ tagline: Rule-based library cleanup for Plex
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/maintainerr.svg
 category: Media
 # renovate: datasource=docker depName=jorenn92/maintainerr
-version: "3.29.0+wl2"
+version: "3.29.0+wl3"
 port: 6246
 description: >-
   Maintainerr lets you define rule-based collections in Plex (e.g. "movies
@@ -35,6 +35,8 @@ releaseNotes: >-
   Auto-updated to the latest Maintainerr release. See what changed:
   https://github.com/jorenn92/Maintainerr/releases
 dependencies: []
+backupIgnore:
+  - data/config/logs/*
 path: ""
 defaultUsername: ""
 defaultPassword: ""

@@ -5,7 +5,7 @@ tagline: Plex stats, history, and notifications
 icon: https://getumbrel.github.io/umbrel-apps-gallery/tautulli/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/tautulli
-version: "2.18.1+wl3"
+version: "2.18.1+wl4"
 port: 8181
 description: >-
   Tautulli is a Plex Media Server companion that tracks usage statistics,
@@ -32,6 +32,9 @@ releaseNotes: >-
   Auto-updated to the latest LinuxServer Tautulli release. See what changed:
   https://github.com/linuxserver/docker-tautulli/releases
 dependencies: []
+backupIgnore:
+  - data/config/cache/*
+  - data/config/logs/*
 path: ""
 defaultUsername: ""
 defaultPassword: ""
