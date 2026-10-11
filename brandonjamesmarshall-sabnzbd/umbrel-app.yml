@@ -42,7 +42,7 @@ releaseNotes: >-
 dependencies: []
 backupIgnore:
   - data/config/logs/*
-  - data/config/Downloads/*
+  - data/config/Downloads/incomplete/*
 path: ""
 defaultUsername: ""
 defaultPassword: ""
