@@ -5,7 +5,7 @@ tagline: Peer-to-peer file synchronization
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/resilio-sync.svg
 category: Files
 # renovate: datasource=docker depName=linuxserver/resilio-sync
-version: "3.1.2+dh1"
+version: "3.1.2+dh2"
 port: 8888
 description: >-
   Resilio Sync (formerly BitTorrent Sync) uses the BitTorrent protocol to sync
@@ -23,6 +23,13 @@ description: >-
   - 8888  Web UI
 
   - 55555 Sync listening port (TCP/UDP)
+
+
+  BACKUPS: Umbrel backups keep the Resilio config (identity, keys, folder
+  list) but skip the synced folders themselves, on the assumption that
+  another peer holds and backs up the same data. After a restore, the
+  folders come back empty and Resilio reports them missing; re-add or
+  re-point them so they pull back down from a peer.
 developer: Resilio, Inc.
 website: https://www.resilio.com/individuals/
 submitter: brandonjamesmarshall
@@ -35,6 +42,9 @@ releaseNotes: >-
   Auto-updated to the latest LinuxServer Resilio Sync release. See what changed:
   https://github.com/linuxserver/docker-resilio-sync/releases
 dependencies: []
+backupIgnore:
+  - data/sync/*
+  - data/downloads/*
 path: ""
 defaultUsername: ""
 defaultPassword: ""

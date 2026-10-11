@@ -5,7 +5,7 @@ tagline: eBook library, web reader & Send-to-Kindle
 icon: https://raw.githubusercontent.com/brandonjamesmarshall/umbrel-community-app-store/master/icons/calibre-web-automated.svg
 category: Media
 # renovate: datasource=docker depName=crocodilestick/calibre-web-automated
-version: "4.0.6+nfs1"
+version: "4.0.6+nfs2"
 port: 8083
 description: >-
   Calibre-Web Automated (CWA) is the "Plex for books" — a polished web reader
@@ -59,6 +59,9 @@ releaseNotes: >-
   Auto-updated to the latest Calibre-Web-Automated release. See what changed:
   https://github.com/crocodilestick/Calibre-Web-Automated/releases
 dependencies: []
+backupIgnore:
+  - data/config/thumbnails/*
+  - data/config/log_archive/*
 path: ""
 defaultUsername: "admin"
 defaultPassword: "admin123"

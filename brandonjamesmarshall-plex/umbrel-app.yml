@@ -5,7 +5,7 @@ tagline: Stream your media library, anywhere
 icon: https://getumbrel.github.io/umbrel-apps-gallery/plex/icon.svg
 category: Media
 # renovate: datasource=docker depName=linuxserver/plex
-version: "1.43.3+nfs3"
+version: "1.43.3+nfs4"
 # Not 32400: umbrelOS intercepts the manifest port. See docker-compose.yml.
 port: 32499
 description: >-
@@ -35,6 +35,14 @@ description: >-
   Media library is mounted at /media via a Docker-managed NFS volume
   pointing at the NAS share — no host fstab needed, survives
   umbrelOS reboots and firmware updates.
+
+
+  BACKUPS: Umbrel backups keep the Plex database and preferences (libraries,
+  watch history, matches) but skip rebuildable data: artwork/metadata,
+  video preview thumbnails, caches, logs, codecs and drivers. After a
+  restore, run Refresh All Metadata on each library to re-download artwork;
+  preview thumbnails regenerate during scheduled maintenance. Custom
+  uploaded posters are not kept.
 developer: Plex, Inc.
 website: https://www.plex.tv
 submitter: brandonjamesmarshall
@@ -49,6 +57,18 @@ releaseNotes: >-
 dependencies: []
 permissions:
   - GPU
+backupIgnore:
+  - data/transcode/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Cache/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Codecs/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Crash*Reports/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Diagnostics/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Drivers/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Logs/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Media/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Metadata/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Plug-in*Support/Caches/*
+  - data/config/Library/Application*Support/Plex*Media*Server/Updates/*
 path: ""
 defaultUsername: ""
 defaultPassword: ""
