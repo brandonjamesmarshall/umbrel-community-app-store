@@ -29,7 +29,9 @@ description: >-
   list) but skip the synced folders themselves, on the assumption that
   another peer holds and backs up the same data. After a restore, the
   folders come back empty and Resilio reports them missing; re-add or
-  re-point them so they pull back down from a peer.
+  re-point them so they pull back down from a peer. Each folder's
+  .sync/Archive (local copies of files other peers changed or deleted)
+  is also skipped, so that version history is not restored.
 developer: Resilio, Inc.
 website: https://www.resilio.com/individuals/
 submitter: brandonjamesmarshall
@@ -44,7 +46,6 @@ releaseNotes: >-
 dependencies: []
 backupIgnore:
   - data/sync/*
-  - data/downloads/*
 path: ""
 defaultUsername: ""
 defaultPassword: ""
