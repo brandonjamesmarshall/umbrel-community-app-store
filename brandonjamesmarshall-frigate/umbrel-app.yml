@@ -1,0 +1,71 @@
+manifestVersion: 1.1
+id: brandonjamesmarshall-frigate
+name: Frigate
+tagline: A complete and local NVR, without camera footage in backups
+icon: https://getumbrel.github.io/umbrel-apps-gallery/frigate/icon.svg
+category: automation
+# renovate: datasource=docker depName=ghcr.io/blakeblackshear/frigate
+version: "0.18.0"
+# Not 5004: that's the official Frigate app's port, so both can be
+# installed side by side during a migration.
+port: 5005
+description: >-
+  A complete and local NVR with AI object detection for IP cameras.
+
+
+  This is the official umbrelOS Frigate app with one difference: Umbrel
+  backups skip camera recordings, event clips/snapshots and the downloadable
+  model cache, which otherwise add gigabytes of churn to every backup. The
+  Frigate config and database are still backed up, so a restore brings back
+  your cameras, zones and settings, just without old footage. The official
+  app can't do this because its manifest is replaced on every update.
+
+
+  SET-UP: configure cameras directly in the Frigate UI. Sign in as `admin`
+  with the default app password shown on this app's page in the app store.
+
+
+  MIGRATING FROM THE OFFICIAL FRIGATE APP (over SSH):
+
+  1. Stop the official Frigate app (it holds the RTSP/WebRTC ports).
+
+  2. Install this app, then stop it.
+
+  3. sudo rsync -a --delete ~/umbrel/app-data/frigate/data/config/
+     ~/umbrel/app-data/brandonjamesmarshall-frigate/data/config/
+
+  4. Optional, to keep existing footage locally: sudo rsync -a
+     ~/umbrel/app-data/frigate/home/
+     ~/umbrel/app-data/brandonjamesmarshall-frigate/data/media/
+     (on older umbrelOS the source may be data/storage/ instead of home/).
+
+  5. Start this app and check your cameras, then uninstall the official app.
+
+
+  After migrating, your Frigate login is unchanged (it lives in the copied
+  database), but the RTSP restream password becomes this app's default app
+  password, and the dashboard port is 5005 instead of 5004. Update Home
+  Assistant or other clients that use either.
+developer: Blake Blackshear
+website: https://frigate.video/
+submitter: brandonjamesmarshall
+submission: https://github.com/brandonjamesmarshall/umbrel-community-app-store
+repo: https://github.com/blakeblackshear/frigate
+support: https://github.com/blakeblackshear/frigate/issues
+gallery:
+  - https://getumbrel.github.io/umbrel-apps-gallery/frigate/1.jpg
+  - https://getumbrel.github.io/umbrel-apps-gallery/frigate/2.jpg
+  - https://getumbrel.github.io/umbrel-apps-gallery/frigate/3.jpg
+releaseNotes: >-
+  Auto-updated to the latest Frigate release. See what changed:
+  https://github.com/blakeblackshear/frigate/releases
+dependencies: []
+permissions:
+  - GPU
+backupIgnore:
+  - data/media/recordings/*
+  - data/media/clips/*
+  - data/config/model_cache/*
+path: ""
+defaultUsername: "admin"
+deterministicPassword: true

@@ -1,0 +1,41 @@
+version: "3.7"
+
+# Frigate NVR — the official umbrelOS Frigate app, repackaged here for one
+# reason: so the manifest can declare backupIgnore for camera recordings,
+# event clips and the model cache. Official-store manifests are replaced on
+# every update, so the exclusion can't be added to the stock app.
+#
+# Differences from the official app (getumbrel/umbrel-apps frigate/):
+#   - Media lives at data/media, NOT data/storage. umbreld rewrites any bind
+#     source containing "/data/storage" to "/home" (a legacy-path migration
+#     meant for ${UMBREL_ROOT}/data/storage), which on the stock app lands
+#     recordings in ${APP_DATA_DIR}/home, outside the path a backupIgnore
+#     entry can name reliably.
+#   - Full container name in APP_HOST (community app IDs are prefixed).
+# hooks/ are copied verbatim from the official app (admin password bootstrap
+# to the default app password + config auth defaults).
+
+services:
+  app_proxy:
+    environment:
+      APP_HOST: brandonjamesmarshall-frigate_web_1
+      APP_PORT: 8971
+      # Frigate's native auth protects the UI and API (see hooks/pre-start),
+      # so Home Assistant and other API clients can log in directly.
+      PROXY_AUTH_ADD: "false"
+
+  web:
+    privileged: true
+    restart: on-failure
+    image: ghcr.io/blakeblackshear/frigate:0.18.0@sha256:9678a83a76e4730ac7d9ea7428370e32ae656d6b312aaad30d6c69f3fef14d35
+    shm_size: "128mb"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${APP_DATA_DIR}/data/config:/config
+      - ${APP_DATA_DIR}/data/media:/media/frigate
+    ports:
+      - "8554:8554" # RTSP feeds
+      - "8555:8555/tcp" # WebRTC over tcp
+      - "8555:8555/udp" # WebRTC over udp
+    environment:
+      FRIGATE_RTSP_PASSWORD: ${APP_PASSWORD}
