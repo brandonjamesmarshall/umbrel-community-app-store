@@ -14,11 +14,13 @@ description: >-
 
 
   This is the official umbrelOS Frigate app with one difference: Umbrel
-  backups skip camera recordings, event clips/snapshots and the downloadable
-  model cache, which otherwise add gigabytes of churn to every backup. The
-  Frigate config and database are still backed up, so a restore brings back
-  your cameras, zones and settings, just without old footage. The official
-  app can't do this because its manifest is replaced on every update.
+  backups skip camera recordings, event snapshots/previews and downloadable
+  detection models, which otherwise add gigabytes of churn to every backup.
+  The Frigate config, database, face library, custom classification
+  datasets and exports are still backed up, so a restore brings back your
+  cameras, zones, settings and trained faces, just without old footage.
+  The official app can't do this because its manifest is replaced on
+  every update.
 
 
   SET-UP: configure cameras directly in the Frigate UI. Sign in as `admin`
@@ -62,10 +64,21 @@ releaseNotes: >-
 dependencies: []
 permissions:
   - GPU
+# Skip footage and re-downloadable models, but NOT clips/faces (face
+# training images) or other clips/ subfolders (custom classification
+# datasets), nor trained models under model_cache/<your-model>.
 backupIgnore:
   - data/media/recordings/*
-  - data/media/clips/*
-  - data/config/model_cache/*
+  - data/media/clips/*.webp
+  - data/media/clips/*.jpg
+  - data/media/clips/previews/*
+  - data/media/clips/review/*
+  - data/media/clips/thumbs/*
+  - data/media/clips/cache/*
+  - data/config/model_cache/facedet/*
+  - data/config/model_cache/paddleocr-onnx/*
+  - data/config/model_cache/yolov9_license_plate/*
+  - data/config/model_cache/jinaai/*
 path: ""
 defaultUsername: "admin"
 deterministicPassword: true
