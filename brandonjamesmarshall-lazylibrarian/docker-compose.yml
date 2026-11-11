@@ -18,7 +18,7 @@ services:
       PROXY_AUTH_WHITELIST: /api,/opds
 
   server:
-    image: lscr.io/linuxserver/lazylibrarian:latest@sha256:c7e2e2d5bf31aa7a1beec3c46c424504f2af1ad8cecfcf6bfb558ecc9ec56003
+    image: lscr.io/linuxserver/lazylibrarian:latest@sha256:7622868a168452bcb5d7d482865ff50f4afbb374c9c1ad9ec25c34831441ceca
     restart: on-failure
     environment:
       PUID: "1000"
